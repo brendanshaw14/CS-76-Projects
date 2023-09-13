@@ -1,10 +1,12 @@
-from CannibalProblem import CannibalProblem
+# By Brendan Shaw, 2023- Adapted from Dartmouth COSC76 Course Materials by Devin Balcom
+
+from FoxesProblem import FoxesProblem
 from uninformed_search import bfs_search, dfs_search, ids_search
 
 # Create a few test problems:
-problem331 = CannibalProblem((3, 3, 1))
-problem541 = CannibalProblem((5, 4, 1))
-problem551 = CannibalProblem((5, 5, 1))
+problem331 = FoxesProblem((3, 3, 1))
+problem541 = FoxesProblem((5, 4, 1))
+problem551 = FoxesProblem((5, 5, 1))
 
 # Run the searches.
 #  Each of the search algorithms should return a SearchSolution object,
