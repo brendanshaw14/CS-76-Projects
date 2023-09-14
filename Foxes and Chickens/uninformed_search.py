@@ -22,30 +22,25 @@ class SearchNode:
 def bfs_search(search_problem):
     # initialize queue, add the first node
     queue = deque()
-    # initialize the queue with a node containing the starting state of the search_problem
     queue.append(SearchNode(search_problem.start_state)) 
-    # initialize a new solution object
     solution = SearchSolution(search_problem, "breadth-first-search")
     while queue:
         current = queue.pop()
-        print(current)
         if current.state == search_problem.goal_state: # if this is the goal node
-            # backchain- find path and nodes visited, u 
-            # return search solution 
             path = list()
             num_nodes_visited = 0
             visited_from = current
             while visited_from is not None: 
                 num_nodes_visited += 1
-                path.append(visited_from)
+                path.append(str(visited_from))
                 visited_from = visited_from.parent
             solution.nodes_visited = num_nodes_visited
             solution.path = path
             return solution
         else: 
             for state in search_problem.get_successors(current.state): 
+                print(str(state) + ", ")
                 queue.append(SearchNode(state, current))
-
 
 ## Don't forget that your dfs function should be recursive and do path checking,
 ##  rather than memoizing (no visited set!) to be memory efficient
