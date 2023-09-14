@@ -14,13 +14,13 @@ class FoxesProblem:
             for action in actions:
                 foxes = state[0]+action[0]
                 chickens = state[1]+action[1]
-                if foxes >= 0 and chickens >= 0: 
+                if foxes >= 0 and chickens >= 0 and foxes <= chickens: 
                     successors.append((foxes, chickens, 0))
         else:
             for action in actions:
                 foxes = state[0]+action[0]
                 chickens = state[1]+action[1]
-                if foxes >= 0 and chickens >= 0: 
+                if foxes >= 0 and chickens >= 0 and foxes <= chickens: 
                     successors.append((foxes, chickens, 1))
         return successors
 

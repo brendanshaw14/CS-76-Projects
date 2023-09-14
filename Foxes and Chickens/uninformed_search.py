@@ -9,8 +9,12 @@ class SearchNode:
     # and all search nodes wrap a state object
 
     def __init__(self, state, parent=None):
-        pass
-        # you write this part
+        self.state = state
+        self.parent = parent
+
+    def __str__ (self):
+        return "State: " + str(self.state) + ", Parent: " + str(self.parent)
+
 
 # you might write other helper functions, too. For example,
 #  I like to separate out backchaining, and the dfs path checking functions
@@ -21,16 +25,27 @@ def bfs_search(search_problem):
     # initialize the queue with a node containing the starting state of the search_problem
     queue.append(SearchNode(search_problem.start_state)) 
     # initialize a new solution object
-    solution = SearchSolution(search_problem)
+    solution = SearchSolution(search_problem, "breadth-first-search")
     while queue:
-        current = queue.pop
+        current = queue.pop()
+        print(current)
         if current.state == search_problem.goal_state: # if this is the goal node
             # backchain- find path and nodes visited, u 
             # return search solution 
-            pass
+            path = list()
+            num_nodes_visited = 0
+            visited_from = current
+            while visited_from is not None: 
+                num_nodes_visited += 1
+                path.append(visited_from)
+                visited_from = visited_from.parent
+            solution.nodes_visited = num_nodes_visited
+            solution.path = path
+            return solution
         else: 
             for state in search_problem.get_successors(current.state): 
                 queue.append(SearchNode(state, current))
+
 
 ## Don't forget that your dfs function should be recursive and do path checking,
 ##  rather than memoizing (no visited set!) to be memory efficient
