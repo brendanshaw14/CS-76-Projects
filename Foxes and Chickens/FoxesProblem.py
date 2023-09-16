@@ -12,11 +12,13 @@ class FoxesProblem:
     # get successor states for the given state
     def get_successors(self, state):
         successors = list()
+        #add left side
         if state[2] == 1:
             for action in self.actions:
                 successor = ((state[0]+action[0], state[1]+action[1], 0))
                 if self.is_valid_state(successor) and successor != self.start_state:
                     successors.append(successor)
+        #add right side
         else:
             for action in self.actions:
                 successor = (state[0]-action[0], state[1]-action[1], 1)

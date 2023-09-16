@@ -13,34 +13,61 @@ class SearchNode:
         self.parent = parent
 
     def __str__ (self):
-        return "State: " + str(self.state) + ", Parent: " + str(self.parent)
+        return "State: " + str(self.state) # + ", Parent: " + str(self.parent)
 
 
 # you might write other helper functions, too. For example,
 #  I like to separate out backchaining, and the dfs path checking functions
 
 def bfs_search(search_problem):
-    # initialize queue, add the first node
+    # initialize queue, add the start node
     queue = deque()
     queue.append(SearchNode(search_problem.start_state)) 
-    solution = SearchSolution(search_problem, "breadth-first-search")
-    while queue:
+
+    # visted satates set to avoid revisits
+    visited_states = set() 
+
+    # track how many nodes have been visited
+    num_nodes_visited = 0
+
+    # begin the search
+    while queue: 
+        # get the next node in queue and increment num_nodes_visited
         current = queue.pop()
-        if current.state == search_problem.goal_state: # if this is the goal node
-            path = list()
-            num_nodes_visited = 0
-            visited_from = current
-            while visited_from is not None: 
-                num_nodes_visited += 1
-                path.append(str(visited_from))
-                visited_from = visited_from.parent
+        print(current)
+        num_nodes_visited += 1
+
+        # if this is the goal node, backchain 
+        if current.state == search_problem.goal_state: 
+            solution = SearchSolution(search_problem, "breadth-first-search")
+            solution.path = backchain(current)
             solution.nodes_visited = num_nodes_visited
-            solution.path = path
             return solution
+
+        # otherwise, get its unvisited successors and add them to the queue
         else: 
+            queued = "Queued: "
             for state in search_problem.get_successors(current.state): 
-                print(str(state) + ", ")
-                queue.append(SearchNode(state, current))
+                # check if already visited
+                if state not in visited_states:
+                    visited_states.add(current.state)
+                    queued += str(state) + ", "
+                    queue.append(SearchNode(state, current))
+            print(queued)
+
+# Backchain function for BFS to reconstruct the path
+def backchain(goal):
+    path = []
+    current_node = goal
+
+    # Start from the goal node and follow parent references
+    while current_node is not None:
+        path.append(str(current_node))
+        current_node = current_node.parent
+
+    # Reverse the path to get it in the correct order and return it
+    path.reverse()
+    return path
 
 ## Don't forget that your dfs function should be recursive and do path checking,
 ##  rather than memoizing (no visited set!) to be memory efficient
