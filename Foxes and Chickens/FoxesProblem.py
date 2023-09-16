@@ -26,7 +26,7 @@ class FoxesProblem:
 
     def is_valid_state(self, state):
         # is the left side good? 
-        if state[0] >= 0 and state[1] >= 0 and state[2] >= 0:
+        if self.start_state[0] >= state[0] >= 0 and self.start_state[1] >= state[1] >= 0 and state[2] >= 0:
             if (state[0] <= state[1]) or state[1] == 0: 
                 #is the right side good?
                 if (self.start_state[0] - state[0]) <= (self.start_state[1]-state[1]) or (self.start_state[1] - state[1]) == 0:
@@ -43,4 +43,13 @@ if __name__ == "__main__":
     test1= FoxesProblem((3, 3, 1))
     print(test1.get_successors((3, 3, 1)))
     print(test1.get_successors((2, 2, 0)))
+    print(test1.get_successors((2, 3, 1)))
+    print(test1.get_successors((0, 3, 0)))
+    print(test1.get_successors((1, 3, 1)))
+    print(test1.get_successors((1, 1, 0)))
+    print(test1.get_successors((2, 2, 1)))
+    print(test1.get_successors((2, 0, 0)))
+    print(test1.get_successors((3, 0, 1)))
+    print(test1.get_successors((1, 0, 0)))
+    print(test1.get_successors((1, 1, 1)))
 
