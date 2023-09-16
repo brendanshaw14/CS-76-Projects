@@ -9,20 +9,30 @@ class FoxesProblem:
     # get successor states for the given state
     def get_successors(self, state):
         successors = list()
-        actions = [(-2, 0, -1), (-1, 0, -1), (-1, -1, -1), (0, -1, -1), (0, -2, -1)]
         if state[2] == 1:
+            actions = [(-2, 0, -1), (-1, 0, -1), (-1, -1, -1), (0, -1, -1), (0, -2, -1)]
             for action in actions:
                 foxes = state[0]+action[0]
                 chickens = state[1]+action[1]
                 if foxes >= 0 and chickens >= 0 and foxes <= chickens: 
                     successors.append((foxes, chickens, 0))
         else:
+            actions = [(2, 0, 1), (1, 0, 1), (1, 1, 1), (0, 1, 1), (0, 2, 1)]
             for action in actions:
-                foxes = state[0]+action[0]
+                foxes = self.start_state[0]-(state[0])+action[0]
                 chickens = state[1]+action[1]
                 if foxes >= 0 and chickens >= 0 and foxes <= chickens: 
                     successors.append((foxes, chickens, 1))
         return successors
+
+    def is_valid_state(self, state):
+        # is the left side good? 
+        if (state[0] <= state[1]) or state[1] == 0: 
+            #is the right side good?
+            if (self.start_state[0] - state[0]) <= (self.start_state[1]-state[1]) or (self.start_state[0] - state[0]) == 0:
+                return True
+        return False
+
 
     def __str__(self):
         string =  "Foxes and chickens problem: " + str(self.start_state)
