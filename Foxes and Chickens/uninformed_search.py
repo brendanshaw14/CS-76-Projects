@@ -26,6 +26,7 @@ def bfs_search(search_problem):
 
     # visted satates set to avoid revisits
     visited_states = set() 
+    visited_states.add(search_problem.start_state) 
 
     # track how many nodes have been visited and initialize the solution
     solution = SearchSolution(search_problem, "breadth-first-search")
