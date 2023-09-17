@@ -55,6 +55,8 @@ def bfs_search(search_problem):
                     queued += str(state) + ", "
                     queue.append(SearchNode(state, current))
             print(queued)
+    solution.nodes_visited = num_nodes_visited
+    return solution
 
 # Backchain function for BFS to reconstruct the path
 def backchain(goal):
@@ -81,8 +83,28 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
     if node == None:
         node = SearchNode(search_problem.start_state)
         solution = SearchSolution(search_problem, "DFS")
+    #increment the nodes visited and add it to the path
+    print("adding " + str(node))
+    solution.nodes_visited += 1
+    solution.path.append(node)
+    # print("Path: ")
+    # for node in solution.path:
+        # print(node)
 
-    # you write this part
+    # base case: when the node is the goal_state
+    if node.state == search_problem.goal_state:
+        return solution
+
+    # if depth limit reached: return the solution with an empty path
+    if len(solution.path) == depth_limit:
+        solution.path = []
+        return solution
+
+    # regular case: node isn't goal state
+    for successor in search_problem.get_successors(node.state):
+        if successor not in solution.path:
+            new_node = SearchNode(successor)
+            return dfs_search(search_problem, depth_limit, new_node, solution)
 
 
 
