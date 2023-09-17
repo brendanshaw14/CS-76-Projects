@@ -27,19 +27,19 @@ def bfs_search(search_problem):
     # visted satates set to avoid revisits
     visited_states = set() 
 
-    # track how many nodes have been visited
+    # track how many nodes have been visited and initialize the solution
+    solution = SearchSolution(search_problem, "breadth-first-search")
     num_nodes_visited = 0
 
     # begin the search
     while queue: 
         # get the next node in queue and increment num_nodes_visited
-        current = queue.pop()
+        current = queue.popleft()
         print(current)
         num_nodes_visited += 1
 
         # if this is the goal node, backchain 
         if current.state == search_problem.goal_state: 
-            solution = SearchSolution(search_problem, "breadth-first-search")
             solution.path = backchain(current)
             solution.nodes_visited = num_nodes_visited
             return solution
