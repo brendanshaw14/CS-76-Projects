@@ -46,7 +46,7 @@ class FoxesProblem:
 
 # tests
 if __name__ == "__main__":
-    test1= FoxesProblem((3, 3, 1))
+    test1= FoxesProblem((5, 5, 1))
     #print(test1.get_successors((3, 3, 1)))
     #print(test1.get_successors((2, 2, 0)))
     #print(test1.get_successors((2, 3, 1)))
@@ -59,6 +59,7 @@ if __name__ == "__main__":
     #print(test1.get_successors((1, 0, 0)))
     #print(test1.get_successors((1, 1, 1)))
 
-    print(test1.get_successors((1, 1, 0)))
+    print(test1.get_successors((4, 4, 0)))
+    print(test1.get_successors((4, 5, 0)))
 
 
