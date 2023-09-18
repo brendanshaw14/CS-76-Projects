@@ -12,25 +12,29 @@ class FoxesProblem:
     # get successor states for the given state
     def get_successors(self, state):
         successors = list()
-        #add left side
+        # add left side actions
         if state[2] == 1:
             for action in self.actions:
                 successor = ((state[0]+action[0], state[1]+action[1], 0))
                 if self.is_valid_state(successor):
                     successors.append(successor)
-        #add right side
+        # add right side actions
         else:
             for action in self.actions:
                 successor = (state[0]-action[0], state[1]-action[1], 1)
+                # add valid states
                 if self.is_valid_state(successor):
                     successors.append(successor)
         return successors
 
     def is_valid_state(self, state):
-        # is the left side good? 
-        if self.start_state[0] >= state[0] >= 0 and self.start_state[1] >= state[1] >= 0 and state[2] >= 0:
+        # test if foxes and chickens are in range
+        foxes_in_range = self.start_state[0] >= state[0] >= 0
+        chickens_in_range = self.start_state[1] >= state[1] >= 0
+
+        if  foxes_in_range and chickens_in_range and state[2] >= 0:
+            # make sure there aren't more foxes than chickens on the left and right sides?
             if (state[0] <= state[1]) or state[1] == 0: 
-                #is the right side good?
                 if (self.start_state[0] - state[0]) <= (self.start_state[1]-state[1]) or (self.start_state[1] - state[1]) == 0:
                     return True
         return False

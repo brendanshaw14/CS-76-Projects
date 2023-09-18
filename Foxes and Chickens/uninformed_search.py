@@ -36,7 +36,6 @@ def bfs_search(search_problem):
     while queue: 
         # get the next node in queue and increment num_nodes_visited
         current = queue.popleft()
-        print(current)
         num_nodes_visited += 1
 
         # if this is the goal node, backchain 
@@ -47,14 +46,11 @@ def bfs_search(search_problem):
 
         # otherwise, get its unvisited successors and add them to the queue
         else: 
-            queued = "Queued: "
             for state in search_problem.get_successors(current.state): 
                 # check if already visited
                 if state not in visited_states:
                     visited_states.add(current.state)
-                    queued += str(state) + ", "
                     queue.append(SearchNode(state, current))
-            print(queued)
     solution.nodes_visited = num_nodes_visited
     return solution
 
@@ -82,29 +78,43 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
     # if no node object given, create a new search from starting state
     if node == None:
         node = SearchNode(search_problem.start_state)
-        solution = SearchSolution(search_problem, "DFS")
-    #increment the nodes visited and add it to the path
-    print(str(solution))
-    print("adding " + str(node))
-    solution.nodes_visited += 1
-    solution.path.append(node.state)
+        solution = SearchSolution(search_problem, "depth-first search")
 
-    # base case: when the node is the goal_state
+    # base cases: when the node is the goal_state
     if node.state == search_problem.goal_state:
         return solution
 
-    # if depth limit reached: return the solution with an empty path
+    # base case 2: if depth limit reached: return the solution with an empty path
     if len(solution.path) == depth_limit:
         solution.path = []
         return solution
 
-    # regular case: node isn't goal state
-    for successor in search_problem.get_successors(node.state):
-        if successor not in solution.path:
-            new_node = SearchNode(successor)
-            return dfs_search(search_problem, depth_limit, new_node, solution)
+    # recursive case: increment the nodes visited and add it to the path
+    if node.state not in solution.path:
+        solution.nodes_visited += 1
+        solution.path.append(node.state)
+
+        successors = search_problem.get_successors(node.state)
+        if len(successors) > 0:
+            for successor in successors:
+                new_node = SearchNode(successor)
+                dfs = dfs_search(search_problem, depth_limit, new_node, solution)
+                if len(dfs.path) == 0:
+                    continue
+                else:
+                    return dfs
+    solution.path = []
+    return solution
 
 
-
-#def ids_search(search_problem, depth_limit=100):
-    ## you write this part
+def ids_search(search_problem, depth_limit=100):
+    num_nodes_visited = 0
+    for i in range(depth_limit + 1):
+        dfs = dfs_search(search_problem, i)
+        num_nodes_visited += dfs.nodes_visited
+        if len(dfs.path) > 0: 
+            dfs.search_method = "iterative-deepening search"
+            return dfs
+    solution = SearchSolution(search_problem, "iterative-deepening search")
+    solution.nodes_visited = num_nodes_visited
+    return solution
