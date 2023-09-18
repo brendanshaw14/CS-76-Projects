@@ -68,57 +68,65 @@ def backchain(goal):
     path.reverse()
     return path
 
-## Don't forget that your dfs function should be recursive and do path checking,
-##  rather than memoizing (no visited set!) to be memory efficient
 
-## We pass the solution along to each new recursive call to dfs_search
-##  so that statistics like number of nodes visited or recursion depth
-##  might be recorded
 def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
     # if no node object given, create a new search from starting state
     if node == None:
         node = SearchNode(search_problem.start_state)
         solution = SearchSolution(search_problem, "depth-first search")
 
-   # base case 2: if depth limit reached: return the solution with an empty path
+    # base case 1: if depth limit reached: go to the next branch at same depth, if existent, if not, go back up the tree
     if len(solution.path) == depth_limit:
         return solution
 
-        # base cases: when the node is the goal_state
+    # base cases: when the node is the goal_state: add to the path
     if node.state == search_problem.goal_state:
         solution.nodes_visited += 1
         solution.path.append(node.state)
         return solution
 
+    # recursive case: add the current node, get its successors
     successors = search_problem.get_successors(node.state)
-    if len(successors) > 0:
-        solution.nodes_visited += 1
-        solution.path.append(node.state)
+    solution.nodes_visited += 1
+    solution.path.append(node.state)
 
+    #if it has successors, loop through them
+    if len(successors) > 0:
         for successor in successors:
+            #if the successor is not alreadyin the path, call dfs on it
             if successor not in solution.path:
                 prev_length = len(solution.path)
                 new_node = SearchNode(successor)
                 dfs = dfs_search(search_problem, depth_limit, new_node, solution)
+
+                # if the dfs call updates the solution to a path length larger than the current one, return it. 
+                # otherwise, go to the next successor.
                 if len(dfs.path) == prev_length:
                     continue
                 else:
                     return dfs
+                
+    # if no successors were found or no successors returned longer paths, return the same path
     solution.path.pop()
     return solution
 
 
 def ids_search(search_problem, depth_limit=100):
+    # keep track of the nodes visited and the path
     num_nodes_visited = 0
     path = []
+    # iteratively call the ids search
     for i in range(1, depth_limit + 1):
+        # at each call, save the number of nodes visited
         dfs = dfs_search(search_problem, i)
-        print(i, dfs)
         num_nodes_visited += dfs.nodes_visited
-        
+
+        # if there was a path returned, save it and stop the loop 
         if len(dfs.path) > 0: 
             path = dfs.path
             break
+
+    # create the solution object and return it
     solution = SearchSolution(search_problem, "iterative-deepening search")
     solution.nodes_visited = num_nodes_visited
     solution.path = path
