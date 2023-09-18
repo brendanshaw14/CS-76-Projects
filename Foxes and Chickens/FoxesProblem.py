@@ -59,6 +59,6 @@ if __name__ == "__main__":
     #print(test1.get_successors((1, 0, 0)))
     #print(test1.get_successors((1, 1, 1)))
 
-    print(test1.get_successors((2, 2, 0)))
+    print(test1.get_successors((1, 1, 0)))
 
 

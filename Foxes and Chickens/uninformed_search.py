@@ -79,6 +79,7 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
     if node == None:
         node = SearchNode(search_problem.start_state)
         solution = SearchSolution(search_problem, "depth-first search")
+    print(node)
 
     # base cases: when the node is the goal_state
     if node.state == search_problem.goal_state:
@@ -90,19 +91,27 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
         return solution
 
     # recursive case: increment the nodes visited and add it to the path
-    if node.state not in solution.path:
-        solution.nodes_visited += 1
-        solution.path.append(node.state)
+    solution.nodes_visited += 1
+    solution.path.append(node.state)
 
-        successors = search_problem.get_successors(node.state)
-        if len(successors) > 0:
-            for successor in successors:
+    successors = search_problem.get_successors(node.state)
+    print("Path: " + str(solution.path))
+    print("Successors of " + str(node.state) + " :" + str(successors))
+    if len(successors) > 0:
+        for successor in successors:
+            if successor not in solution.path:
+                print("testing successor of " + str(node) + ": " + str(successor))
                 new_node = SearchNode(successor)
                 dfs = dfs_search(search_problem, depth_limit, new_node, solution)
-                if len(dfs.path) == 0:
+                print(str(len(dfs.path)), str(len(solution.path)))
+                if len(dfs.path) == len(solution.path):
+                    print("Continued")
                     continue
                 else:
                     return dfs
+        print("returning unmodified solution: finished for loop")
+        solution.path.pop()
+        return solution
     solution.path = []
     return solution
 
