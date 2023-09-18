@@ -84,12 +84,10 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
         node = SearchNode(search_problem.start_state)
         solution = SearchSolution(search_problem, "DFS")
     #increment the nodes visited and add it to the path
+    print(str(solution))
     print("adding " + str(node))
     solution.nodes_visited += 1
-    solution.path.append(node)
-    # print("Path: ")
-    # for node in solution.path:
-        # print(node)
+    solution.path.append(node.state)
 
     # base case: when the node is the goal_state
     if node.state == search_problem.goal_state:
