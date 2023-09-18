@@ -79,44 +79,47 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
     if node == None:
         node = SearchNode(search_problem.start_state)
         solution = SearchSolution(search_problem, "depth-first search")
-    # base cases: when the node is the goal_state
-    if node.state == search_problem.goal_state:
-        return solution
 
-    # base case 2: if depth limit reached: return the solution with an empty path
+   # base case 2: if depth limit reached: return the solution with an empty path
     if len(solution.path) == depth_limit:
-        solution.path = []
         return solution
 
-    # recursive case: increment the nodes visited and add it to the path
-    solution.nodes_visited += 1
-    solution.path.append(node.state)
+        # base cases: when the node is the goal_state
+    if node.state == search_problem.goal_state:
+        solution.nodes_visited += 1
+        solution.path.append(node.state)
+        return solution
 
     successors = search_problem.get_successors(node.state)
-    print("Path: " + str(solution.path))
-    print("Successors of " + str(node) + " :" + str(successors))
     if len(successors) > 0:
+        solution.nodes_visited += 1
+        solution.path.append(node.state)
+
         for successor in successors:
             if successor not in solution.path:
-                print("testing successor of " + str(node) + ": " + str(successor))
+                prev_length = len(solution.path)
                 new_node = SearchNode(successor)
                 dfs = dfs_search(search_problem, depth_limit, new_node, solution)
-                if len(dfs.path) == len(solution.path):
+                if len(dfs.path) == prev_length:
                     continue
                 else:
                     return dfs
-        solution.path.pop()
-        return solution
+    solution.path.pop()
+    return solution
 
 
 def ids_search(search_problem, depth_limit=100):
     num_nodes_visited = 0
-    for i in range(depth_limit + 1):
+    path = []
+    for i in range(1, depth_limit + 1):
         dfs = dfs_search(search_problem, i)
+        print(i, dfs)
         num_nodes_visited += dfs.nodes_visited
+        
         if len(dfs.path) > 0: 
-            dfs.search_method = "iterative-deepening search"
-            return dfs
+            path = dfs.path
+            break
     solution = SearchSolution(search_problem, "iterative-deepening search")
     solution.nodes_visited = num_nodes_visited
+    solution.path = path
     return solution
