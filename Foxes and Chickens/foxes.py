@@ -16,12 +16,12 @@ problem551 = FoxesProblem((5, 5, 1))
 
 print(bfs_search(problem331))
 print(dfs_search(problem331))
-# print(ids_search(problem331))
+print(ids_search(problem331))
 
 print(bfs_search(problem551))
 print(dfs_search(problem551))
-# print(ids_search(problem551))
+print(ids_search(problem551))
 
-# print(bfs_search(problem451))
-# print(dfs_search(problem451))
-# print(ids_search(problem451))
+print(bfs_search(problem451))
+print(dfs_search(problem451))
+print(ids_search(problem451))

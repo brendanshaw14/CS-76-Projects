@@ -93,12 +93,9 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
     solution.path.append(node.state)
 
     successors = search_problem.get_successors(node.state)
-    print("Path: " + str(solution.path))
-    print("Successors of " + str(node) + " :" + str(successors))
     if len(successors) > 0:
         for successor in successors:
             if successor not in solution.path:
-                print("testing successor of " + str(node) + ": " + str(successor))
                 new_node = SearchNode(successor)
                 dfs = dfs_search(search_problem, depth_limit, new_node, solution)
                 if len(dfs.path) == len(solution.path):
@@ -111,7 +108,8 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
 
 def ids_search(search_problem, depth_limit=100):
     num_nodes_visited = 0
-    for i in range(depth_limit + 1):
+    for i in range(1, depth_limit + 1):
+        print(i)
         dfs = dfs_search(search_problem, i)
         num_nodes_visited += dfs.nodes_visited
         if len(dfs.path) > 0: 
