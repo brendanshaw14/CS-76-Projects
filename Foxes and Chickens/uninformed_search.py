@@ -61,7 +61,7 @@ def backchain(goal):
 
     # Start from the goal node and follow parent references
     while current_node is not None:
-        path.append(str(current_node))
+        path.append(current_node.state)
         current_node = current_node.parent
 
     # Reverse the path to get it in the correct order and return it
@@ -75,38 +75,37 @@ def dfs_search(search_problem, depth_limit=100, node=None, solution=None):
         node = SearchNode(search_problem.start_state)
         solution = SearchSolution(search_problem, "depth-first search")
 
-    # base case 1: if depth limit reached: go to the next branch at same depth, if existent, if not, go back up the tree
-    if len(solution.path) == depth_limit:
-        return solution
-
-    # base cases: when the node is the goal_state: add to the path
+    # base case 1: when the node is the goal_state: add to the path
     if node.state == search_problem.goal_state:
         solution.nodes_visited += 1
         solution.path.append(node.state)
         return solution
 
-    # recursive case: add the current node, get its successors
+    # base case 2: if depth limit reached or node is a leaf: go to the next branch at same depth, if existent, if not, go back up the tree
     successors = search_problem.get_successors(node.state)
+    if len(solution.path) == depth_limit or len(successors) == 0:
+        return solution
+
+    # recursive case below: add the current node
     solution.nodes_visited += 1
     solution.path.append(node.state)
 
-    #if it has successors, loop through them
-    if len(successors) > 0:
-        for successor in successors:
-            #if the successor is not alreadyin the path, call dfs on it
-            if successor not in solution.path:
-                prev_length = len(solution.path)
-                new_node = SearchNode(successor)
-                dfs = dfs_search(search_problem, depth_limit, new_node, solution)
+    # loop through its successors
+    for successor in successors:
+        #if the successor is not alreadyin the path, call dfs on it
+        if successor not in solution.path:
+            prev_length = len(solution.path)
+            new_node = SearchNode(successor)
+            dfs_search(search_problem, depth_limit, new_node, solution)
 
-                # if the dfs call updates the solution to a path length larger than the current one, return it. 
-                # otherwise, go to the next successor.
-                if len(dfs.path) == prev_length:
-                    continue
-                else:
-                    return dfs
-                
-    # if no successors were found or no successors returned longer paths, return the same path
+            # if the dfs call updates the solution to a path length larger than the current one, return it. 
+            # otherwise, go to the next successor.
+            if len(solution.path) == prev_length:
+                continue
+            else:
+                return solution
+
+    # if no successors returned longer paths, return the same path
     solution.path.pop()
     return solution
 

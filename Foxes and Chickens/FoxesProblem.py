@@ -1,3 +1,6 @@
+# Author: Brendan Shaw-- Adapted from COSC Foxes and Chickens by Devin Balcom
+# Date: 9/23
+# FoxesProblem class to represent the foxes and chickens game and implement methods to validate states and retrieve successor states using actions
 class FoxesProblem:
     # global variables
     actions = [(-2, 0, -1), (-1, 0, -1), (-1, -1, -1), (0, -1, -1), (0, -2, -1)]
@@ -43,6 +46,7 @@ class FoxesProblem:
     def __str__(self):
         string =  "Foxes and chickens problem: " + str(self.start_state)
         return string
+
 
 # tests
 if __name__ == "__main__":

@@ -34,6 +34,10 @@ else (the boat is on the right side):
 return the list
 ```
 
+To test the `get_successors` function, I called it on a series of states and calculated the valid successors on my own to compare, and everything looked good. 
+
+Note** I saw mention of the `goal_state` function in the notes, but at least for the purposes of the type of games we would use this algorithm for, I figured that this was unecessary and that simply comparing the `search_problem.goal_state` to the current node's state would suffice, since it can be done directly (assuming consistent state representations).
+
 ## Breadth-First Search 
 
 ### Implementation
@@ -65,3 +69,89 @@ return the path
 ```
 
 ### Testing
+
+To test the breadth-first search, I used the game state tree created in the introduction. Everything looked good, so from that point I inserted a few print statements to check the state of the queue and see which state was currently being examined at each step. I first checked this to make sure that the states made sense-- i.e. that they were all legal states coming from valid successors. I already tested the successor methods before, but I wanted to double check. Then, I traced through the rest of the path returned and even used my `get_successors` method on its own to ensure that the states were being visited correctly, and that no invalid states were visited. 
+
+I also googled a shortest-path solution to the `(3, 3, 1)` problem and it matched my BFS solution perfectly. 
+
+## Memoizing Depth-First Search Discussion: 
+
+Although I did not implement the memoizing DFS, I discuss its time and space comlexities below. In the case of both the memoizing DFS and the BFS, the space complexity is equal to the time complexity. However, this value differs between the two: for BFS, it is O(min(n, b^d)), while for memoizing DFS, it is O(min(n, b^m)), where `n` is the state space size, `b` is the branching factor, `d` is the depth of the goal, and `m` is the length of the longest path. Accordingly, memoizing DFS doesn't save much space-- at the very most, the depth `d` of the goal will be equal to the longest path `m`, so the space complexity of memoizing DFS will be greater than or equal to the space complexity of BFS at the worst.
+
+## Path-Checking Depth-First Search
+
+### Implementation
+
+Although I considered writing a helper functin for the `dfs_search`, I decided to go with just one function to call recursively for simplicity. First is initializing the start_node: this is obvious. 
+
+From here, I though of the three base cases: reaching the `depth_limit`, reaching a leaf, or finding the `goal_state`. Handling them is slightly complicated, because we want to traverse back up the tree if the goal_state is found, but continue searching if a leaf is reached or the depth limit is reached. 
+
+Accordingly, I handle the `goal_state` base case just by adding the `goal_state` node to the path, and then returning the solution before any further recursive calls are made. This instantly passes the solution with the path up the recursive call stack and returns it. 
+
+Since we handle the leaf and depth limit cases the same- by continuing the search laterally but not going any deeper- I handled them in the same way. To do this, I first retrieve the successors of the node (storing them to use later if they exist). Then, I check if either the length of the `successors` list returned from the `get_successors` is empty or if the depth has been reached to satisfy both cases. If either are true, I return the existing solution. This is handled by the recursive case. 
+
+For the recursive case where we assume the node is not the goal state node, it has successors, and we are free to continue searching deeper, I iterate through each of the successors. To avoid revisits, I check if it is in the solution path already. Then, I remember the current length of the path, and then call `dfs_search` recursively, passing it the successor to visit it and update the solution. Since I am just passing this one solution object down the tree, I know its path length will be increased if the node we passed it is the goal node or has successors, so I then check to see if the length has changed. 
+
+If the length of the solution's path has not changed, we know it is a leaf or we are at the depth limit, so we continue to the next successor in the for loop. Otherwise, we know that the recursive calls have already been made, so any updates to our solution will be executed at this point, so we just return it. 
+
+Finally, in the case that successors exist, but none of them return valid paths (which means no return is executed), we pop the most recently added node from the list, returning the initial solution (which will passed back up the stack until there are no more calls left or a longer path is found)
+
+Pseudocode is as follows: 
+```
+if no node given, initialize the start_node and solution
+base case 1: if the goal is found
+    add it to the path and return the solution
+base case 2: if a leaf is reached or the depth limit is reached
+    return the existing solution to continue the search laterally
+recursive case: 
+for each successors
+    call dfs to update the solution 
+    if the length of solution doesn't change
+        go to the next successor
+    if it does
+        return it
+if no successors returned
+    pop the current node and return the current solution
+```
+
+### Testing 
+
+In order to test the depth first search, I once again used print-statements to verify that the tree was being traversed correctly. At each step, I printed the current node being visited, it's successors, if any, and the current path. This allowed me to draw an accurate game tree as it was constructed by the algorithm on paper, and run back through it to make sure that each call was visiting the correct node. I did this for the `(3, 3, 1)` scenario tree, and checked every step. 
+
+I also tested this using my own pre-programmed `depth-limit`, which allowed me to make sure that it was working properly. 
+
+## Iterative Deepening Search
+
+### Implementation
+
+Lastly, I implemented the IDS simply by initializing variables to store the path and the number of nodes visited, and then iteratively calling `dfs_search` and incrementing the depth limit each time till a path is found. Pseudo is as follows: 
+
+```
+remember path and nodes visited
+loop through indexes 1 through depth limit
+    increment the number of nodes visited after each search
+    if a path is found
+        stop iteration
+return the solution, which will have an empty path if not found
+```
+This method results in very low memory usage (it only has to store the current path using path checking dfs, and we guarantee this will be the shortest path), but very high runtime (we search each node i-d times, where i is the current max depth, and d is the depth of the node.)
+
+### Testing
+
+I tested the ids by (once again) using print statements. This time, I embedded them in both the dfs and ids algorithms, that way I could ensure that both were working together in tandem. For example, I had the ids algorithm print out the dfs response after each iteration, allowing me to check that the path and depth was calculated correctly. I also tested the entire algorithm on the test problems I used for the others, ensuring that the `path` and `nodes visited` were working correctly in all scenarios. This all looked good to me-- I didn't trace every step of the tree like in the dfs before, but after all, it was the same algorithm that I did test. 
+
+As for which search method I would use on a graph, I would probably implement path checking dfs in tandem with the ids algorithm. If you're using the ids, your priority obviously isn't runtime-- it's saving memory. Using memoization would be counterintuitive in this scenario, since (as discussed above), we can assume it will use as much as or more space than the path checking dfs (usually, it will use much more). 
+
+In comparison with the dfs agorithms, I would only use ids if memory was my top priority and runtime didn't really matter. Path checking dfs is the second most advantageous for memory, while memoizing is least advantageous.
+
+## Discussion: Lossy Chickens and Foxes
+
+If a few chickens were willing to be eaten for the greater good, we'd have to use another variable in the state to represent the number of chickens left that are willing to be eaten. I'd just add this to the tuple: `(foxes, chickens, boats, sacrificial chickens)`. I'd then store the original amount of chickens willing to be eaten in the `start_state`. This wouldn't change the actions for a problem if our boat only holds two animals at any time, but it would definitely change which states are valid. For example, the state, `(2, 1, 1)` was not valid before, but the state `(2, 1, 1, 2)` is certainly valid despite having more foxes than chickens on one side, since that chicken would be willing to be eaten. Now, possible solutions would be `(f)(c)(b)(e)`, including legal states. Legal states now must satisfy the conditin `c <= f - e` on both sides. 
+
+## Extra Credit: 
+
+Obviously just looking at states for these problems gets a bit messy... so visualization is helpful. In my `foxes.py`, find the function `visualize_solution` that taxes a `search_problem` and a `path`, and visualizes it in console output. This isn't super fancy, but note the following: 
+- The boat will be displayed separately from the foxes and chickens, with a `B`. 
+- Foxes and chickens will be displayed with `C` and `B`, on their respective sides
+- The river is marked with a `|`
+- Each state is separated by the adequate number of `-` for each problem, given its size. 
