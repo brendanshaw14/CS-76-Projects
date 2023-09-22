@@ -68,7 +68,18 @@ class MazeworldProblem:
 #  work as expected.
 
 if __name__ == "__main__":
-    test_maze3 = Maze("maze3.maz")
-    test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
+    test_maze2 = Maze("maze2.maz")
+    test_mp = MazeworldProblem(test_maze2, (2, 2))
 
-    print(test_mp.get_successors((0, 1, 0, 1, 2, 2)))
+    # one robot tests: these are all passed
+    print(test_mp.get_successors((1, 0))) # should be [(1, 1)]
+    print(test_mp.get_successors((1, 1))) # should be [(1, 0), (2, 1)]
+    print(test_mp.get_successors((2, 1))) # should be [(1, 1), (3, 1), (2, 2)]
+    print(test_mp.get_successors((3, 1))) # should be [(3, 0), (2, 1)]
+    print(test_mp.get_successors((3, 0))) # should be [(3, 1))]
+    print(test_mp.get_successors((2, 2))) # should be [(2, 1)]
+
+    # two robot tests: all passed
+    print(test_mp.get_successors((1, 0, 1, 1))) # should be [(1, 1, 1, 1), (1, 0, 1, 0), (1, 0, 2, 1)]
+    print(test_mp.get_successors((2, 2, 3, 1))) # should be [(2, 1, 3, 1), (2, 2, 3, 0), (2, 2, 2, 1)]
+    print(test_mp.get_successors((2, 2, 3, 0))) # should be [(2, 1, 3, 0), (2, 2, 3, 1)]
