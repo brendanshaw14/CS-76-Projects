@@ -28,8 +28,31 @@ class MazeworldProblem:
             print(str(self.maze))
 
     # TODO: write the get_successors function here
-    def get_successors(self):
+    def get_successors(self, state):
+        # make sure there are whole robots (an even number of values in the tuple)
+        if len(state) % 2 != 0: 
+            return None
+
+        # initialize empty successor set and movements set
         successors = []
+        actions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+
+        # for each robot-  we want to move just that robot, not the others
+        for i in range(0, len(state), 2):
+            # get current robot's x and y
+            x, y = state[i], state[i+1]
+            # for each action
+            for dx, dy in actions:
+                new_x, new_y = x + dx, y + dy
+    
+                if self.maze.is_floor(new_x, new_y): 
+                    # Copy the current state into a list
+                    successor = list(state)
+                    # Change the current robots location
+                    successor[i], successor[i+1] = new_x, new_y
+                    #convert back to a tuple
+                    successors.append(tuple(successor))
+
         return successors
 
     # TODO: write the goaltest function here
@@ -45,7 +68,7 @@ class MazeworldProblem:
 #  work as expected.
 
 if __name__ == "__main__":
-    test_maze3 = Maze("Mazeworld/maze3.maz")
+    test_maze3 = Maze("maze3.maz")
     test_mp = MazeworldProblem(test_maze3, (1, 4, 1, 3, 1, 2))
 
-    print(test_mp.get_successors((0, 1, 0, 1, 2, 2, 1)))
+    print(test_mp.get_successors((0, 1, 0, 1, 2, 2)))

@@ -16,8 +16,10 @@ class AstarNode:
         return self.heuristic + self.transition_cost
 
 
-    # comparison operator,
-    # needed for heappush and heappop to work with AstarNodes:
+    def __str__(self):
+        return "State: " + str(self.state)
+
+    # comparison operator, needed for heappush and heappop to work with AstarNodes:
     def __lt__(self, other):
         return self.priority() < other.priority()
 
@@ -74,3 +76,8 @@ def astar_search(search_problem, heuristic_fn):
     # if the frontier is empty, return the empty solution
     solution.path = []
     return solution
+
+if __name__ == "__main__":
+    new_node = AstarNode((3, 3), 5)
+    print(new_node)
+
