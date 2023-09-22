@@ -61,7 +61,7 @@ def astar_search(search_problem, heuristic_fn):
             return solution
 
         # get the successor states
-        successors = search_problem.get_successors(current_node)
+        successors = search_problem.get_successors(current_node.state)
         # loop through each
         for successor in successors:        
             # calcuate the new cost
