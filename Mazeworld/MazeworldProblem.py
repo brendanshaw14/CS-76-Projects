@@ -19,21 +19,17 @@ class MazeworldProblem:
         string += "Number of Robots: " + str(self.num_robots) + "\n"
         string += "Start State: " + str(self.start_state) + "\n"
         string += "Goal Locations: " + str(self.goal_locations) + "\n"
+        string += "Robot Locations" + str(self.maze.robotloc) + "\n"
         string += " ------------------------"
         return string
 
     #updates the maze object to store the current location of the robots for accurate is_flooor testing 
     def update(self, state):
-        print("running update")
         if (len(state)/2 - 0.5) != self.num_robots:
             return False
-        robot_locations = []
         # for each robot
-        for i in range(self.num_robots):
-            # get the current robot's location and add it to the set
-            robot_index = i * 2 + 1 
-            robot_locations.append((state[robot_index], state[robot_index+1]))
-        self.maze.robotloc = robot_locations
+        state = list(state)
+        self.maze.robotloc = state[1:]
         return True
          
     # given a sequence of states (including robot turn), modify the maze and print it out.
@@ -51,13 +47,17 @@ class MazeworldProblem:
 
 
     def get_successors(self, state):
-        print(state)
-        # initialize empty successor set and movements set, including passing on the turn
+        # initialize empty successor set and actions set
         successors = []
-
+        actions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+    
         # determine whether or not to include just switching the turn as an action
-        if len(state) > 3: actions = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0)]
-        else: actions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
+        if len(state) > 3: 
+            successor = list(state)
+            if successor[0] == self.num_robots - 1: successor[0] = 0
+            else: successor[0] += 1
+            successors.append(tuple(successor))
+        
 
         # get which robot's turn it is - this is the first value
         robot_turn = state[0]
@@ -70,8 +70,6 @@ class MazeworldProblem:
         for dx, dy in actions:
             #apply the action
             new_x, new_y = x + dx, y + dy
-            print(x, y, new_x, new_y)
-            print(self.maze.is_floor(new_x, new_y))
 
             # if the new location is a floor and doesn't have a robot in it 
             if self.maze.is_floor(new_x, new_y) and not (self.maze.has_robot(new_x, new_y)): 

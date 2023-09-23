@@ -67,7 +67,6 @@ class Maze:
 
     # returns True if the location is a floor
     def is_floor(self, x, y):
-        print("in is floor: x = " + str(x) + ", y = " + str(y))
         if x < 0 or x >= self.width:
             return False
         if y < 0 or y >= self.height:
