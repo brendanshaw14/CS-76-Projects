@@ -18,6 +18,7 @@ class MazeworldProblem:
         string =  "Mazeworld problem: \n"
         string += "Number of Robots: " + str(self.num_robots) + "\n"
         string += "Start State: " + str(self.start_state) + "\n"
+        string += "Goal Locations: " + str(self.goal_locations) + "\n"
         string += " ------------------------"
         return string
 
@@ -54,10 +55,10 @@ class MazeworldProblem:
         for dx, dy in actions:
             #apply the action
             new_x, new_y = x + dx, y + dy
-            print(x, y, new_x, new_y)
+            # print(x, y, new_x, new_y)
             # if the new location is a floor and doesn't have a robot in it 
             if self.maze.is_floor(new_x, new_y) and not (self.maze.has_robot(new_x, new_y)): 
-                print(x, y, new_x, new_y)
+                # print(x, y, new_x, new_y)
                 # Copy the current state into a list
                 successor = list(state) 
 
@@ -71,12 +72,21 @@ class MazeworldProblem:
 
         return successors
 
-    # TODO: write the goaltest function here
+    # returns true if every robot is in a goal location
     def goal_test(self, state):
-        """
-        ** goal if all robots are stationed in goal locations
-        """
-        return False
+        print(state)
+        goal_locations = list(self.goal_locations)
+        # loop through the number of robots
+        for i in range(self.num_robots):
+            # get the current robot
+            robot_index = i * 2 + 1 
+            robot_location = (state[robot_index], state[robot_index+1])
+            # if that robot is not in a goal location
+            if robot_location not in goal_locations: 
+                return False
+            # remove that goal location from the liast
+            goal_locations.remove(robot_location)
+        return True
 
     # TODO: write the heuristic function somewhere (not here)
     def manhattan_heuristic(node):
@@ -89,24 +99,31 @@ class MazeworldProblem:
 if __name__ == "__main__":
     test_maze2 = Maze("Mazeworld/maze2.maz")
     test_maze3 = Maze("Mazeworld/maze3.maz")
-    test_mp2 = MazeworldProblem(test_maze2, (2, 2))
-    test_mp3 = MazeworldProblem(test_maze3, (2, 2))
+    test_mp2 = MazeworldProblem(test_maze2, [(2, 2)])
+    test_mp3 = MazeworldProblem(test_maze3, [(2, 2), (3, 0)])
     print(str(test_mp2))
     print(str(test_mp3))
 
     # one robot tests: these are all passed
-    print(test_mp2.get_successors((0, 1, 0))) # should be [(1, 1)]
-    print(test_mp2.get_successors((0, 1, 1))) # should be [(1, 0), (2, 1)]
-    print(test_mp2.get_successors((0, 2, 1))) # should be [(1, 1), (3, 1), (2, 2)]
-    print(test_mp2.get_successors((0, 3, 1))) # should be [(3, 0), (2, 1)]
-    print(test_mp2.get_successors((0, 3, 0))) # should be [(3, 1))]
-    print(test_mp2.get_successors((0, 2, 2))) # should be [(2, 1)]
+    print(test_mp2.get_successors((0, 1, 0))) # should be [(0, 1, 1)]
+    print(test_mp2.get_successors((0, 2, 1))) # should be [(0, 1, 1), (0, 3, 1), (0, 2, 2)]
+    print(test_mp2.get_successors((0, 3, 1))) # should be [(0, 3, 0), (0, 2, 1)]
+    print(test_mp2.get_successors((0, 3, 0))) # should be [(0, 3, 1))]
+    print(test_mp2.get_successors((0, 2, 2))) # should be [(0, 2, 1)]
 
-    ## # two robot tests: all passed
+    # two robot tests: all passed
     print("------------------")
-    print(test_mp2.get_successors((0, 1, 0, 1, 1))) # should be [(1, 1, 1, 1), (1, 0, 1, 0), (1, 0, 2, 1)]
-    print(test_mp2.get_successors((0, 1, 0, 1, 1))) # should be [(1, 1, 1, 1), (1, 0, 1, 0), (1, 0, 2, 1)]
-    ## print(test_mp.get_successors((2, 2, 3, 1))) # should be [(2, 1, 3, 1), (2, 2, 3, 0), (2, 2, 2, 1)]
-    ## print(test_mp.get_successors((2, 2, 3, 0))) # should be [(2, 1, 3, 0), (2, 2, 3, 1)]
+    print(test_mp3.get_successors((0, 1, 0, 1, 1))) # should be [(1, 1, 1, 1, 1)]
+    print(test_mp3.get_successors((1, 1, 0, 1, 1))) # should be [(0, 1, 0, 1, 1), (0, 1, 0, 2, 1)]
 
-    ## # test robot collisions
+    # test robot collisions
+    print(test_mp2.get_successors((0, 1, 1))) # should be [(0, 2, 1)]
+
+    print("------------------")
+    # test the goal_test function
+    print(test_mp2.goal_test((0, 2, 2))) # should be true
+    print(test_mp2.goal_test((0, 2, 1))) # should be false
+    print(test_mp3.goal_test((0, 2, 2, 1, 1))) # should be false
+    print(test_mp3.goal_test((0, 2, 2, 3, 0))) # should be true
+    print(test_mp3.goal_test((0, 2, 1, 3, 0))) # should be false
+    print(test_mp3.goal_test((0, 2, 2, 2, 2))) # should be false
