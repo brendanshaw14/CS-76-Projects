@@ -22,6 +22,20 @@ class MazeworldProblem:
         string += " ------------------------"
         return string
 
+    #updates the maze object to store the current location of the robots for accurate is_flooor testing 
+    def update(self, state):
+        print("running update")
+        if (len(state)/2 - 0.5) != self.num_robots:
+            return False
+        robot_locations = []
+        # for each robot
+        for i in range(self.num_robots):
+            # get the current robot's location and add it to the set
+            robot_index = i * 2 + 1 
+            robot_locations.append((state[robot_index], state[robot_index+1]))
+        self.maze.robotloc = robot_locations
+        return True
+         
     # given a sequence of states (including robot turn), modify the maze and print it out.
     #  (Be careful, this does modify the maze!)
     def animate_path(self, path):
@@ -37,6 +51,7 @@ class MazeworldProblem:
 
 
     def get_successors(self, state):
+        print(state)
         # initialize empty successor set and movements set, including passing on the turn
         successors = []
 
@@ -55,7 +70,9 @@ class MazeworldProblem:
         for dx, dy in actions:
             #apply the action
             new_x, new_y = x + dx, y + dy
-            # print(x, y, new_x, new_y)
+            print(x, y, new_x, new_y)
+            print(self.maze.is_floor(new_x, new_y))
+
             # if the new location is a floor and doesn't have a robot in it 
             if self.maze.is_floor(new_x, new_y) and not (self.maze.has_robot(new_x, new_y)): 
                 # print(x, y, new_x, new_y)
@@ -74,7 +91,6 @@ class MazeworldProblem:
 
     # returns true if every robot is in a goal location
     def goal_test(self, state):
-        print(state)
         goal_locations = list(self.goal_locations)
         # loop through the number of robots
         for i in range(self.num_robots):
@@ -88,10 +104,34 @@ class MazeworldProblem:
             goal_locations.remove(robot_location)
         return True
 
-    # TODO: write the heuristic function somewhere (not here)
-    def manhattan_heuristic(node):
-        #
-        return 10
+# a simple manhattan distance heuristic: 
+#   - for one robot, this will just return the sum of the x and y differences
+#   between the nearest goal_location and the robot's current location. 
+#   - for multiple robots, this will be the 
+def manhattan_heuristic(search_problem, state):
+    # for each robot
+    total_distance = 0
+
+    for i in range(search_problem.num_robots):
+        # remember the distance
+        min_distance = search_problem.maze.width + search_problem.maze.height
+
+        #get the robot's location
+        robot_index = i * 2 + 1 
+        robot_location = (state[robot_index], state[robot_index+1])
+
+        # for each goal location
+        for goal_location in search_problem.goal_locations: 
+            # calculate the distance between the robot and that goal location
+            distance = abs(goal_location[0] - robot_location[0]) + abs(goal_location[1] - robot_location[1])
+            min_distance = min(distance, min_distance)
+
+        # add all of the min_distances together
+        total_distance += min_distance
+
+    return total_distance
+
+   
 
 ## A bit of test code. You might want to add to it to verify that things
 #  work as expected.
@@ -105,6 +145,7 @@ if __name__ == "__main__":
     print(str(test_mp3))
 
     # one robot tests: these are all passed
+    print("Testing get_successors: \n")
     print(test_mp2.get_successors((0, 1, 0))) # should be [(0, 1, 1)]
     print(test_mp2.get_successors((0, 2, 1))) # should be [(0, 1, 1), (0, 3, 1), (0, 2, 2)]
     print(test_mp2.get_successors((0, 3, 1))) # should be [(0, 3, 0), (0, 2, 1)]
@@ -113,17 +154,58 @@ if __name__ == "__main__":
 
     # two robot tests: all passed
     print("------------------")
+    print("Testing get_successors with two robots: \n")
     print(test_mp3.get_successors((0, 1, 0, 1, 1))) # should be [(1, 1, 1, 1, 1)]
     print(test_mp3.get_successors((1, 1, 0, 1, 1))) # should be [(0, 1, 0, 1, 1), (0, 1, 0, 2, 1)]
 
     # test robot collisions
     print(test_mp2.get_successors((0, 1, 1))) # should be [(0, 2, 1)]
-
     print("------------------")
+
     # test the goal_test function
+    print("Testing goal_test: \n")
     print(test_mp2.goal_test((0, 2, 2))) # should be true
     print(test_mp2.goal_test((0, 2, 1))) # should be false
     print(test_mp3.goal_test((0, 2, 2, 1, 1))) # should be false
     print(test_mp3.goal_test((0, 2, 2, 3, 0))) # should be true
     print(test_mp3.goal_test((0, 2, 1, 3, 0))) # should be false
     print(test_mp3.goal_test((0, 2, 2, 2, 2))) # should be false
+    print("------------------")
+
+    #test the heuristic on one robot
+    print("Testing heuristic: \n")
+    print(manhattan_heuristic(test_mp2, (0, 2, 1))) # should be 1
+    print(manhattan_heuristic(test_mp2, (0, 1, 1))) # should be 2
+    print(manhattan_heuristic(test_mp2, (0, 3, 0))) # should be 2
+
+    #test the heuristic on multiple robots
+    print("Testing heuristic on multiple robots: \n")
+    print(manhattan_heuristic(test_mp2, (0, 2, 1, 3, 0))) # should be 1
+    print(manhattan_heuristic(test_mp2, (0, 2, 1, 3, 1))) # should be 2
+    print(manhattan_heuristic(test_mp2, (0, 1, 0, 1, 1))) # should be 2
+
+    # Last test output: 
+    """
+    robot: (1, 0)
+    goal (2, 2)
+    distance: 3
+    goal (3, 0)
+    distance: 2
+    Total distance: 2
+    robot: (1, 1)
+    goal (2, 2)
+    distance: 2
+    goal (3, 0)
+    distance: 3
+    Total distance: 4
+    4
+    """
+
+    # test the update function
+    print("------------------")
+    print("Testing update function:  \n")
+    print(test_mp2.update((0, 1, 1)))
+    print(test_mp2.update((1, 1)))
+    print(test_mp2.maze.robotloc)
+    print(test_mp2.update((0,1, 2)))
+    print(test_mp2.maze.robotloc)

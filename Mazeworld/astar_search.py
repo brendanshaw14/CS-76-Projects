@@ -39,8 +39,9 @@ def backchain(node):
 
 
 def astar_search(search_problem, heuristic_fn):
+    print(search_problem)
     # I'll get you started:
-    start_node = AstarNode(search_problem.start_state, heuristic_fn(search_problem.start_state))
+    start_node = AstarNode(search_problem.start_state, heuristic_fn(search_problem, search_problem.start_state))
     frontier = []
     heappush(frontier, start_node)
 
@@ -55,14 +56,18 @@ def astar_search(search_problem, heuristic_fn):
         # get the next node
         current_node = heappop(frontier)
 
+        # update the problem, if necessary
+        # search_problem.update(current_node.state)
+
         # if it is the solution, backchain:
-        if search_problem.goal_test(current_node):
+        if search_problem.goal_test(current_node.state):
             solution.path = backchain(current_node)
             return solution
 
+        print(str(current_node))
         # get the successor states
         successors = search_problem.get_successors(current_node.state)
-        # loop through each
+        # loop through each successor 
         for successor in successors:        
             # calcuate the new cost
             new_cost = current_node.transition_cost + 1
@@ -70,7 +75,7 @@ def astar_search(search_problem, heuristic_fn):
             if successor in visited_cost and visited_cost[successor] > new_cost:
                 continue
             else:
-                new_node = AstarNode(successor, heuristic_fn(successor), current_node, new_cost) 
+                new_node = AstarNode(successor, heuristic_fn(search_problem, successor), current_node, new_cost) 
                 heappush(frontier, new_node)
 
     # if the frontier is empty, return the empty solution
