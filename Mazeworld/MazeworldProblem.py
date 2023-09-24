@@ -39,6 +39,7 @@ class MazeworldProblem:
         self.maze.robotloc = tuple(self.start_state[1:])
 
         for state in path:
+            print(state)
             print(str(self))
             self.maze.robotloc = tuple(state[1:])
             sleep(1)
@@ -50,14 +51,6 @@ class MazeworldProblem:
         # initialize empty successor set and actions set
         successors = []
         actions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-    
-        # determine whether or not to include just switching the turn as an action
-        if len(state) > 3: 
-            successor = list(state)
-            if successor[0] == self.num_robots - 1: successor[0] = 0
-            else: successor[0] += 1
-            successors.append(tuple(successor))
-        
 
         # get which robot's turn it is - this is the first value
         robot_turn = state[0]
@@ -85,6 +78,13 @@ class MazeworldProblem:
                 successor[robot_index], successor[robot_index+1] = new_x, new_y # Change the current robots location
                 successors.append(tuple(successor)) #convert back to a tuple
 
+        # determine whether or not to include just switching the turn as an action
+        if len(state) > 3: 
+            successor = list(state)
+            if successor[0] == self.num_robots - 1: successor[0] = 0
+            else: successor[0] += 1
+            successors.append(tuple(successor))
+        #return the list
         return successors
 
     # returns true if every robot is in a goal location
