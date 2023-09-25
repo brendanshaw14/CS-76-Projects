@@ -53,12 +53,12 @@ def astar_search(search_problem, heuristic_fn, test_path):
 
     # loop: while there are still items in the frontier:
     while frontier: 
-        print(str(visited_cost))
+        # print(str(visited_cost))
         # get the next node
-        print("Frontier: ")
-        for node in frontier:
-            print(node.state, end=" ")
-        print()
+        # print("Frontier: ")
+        # for node in frontier:
+            # print(node.state, end=" ")
+        # print()
         current_node = heappop(frontier)
         solution.nodes_visited += 1
         test_path.append(current_node.state)
@@ -74,8 +74,8 @@ def astar_search(search_problem, heuristic_fn, test_path):
 
         # get the successor states
         successors = search_problem.get_successors(current_node.state)
-        print("Current " + str(current_node))
-        print("Successors: " + str(successors))
+        # print("Current " + str(current_node))
+        # print("Successors: " + str(successors))
         # loop through each successor 
         for successor in successors:        
             # calcuate the new cost
