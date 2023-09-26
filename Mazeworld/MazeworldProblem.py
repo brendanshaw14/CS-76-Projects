@@ -125,7 +125,6 @@ def manhattan_heuristic(search_problem, state):
 
         # otherwise, for each goal location, if there isn't a robot in it, add it 
         for goal_location in search_problem.goal_locations: 
-            print("cum")
             if not search_problem.maze.has_robot(goal_location[0], goal_location[1]):
                 # calculate the distance between the robot and that goal location
                 distance = abs(goal_location[0] - robot_location[0]) + abs(goal_location[1] - robot_location[1])

@@ -26,14 +26,14 @@ test_path = []
 # print(solution5)
 # maze5_problem.animate_path(test_path)
 
-# print(astar_search(maze4_problem, manhattan_heuristic, test_path))
+print(astar_search(maze4_problem, manhattan_heuristic, test_path))
 # maze4_problem.animate_path(astar_search(maze4_problem, manhattan_heuristic, test_path).path)
 
 # print(maze6)
 # print(astar_search(maze6_problem, manhattan_heuristic, test_path))
 # print(maze6)
 
-print(maze4)
-print(astar_search(maze4_problem, manhattan_heuristic, test_path))
-maze4_problem.animate_path(test_path)
+# print(maze4)
+# print(astar_search(maze4_problem, manhattan_heuristic, test_path))
+# maze4_problem.animate_path(test_path)
 # print(manhattan_heuristic(maze4_problem, (0, 1, 4, 1, 3, 1, 2)))
