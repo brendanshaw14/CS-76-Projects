@@ -34,6 +34,5 @@ print(astar_search(maze4_problem, manhattan_heuristic, test_path))
 # print(maze6)
 
 # print(maze4)
-# print(astar_search(maze4_problem, manhattan_heuristic, test_path))
-# maze4_problem.animate_path(test_path)
-# print(manhattan_heuristic(maze4_problem, (0, 1, 4, 1, 3, 1, 2)))
+print(astar_search(maze4_problem, manhattan_heuristic, test_path))
+# maze4_problem.animate_path(astar_search(maze4_problem, manhattan_heuristic, test_path).path)

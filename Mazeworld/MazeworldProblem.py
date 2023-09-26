@@ -42,7 +42,7 @@ class MazeworldProblem:
             print(state)
             print(str(self))
             self.maze.robotloc = tuple(state[1:])
-            sleep(1)
+            sleep(0.5)
 
             print(str(self.maze))
 
@@ -135,6 +135,39 @@ def manhattan_heuristic(search_problem, state):
 
     return total_distance
 
+
+# modified manhattan heuristic
+def improved_manhattan_heuristic(search_problem, state):
+    # for each robot
+    total_distance = 0
+    
+    # for each robot
+    for i in range(search_problem.num_robots):
+
+        # remember the distance
+        min_distance = search_problem.maze.width + search_problem.maze.height
+
+        #get the robot's location
+        robot_index = i * 2 + 1 
+        robot_location = (state[robot_index], state[robot_index+1])
+
+        #if this robot is in a goal location, don't count it
+        if robot_location in search_problem.goal_locations:
+            continue
+
+        # otherwise, for each goal location, if there isn't a robot in it, add it 
+        for goal_location in search_problem.goal_locations: 
+            if not search_problem.maze.has_robot(goal_location[0], goal_location[1]):
+                # calculate the distance between the robot and that goal location
+                distance = abs(goal_location[0] - robot_location[0]) + abs(goal_location[1] - robot_location[1])
+                min_distance = min(distance, min_distance)
+
+        # add all of the min_distances together
+        total_distance += min_distance
+
+    return total_distance
+
+ 
    
 
 ## A bit of test code. You might want to add to it to verify that things

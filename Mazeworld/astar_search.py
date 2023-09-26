@@ -13,7 +13,7 @@ class AstarNode:
 
 
     def priority(self):
-        print(str(self) + " Priority: " + str(self.heuristic + self.transition_cost) + " Heuristic: " + str(self.heuristic) + " Cost: " + str(self.transition_cost))
+        # print(str(self) + " Priority: " + str(self.heuristic + self.transition_cost) + " Heuristic: " + str(self.heuristic) + " Cost: " + str(self.transition_cost))
         return self.heuristic + self.transition_cost
 
 
@@ -24,7 +24,6 @@ class AstarNode:
     def __lt__(self, other):
         # if equal priority, take the node that is farther from start. 
         if self.priority() == other.priority(): 
-            print("here")
             return self.transition_cost > other.transition_cost
         return self.priority() < other.priority()
 
@@ -61,7 +60,6 @@ def astar_search(search_problem, heuristic_fn, test_path):
         # get the next node
         current_node = heappop(frontier)
         print("Current Node: " + str(current_node))
-        print(visited_cost)
         solution.nodes_visited += 1
         # if solution.nodes_visited > 10: 
             # break
@@ -69,6 +67,9 @@ def astar_search(search_problem, heuristic_fn, test_path):
 
         # update the problem, if necessary
         search_problem.update(current_node.state)
+
+        print(search_problem.maze)
+        print("Heuristic: " + str(heuristic_fn(search_problem, current_node.state)))
 
         # if it is the solution, backchain:
         if search_problem.goal_test(current_node.state):
