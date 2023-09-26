@@ -13,6 +13,7 @@ class AstarNode:
 
 
     def priority(self):
+        print(str(self) + " Priority: " + str(self.heuristic + self.transition_cost) + " Heuristic: " + str(self.heuristic) + " Cost: " + str(self.transition_cost))
         return self.heuristic + self.transition_cost
 
 
@@ -21,6 +22,10 @@ class AstarNode:
 
     # comparison operator, needed for heappush and heappop to work with AstarNodes:
     def __lt__(self, other):
+        # if equal priority, take the node that is farther from start. 
+        if self.priority() == other.priority(): 
+            print("here")
+            return self.transition_cost > other.transition_cost
         return self.priority() < other.priority()
 
 
@@ -53,38 +58,39 @@ def astar_search(search_problem, heuristic_fn, test_path):
 
     # loop: while there are still items in the frontier:
     while frontier: 
-        # print(str(visited_cost))
         # get the next node
-        # print("Frontier: ")
-        # for node in frontier:
-            # print(node.state, end=" ")
-        # print()
         current_node = heappop(frontier)
+        print("Current Node: " + str(current_node))
+        print(visited_cost)
         solution.nodes_visited += 1
+        # if solution.nodes_visited > 10: 
+            # break
         test_path.append(current_node.state)
-        visited_cost[current_node.state] = current_node.transition_cost
 
         # update the problem, if necessary
         search_problem.update(current_node.state)
 
         # if it is the solution, backchain:
         if search_problem.goal_test(current_node.state):
+            solution.cost = current_node.transition_cost
             solution.path = backchain(current_node)
             return solution
 
         # get the successor states
         successors = search_problem.get_successors(current_node.state)
-        # print("Current " + str(current_node))
-        # print("Successors: " + str(successors))
+
         # loop through each successor 
         for successor in successors:        
-            # calcuate the new cost
-            new_cost = current_node.transition_cost + 1
+            # calcuate the new cost: if the robots just switched turns, don't add; otherwise, add
+            if current_node.state[1:] == successor[1:]: new_cost = current_node.transition_cost
+            else: new_cost = current_node.transition_cost + 1
+
             # if visited 
             if successor in visited_cost and visited_cost[successor] <= new_cost:
                 continue
             else:
                 new_node = AstarNode(successor, heuristic_fn(search_problem, successor), current_node, new_cost) 
+                visited_cost[new_node.state] = new_cost
                 heappush(frontier, new_node)
 
     # if the frontier is empty, return the empty solution

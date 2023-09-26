@@ -120,9 +120,10 @@ def manhattan_heuristic(search_problem, state):
 
         # for each goal location
         for goal_location in search_problem.goal_locations: 
-            # calculate the distance between the robot and that goal location
-            distance = abs(goal_location[0] - robot_location[0]) + abs(goal_location[1] - robot_location[1])
-            min_distance = min(distance, min_distance)
+            if not search_problem.maze.has_robot(goal_location[0], goal_location[1]):
+                # calculate the distance between the robot and that goal location
+                distance = abs(goal_location[0] - robot_location[0]) + abs(goal_location[1] - robot_location[1])
+                min_distance = min(distance, min_distance)
 
         # add all of the min_distances together
         total_distance += min_distance
