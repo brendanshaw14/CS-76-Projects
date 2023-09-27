@@ -24,7 +24,7 @@ class SensorlessProblem:
         # if there's only one state in the set 
         if len(state) == 1: 
             # if that state is the goal location return true
-            if state[0] in self.goal_locations: return True 
+            return True 
         return False
             
 
@@ -82,6 +82,11 @@ class SensorlessProblem:
             successors.add(frozenset(belief_state))
         # return a set of sets of tuples 
         return frozenset(successors)
+
+    # returns the cost of going from one state to another 
+    # (this is always one in this case)
+    def get_cost(self, state1, state2): 
+        return 1
             
 def state_size_heuristic(search_problem, state):
     # return the size of the sate

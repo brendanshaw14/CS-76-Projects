@@ -59,7 +59,6 @@ def astar_search(search_problem, heuristic_fn, test_path):
     while frontier: 
         # get the next node
         current_node = heappop(frontier)
-        print("Current Node: " + str(current_node))
         solution.nodes_visited += 1
         # if solution.nodes_visited > 10: 
             # break
@@ -67,9 +66,6 @@ def astar_search(search_problem, heuristic_fn, test_path):
 
         # update the problem, if necessary
         search_problem.update(current_node.state)
-
-        print(search_problem.maze)
-        print("Heuristic: " + str(heuristic_fn(search_problem, current_node.state)))
 
         # if it is the solution, backchain:
         if search_problem.goal_test(current_node.state):

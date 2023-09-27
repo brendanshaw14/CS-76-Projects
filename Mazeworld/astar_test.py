@@ -34,10 +34,12 @@ test_path = []
 # print(astar_search(maze6_problem, manhattan_heuristic, test_path))
 # print(maze6)
 
-print(maze4)
-print(astar_search(maze4_problem, manhattan_heuristic, test_path))
-maze4_problem.animate_path(test_path)
+# print(maze4)
+# print(astar_search(maze4_problem, manhattan_heuristic, test_path))
+# maze4_problem.animate_path(test_path)
 
 # blind_maze2_problem = SensorlessProblem(maze2, [])
-# print(maze2)
+# blind_maze4_problem = SensorlessProblem(maze4, [])
+# print(maze5)
 # print(astar_search(blind_maze2_problem, state_size_heuristic, test_path))
+# print(astar_search(blind_maze4_problem, state_size_heuristic, test_path))
