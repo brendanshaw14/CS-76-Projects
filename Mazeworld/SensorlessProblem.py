@@ -12,8 +12,13 @@ class SensorlessProblem:
     def __str__(self):
         string =  "Blind robot problem: \n"
         string += "Goal location: "
-        strin += str(self.goal_location) + "\n"
+        string += str(self.goal_locations) + "\n"
+        string += "Start State: \n"
+        string += str(self.start_state)
         return string
+
+    def update(self, state): 
+        return True
 
     def goal_test(self, state): 
         # if there's only one state in the set 
@@ -36,26 +41,27 @@ class SensorlessProblem:
 
             print(str(self.maze))
 
+    # reads the maze to retrieve the start state of all unoccupied locations and store it 
     def get_start_state(self): 
         #initialize the set
-        possible_locations = []
+        possible_locations = set()
 
         # iterate through all coordinates in the maze
         for x in range(self.maze.width):
             for y in range(self.maze.height):
                 # if the coordinate is a floor coordinate, add it as a possible coordinate to the state
                 if self.maze.is_floor(x, y): 
-                    possible_locations.append((x, y))
-        return possible_locations 
+                    possible_locations.add((x, y))
+        return frozenset(possible_locations)
 
                     
 
 
     # return the valid successor states for a given state
     def get_successors(self, state): 
-        # STATE IS A LIST OF TUPLES
+        # define actions and initialize successors
         actions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        successors = []
+        successors = set()
         # for each action 
         for dx, dy in actions:
             # make a new set of belief states
@@ -73,10 +79,13 @@ class SensorlessProblem:
                     # add it's current tile to the successor belief state
                     belief_state.add((x, y))
             # add this belief state to the set of total states
-            successors.append((list(belief_state)))
+            successors.add(frozenset(belief_state))
         # return a set of sets of tuples 
-        return successors
+        return frozenset(successors)
             
+def state_size_heuristic(search_problem, state):
+    # return the size of the sate
+    return len(state) - 1
 
 ## A bit of test code
 

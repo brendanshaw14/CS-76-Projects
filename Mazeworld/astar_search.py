@@ -83,8 +83,7 @@ def astar_search(search_problem, heuristic_fn, test_path):
         # loop through each successor 
         for successor in successors:        
             # calcuate the new cost: if the robots just switched turns, don't add; otherwise, add
-            if current_node.state[1:] == successor[1:]: new_cost = current_node.transition_cost
-            else: new_cost = current_node.transition_cost + 1
+            new_cost = current_node.transition_cost + search_problem.get_cost(current_node.state, successor)
 
             # if visited 
             if successor in visited_cost and visited_cost[successor] <= new_cost:

@@ -102,6 +102,17 @@ class MazeworldProblem:
             goal_locations.remove(robot_location)
         return True
 
+    # returns the cost of going from state1 to state2 for two consecutive states
+    # (this should be either 0 or 1)
+    def get_cost(self, state1, state2): 
+        # if the robot locations are the same (the action was just a turn switch), return 0
+        if state1[1:] == state2[1:]: 
+            return 0
+        return 1
+
+
+
+
 # a simple manhattan distance heuristic: 
 #   - for one robot, this will just return the sum of the x and y differences
 #   between the nearest goal_location and the robot's current location. 
