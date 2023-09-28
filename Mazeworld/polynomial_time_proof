@@ -1,0 +1,19 @@
+# Polynomial Time Proof for the Sensorless Mazeworld problem
+
+
+## Claim: 
+Prove that a sensorless plan of the type you found above always exists, as long as the size of the maze is finite and the goal is in the same connected component of the maze as the start.
+
+## Proof: 
+
+To prove that any sensorless robot's location can be determined in a maze with one continuous component, we must break the problem into two cases, involving the corners of the maze. 
+
+When moving the sensorless robot, we reduce the number of belief states by attempting a move with one robot that does not succeed because that robot runs into a wall or the edge of the maze. This means that any belief-state robot that can access the position of the robot that was unable via the same action will end up in the same location as the unmoved robot, reducing the possible belief states by 1. 
+
+This occurs whenever we have a robot adjacent to a wall on one side and another robot on the other. As long as the wall and adjacent robot are on opposite sides of the robot in question, executing a move towards the wall will decrease the belief state space size by 1: allowing us to narrow down the location of the robot. 
+
+This has multiple implications. First, by executing any action until none of the robots are able to move, we ensure that all robots are against a wall or maze edge, and the wall or maze edge will be to the same side of all robots (ex. if we execute the action (0, 1), or up, until it cannot be executed anymore). We therefore ensure that all of the belief states have walls directly above them and can no longer move up- or whatever direction we executed repeatedly. 
+
+By executing these actions in a circular fashion such as, down, left, up, right, but ensuring that each action is executed until none of the belief robots can be moved anymore, we ensure that the robots location will be found. 
+
+Because the maze has only one connected component, we know that there are only four corners of the maze that are all connected by the same edge, and that it is the outer edge of the maze. Any walll
