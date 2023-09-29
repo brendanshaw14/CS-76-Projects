@@ -1,4 +1,3 @@
-# brew install pyqt
 from PyQt5 import QtGui, QtSvg
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -7,7 +6,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 import sys
 import chess, chess.svg
 from RandomAI import RandomAI
-from MinimaxAI import MinimaxAI
+from MinimaxAI import *
 from ChessGame import ChessGame
 from HumanPlayer import HumanPlayer
 

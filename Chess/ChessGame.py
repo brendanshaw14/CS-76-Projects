@@ -2,6 +2,16 @@ import chess
 
 
 class ChessGame:
+
+    # define the piece values for evaluation
+    piece_values = {
+            chess.PAWN: 1,
+            chess.KNIGHT: 3,
+            chess.BISHOP: 3,
+            chess.ROOK: 5,
+            chess.QUEEN: 9, 
+            chess.KING: 40
+        }
     def __init__(self, player1, player2):
         self.board = chess.Board()
         self.players = [player1, player2]
@@ -25,3 +35,25 @@ class ChessGame:
         move_str = "White to move" if self.board.turn else "Black to move"
 
         return board_str + "\n" + move_str + "\n"
+
+    # Function to evaluate the value of the board at a given state
+    def evaluate_board(self):
+        
+        # initialize the total value to be 0   
+        total_value = 0
+        # for each square
+        for square in chess.SQUARES:
+            # get that square's piece
+            piece = self.board.piece_at(square)
+            # if there is a piece in the square 
+            if piece is not None:
+                # get the piece's value
+                piece_value = self.piece_values[piece.piece_type]
+                # add it to or subtract it from the total value accordingly
+                if piece.color == chess.WHITE:
+                    total_value += piece_value
+                else:
+                    total_value -= piece_value
+        # return the board's total value 
+        return total_value
+
