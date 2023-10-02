@@ -13,7 +13,7 @@ import sys
 
 
 player1 = HumanPlayer()
-player2 = RandomAI()
+player2 = MinimaxAI(2)
 
 game = ChessGame(player1, player2)
 
@@ -48,5 +48,5 @@ for fen, expected_value in test_positions:
     game.board = chess.Board(fen)
     print(game.board)
     print("Expected Value:", expected_value)
-    print("Evaluated Value:", game.evaluate_board())
+    print("Evaluated Value:", evaluate_board(game.board))
     print("-" * 40)  # Separator for clarity

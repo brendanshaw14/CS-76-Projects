@@ -61,7 +61,7 @@ if __name__ == "__main__":
     #   with event loop.
 
     player1 = RandomAI()
-    player2 = RandomAI()
+    player2 = MinimaxAI(2)
 
     game = ChessGame(player1, player2)
     gui = ChessGui(player1, player2)
