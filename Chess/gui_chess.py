@@ -54,7 +54,7 @@ class ChessGui:
 
 if __name__ == "__main__":
 
-    random.seed(0)
+    random.seed(5)
 
     #player_ronda = RandomAI()
 
