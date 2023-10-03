@@ -1,5 +1,7 @@
 import chess
 from ChessGame import *
+from math import inf
+import random
 
 class MinimaxAI():
 
@@ -12,8 +14,8 @@ class MinimaxAI():
     def choose_move(self, board):
         # get the current legal moves
         legal_moves = list(board.legal_moves)
-        best_move = None
-        max_eval = -100 # set this low so that the eval must be higher
+        best_move = random.choice(legal_moves)
+        max_eval = -inf # set this low so that the eval must be higher
 
         # loop through the current legal moves
         for move in legal_moves: 
@@ -23,7 +25,7 @@ class MinimaxAI():
             board.pop()
 
             # if the value is greater than the current max: 
-            if minimax > max_eval: 
+            if minimax >= max_eval: 
                 # update the max value and save best move
                 max_eval = minimax
                 best_move = move

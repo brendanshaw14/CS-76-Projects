@@ -7,7 +7,7 @@ piece_values = {
     chess.BISHOP: 3,
     chess.ROOK: 5,
     chess.QUEEN: 9, 
-    chess.KING: 40
+    chess.KING: 1000
 }
 
 class ChessGame:
@@ -22,7 +22,11 @@ class ChessGame:
         player = self.players[1 - int(self.board.turn)]
         move = player.choose_move(self.board)
 
+        # if there are no more moves, print who wins.
+        if move == None: 
+            print(str(self.board.turn) + " loses!!")
         self.board.push(move)  # Make the move
+        
 
     def is_game_over(self):
         return self.board.is_game_over()
@@ -38,7 +42,7 @@ class ChessGame:
         return board_str + "\n" + move_str + "\n"
 
 # Function to evaluate the value of the board at a given state
-def evaluate_board(board):
+def evaluate_board(board, team):
         
     # initialize the total value to be 0   
     total_value = 0
@@ -51,7 +55,7 @@ def evaluate_board(board):
             # get the piece's value
             piece_value = piece_values[piece.piece_type]
             # add it to or subtract it from the total value accordingly
-            if piece.color == chess.WHITE:
+            if piece.color == team:
                 total_value += piece_value
             else:
                 total_value -= piece_value

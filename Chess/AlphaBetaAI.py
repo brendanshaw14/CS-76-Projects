@@ -1,20 +1,22 @@
 import chess
+import random
 from math import inf
 from ChessGame import * 
 
 class AlphaBetaAI():
 
     # initialize the minimiax
-    def __init__(self, depth):
+    def __init__(self, depth, team):
+        self.team = team
         self.depth = depth
 
     # call minimax on the moves from the current position
     # return the move with the highest minimax value
     def choose_move(self, board):
         # get the current legal moves
-        legal_moves = list(board.legal_moves)
-        best_move = None
-        max_eval = -100 # set this low so that the eval must be higher
+        legal_moves = self.get_ordered_moves(board)
+        best_move = random.choice(legal_moves)
+        max_eval = -inf # set this low so that the eval must be higher
 
         # loop through the current legal moves
         for move in legal_moves: 
@@ -24,7 +26,7 @@ class AlphaBetaAI():
             board.pop()
 
             # if the value is greater than the current max: 
-            if minimax > max_eval: 
+            if minimax >= max_eval: 
                 # update the max value and save best move
                 max_eval = minimax
                 best_move = move
@@ -38,16 +40,16 @@ class AlphaBetaAI():
         # base case: cutoff taest
         if self.cutoff_test(board, depth):
             # return the evaluation of the current board
-            return evaluate_board(board)
+            return evaluate_board(board, self.team)
 
         # get the next possible moves, return the board's value if none exist. 
-        next_moves = list(board.legal_moves)
+        next_moves = self.get_ordered_moves(board)
         if next_moves == None:
-            return evaluate_board(board)
+            return evaluate_board(board, self.team)
 
         # if it is max's turn
         if maximizing_player: 
-            max_eval = -1000
+            max_eval = -inf
             # loop through all of the successor moves
             for move in next_moves:
                 # push that move to the board
@@ -67,7 +69,7 @@ class AlphaBetaAI():
 
         # if it is min's turn
         else: 
-            min_eval = 1000 # set this high so the evaluation will be lower
+            min_eval = inf # set this high so the evaluation will be lower
             # loop through all of the successor moves
             for move in next_moves:
                 # push that move to the board
@@ -92,6 +94,24 @@ class AlphaBetaAI():
             return True
         return False
 
+    def get_ordered_moves(self, board):
+        # Get all legal moves from the current position
+        moves = list(board.legal_moves)
+    
+        # make two lists for the catpure and non-catpure moves
+        capture_moves = []
+        noncapture_moves = []
+
+        # sort moves into the two lists
+        for move in moves:
+            if board.is_capture(move):
+                capture_moves.append(move)
+            else:
+                noncapture_moves.append(move)
+    
+        # Return moves with captures first, followed by forward moves, then backward moves
+        ordered_moves = capture_moves + noncapture_moves
+        return ordered_moves
 
 if __name__ == "__main__":
     pass

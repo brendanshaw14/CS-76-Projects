@@ -48,5 +48,5 @@ for fen, expected_value in test_positions:
     game.board = chess.Board(fen)
     print(game.board)
     print("Expected Value:", expected_value)
-    print("Evaluated Value:", evaluate_board(game.board))
+    print("Evaluated Value:", evaluate_board(game.board, True))
     print("-" * 40)  # Separator for clarity
