@@ -39,12 +39,14 @@ class MinimaxAI():
             # return the evaluation of the current board
             return evaluate_board(board)
 
-        # get the next possible moves 
+        # get the next possible moves, return the board's value if none exist. 
         next_moves = list(board.legal_moves)
+        if next_moves == None:
+            return evaluate_board(board)
 
         # if it is max's turn
         if maximizing_player: 
-            max_eval = -100
+            max_eval = -1000
             # loop through all of the successor moves
             for move in next_moves:
                 # push that move to the board
@@ -56,11 +58,12 @@ class MinimaxAI():
                 # update the max_eval 
                 max_eval = max(max_eval, minimax)
             #return the highest value of all successors
+            print("Max Eval: " + str(max_eval))
             return max_eval
 
         # if it is min's turn
         else: 
-            min_eval = 100 # set this high so the evaluation will be lower
+            min_eval = 1000 # set this high so the evaluation will be lower
             # loop through all of the successor moves
             for move in next_moves:
                 # push that move to the board
@@ -72,35 +75,11 @@ class MinimaxAI():
                 # update the min_eval 
                 min_eval = min(min_eval, minimax)
             #return the lowerst value of all successors
+            print("Min Eval: " + str(min_eval))
             return min_eval
 
 
 if __name__ == "__main__":
-
     pass
 
 
-    # #base case- return the current node if it has no children
-    # if self.next_moves == set():
-        # return self
-    # #if nodes team is different or the head node: return the child with max value
-    # elif self.piece == None or self.piece.color != self.team_color:
-        # max_value = -1290
-        # for move in self.next_moves: 
-            # next_minimax = move.minimax()
-            # if next_minimax.value >= max_value: 
-                # max_value = next_minimax.value
-                # best_move = move
-        # print("best value returned: " + str(best_move.value))
-        # return best_move
-    # #if nodes team is the opponent, return the child with min value
-    # else:
-        # min_value = 1290
-        # for move in self.next_moves: 
-            # next_minimax = move.minimax()
-            # if next_minimax.value <= min_value: 
-                # min_value = next_minimax.value
-                # worst_move = move
-        # print("worst value returned: "+ str(worst_move.value))
-        # return worst_move
-            
