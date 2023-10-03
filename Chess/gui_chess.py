@@ -7,6 +7,7 @@ import sys
 import chess, chess.svg
 from RandomAI import RandomAI
 from MinimaxAI import *
+from AlphaBetaAI import *
 from ChessGame import ChessGame
 from HumanPlayer import HumanPlayer
 
@@ -60,7 +61,7 @@ if __name__ == "__main__":
     # to do: gui does not work well with HumanPlayer, due to input() use on stdin conflict
     #   with event loop.
 
-    player1 = MinimaxAI(3)
+    player1 = AlphaBetaAI(5)
     player2 = RandomAI()
 
     game = ChessGame(player1, player2)

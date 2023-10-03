@@ -1,6 +1,6 @@
 import chess
 from math import inf
-
+from ChessGame import * 
 
 class AlphaBetaAI():
 
@@ -20,7 +20,7 @@ class AlphaBetaAI():
         for move in legal_moves: 
             # push that move to the board, call minimax on it, save the value and pop
             board.push(move)
-            minimax = self.minimax(board, self.depth)
+            minimax = self.minimax(board, self.depth-1, -inf, inf)
             board.pop()
 
             # if the value is greater than the current max: 
@@ -34,9 +34,9 @@ class AlphaBetaAI():
 
     
     # recursive minimax algorithm
-    def minimax(self, board, depth, alpha, beta, maximizing_player=True):
-        # base case: if the game is over or the max depth is reached: 
-        if depth == 0 or board.is_game_over():
+    def minimax(self, board, depth, alpha, beta, maximizing_player=False):
+        # base case: cutoff taest
+        if self.cutoff_test(board, depth):
             # return the evaluation of the current board
             return evaluate_board(board)
 
@@ -53,11 +53,14 @@ class AlphaBetaAI():
                 # push that move to the board
                 board.push(move)
                 # call minimax on the board with the new move and save the value
-                minimax = self.minimax(board, depth-1, False)
+                minimax = self.minimax(board, depth-1, alpha, beta, False)
                 # pop the move from the board
                 board.pop()
-                # update the max_eval 
+                # update the max_eval test beta,
                 max_eval = max(max_eval, minimax)
+                if max_eval >= beta: return max_eval
+                # update alpha
+                alpha = max(alpha, max_eval)
             #return the highest value of all successors
             print("Max Eval: " + str(max_eval))
             return max_eval
@@ -70,14 +73,24 @@ class AlphaBetaAI():
                 # push that move to the board
                 board.push(move)
                 # call minimax on the board with the new move and save the value
-                minimax = self.minimax(board, depth-1, True)
+                minimax = self.minimax(board, depth-1, alpha, beta, True)
                 # pop the move from the board
                 board.pop()
-                # update the min_eval 
+                # update the min_eval and test alpha
                 min_eval = min(min_eval, minimax)
+                if min_eval <= alpha: return min_eval
+                # update beta
+                beta = min(beta, min_eval)
             #return the lowerst value of all successors
             print("Min Eval: " + str(min_eval))
             return min_eval
+
+
+    # cutoff test function
+    def cutoff_test(self, board, depth):
+        if depth == 0 or board.is_game_over():
+            return True
+        return False
 
 
 if __name__ == "__main__":

@@ -33,7 +33,7 @@ class MinimaxAI():
 
     
     # recursive minimax algorithm
-    def minimax(self, board, depth, maximizing_player=True):
+    def minimax(self, board, depth, maximizing_player=False):
         # base case: if the game is over or the max depth is reached: 
         if depth == 0 or board.is_game_over():
             # return the evaluation of the current board
