@@ -5,7 +5,7 @@ import chess
 from RandomAI import RandomAI
 from HumanPlayer import HumanPlayer
 from MinimaxAI import *
-from AlphaBetaAI import AlphaBetaAI
+from Chess.OrderedAlphaBetaAI import AlphaBetaAI
 from ChessGame import ChessGame
 
 

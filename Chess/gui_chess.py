@@ -7,6 +7,7 @@ import sys
 import chess, chess.svg
 from RandomAI import RandomAI
 from MinimaxAI import *
+from OrderedAlphaBetaAI import *
 from AlphaBetaAI import *
 from ChessGame import ChessGame
 from HumanPlayer import HumanPlayer
@@ -54,15 +55,17 @@ class ChessGui:
 
 if __name__ == "__main__":
 
-    random.seed(5)
+    random.seed(1)
 
     #player_ronda = RandomAI()
 
     # to do: gui does not work well with HumanPlayer, due to input() use on stdin conflict
     #   with event loop.
 
-    player1 = AlphaBetaAI(4, True)
-    player2 = AlphaBetaAI(2, False)
+    # player1 = OrderedAlphaBetaAI(2, True)
+    # player1 = AlphaBetaAI(2, True)
+    player1 = MinimaxAI(2, True)
+    player2 = OrderedAlphaBetaAI(4, False)
 
     game = ChessGame(player1, player2)
     gui = ChessGui(player1, player2)

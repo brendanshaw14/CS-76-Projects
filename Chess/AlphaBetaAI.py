@@ -14,15 +14,18 @@ class AlphaBetaAI():
     # return the move with the highest minimax value
     def choose_move(self, board):
         # get the current legal moves
-        legal_moves = self.get_ordered_moves(board)
+        legal_moves = list(board.legal_moves)
         best_move = random.choice(legal_moves)
         max_eval = -inf # set this low so that the eval must be higher
+        # remember how many nodes have been visited
+        count = [0]
 
         # loop through the current legal moves
         for move in legal_moves: 
             # push that move to the board, call minimax on it, save the value and pop
             board.push(move)
-            minimax = self.minimax(board, self.depth-1, -inf, inf)
+            count[0] += 1
+            minimax = self.minimax(board, self.depth-1, -inf, inf, count)
             board.pop()
 
             # if the value is greater than the current max: 
@@ -31,19 +34,21 @@ class AlphaBetaAI():
                 max_eval = minimax
                 best_move = move
 
+        print("Unordered Count:" + str(count))
         # return the best move
         return best_move
 
     
     # recursive minimax algorithm
-    def minimax(self, board, depth, alpha, beta, maximizing_player=False):
-        # base case: cutoff taest
+    def minimax(self, board, depth, alpha, beta, count, maximizing_player=False):
+        count[0] += 1
+        # base case: cutoff test
         if self.cutoff_test(board, depth):
             # return the evaluation of the current board
             return evaluate_board(board, self.team)
 
         # get the next possible moves, return the board's value if none exist. 
-        next_moves = self.get_ordered_moves(board)
+        next_moves = list(board.legal_moves)
         if next_moves == None:
             return evaluate_board(board, self.team)
 
@@ -55,7 +60,7 @@ class AlphaBetaAI():
                 # push that move to the board
                 board.push(move)
                 # call minimax on the board with the new move and save the value
-                minimax = self.minimax(board, depth-1, alpha, beta, False)
+                minimax = self.minimax(board, depth-1, alpha, beta, count, False)
                 # pop the move from the board
                 board.pop()
                 # update the max_eval test beta,
@@ -64,7 +69,7 @@ class AlphaBetaAI():
                 # update alpha
                 alpha = max(alpha, max_eval)
             #return the highest value of all successors
-            print("Max Eval: " + str(max_eval))
+            # print("Max Eval: " + str(max_eval))
             return max_eval
 
         # if it is min's turn
@@ -75,7 +80,7 @@ class AlphaBetaAI():
                 # push that move to the board
                 board.push(move)
                 # call minimax on the board with the new move and save the value
-                minimax = self.minimax(board, depth-1, alpha, beta, True)
+                minimax = self.minimax(board, depth-1, alpha, beta, count, True)
                 # pop the move from the board
                 board.pop()
                 # update the min_eval and test alpha
@@ -84,7 +89,7 @@ class AlphaBetaAI():
                 # update beta
                 beta = min(beta, min_eval)
             #return the lowerst value of all successors
-            print("Min Eval: " + str(min_eval))
+            # print("Min Eval: " + str(min_eval))
             return min_eval
 
 
@@ -94,26 +99,6 @@ class AlphaBetaAI():
             return True
         return False
 
-    def get_ordered_moves(self, board):
-        # Get all legal moves from the current position
-        moves = list(board.legal_moves)
-    
-        # make two lists for the catpure and non-catpure moves
-        capture_moves = []
-        noncapture_moves = []
-
-        # sort moves into the two lists
-        for move in moves:
-            if board.is_capture(move):
-                capture_moves.append(move)
-            else:
-                noncapture_moves.append(move)
-    
-        # Return moves with captures first, followed by forward moves, then backward moves
-        ordered_moves = capture_moves + noncapture_moves
-        return ordered_moves
-
 if __name__ == "__main__":
     pass
-
 
