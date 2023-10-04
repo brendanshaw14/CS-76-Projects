@@ -4,14 +4,14 @@ from math import inf
 from ChessGame import * 
 from EvaluateBoard import evaluate_board
 
-class OrderedAlphaBetaAI():
+class TranspositionABAI():
 
     # initialize the minimiax
     def __init__(self, depth, team, eval_function):
         self.team = team
         self.depth = depth
         self.eval_function = eval_function
-        self.count = [0]
+        self.transposition_table = {}
 
     # call minimax on the moves from the current position
     # return the move with the highest minimax value
@@ -28,14 +28,14 @@ class OrderedAlphaBetaAI():
         max_eval = -inf # set this low so that the eval must be higher
 
         # remember how many nodes have been visited
-        self.count = [0]
+        count = [0]
 
         # loop through the current legal moves
         for move in legal_moves: 
             # push that move to the board, call minimax on it, save the value and pop
             board.push(move)
-            self.count[0] += 1
-            minimax = self.minimax(board, self.depth-1, -inf, inf)
+            count[0] += 1
+            minimax = self.minimax(board, self.depth-1, -inf, inf, count)
             board.pop()
 
             # if the value is greater than the current max: 
@@ -43,14 +43,14 @@ class OrderedAlphaBetaAI():
                 # update the max value and save best move
                 max_eval = minimax
                 best_move = move
-        print("Ordered Count:" + str(self.count) + str(self.eval_function))
+        print("Ordered Count:" + str(count) + str(self.eval_function))
         # return the best move
         return best_move
 
     
     # recursive minimax algorithm
-    def minimax(self, board, depth, alpha, beta, maximizing_player=False):
-        self.count[0] += 1
+    def minimax(self, board, depth, alpha, beta, count, maximizing_player=False):
+        count[0] += 1
         # base case: cutoff taest
         if self.cutoff_test(board, depth):
             # return the evaluation of the current board
@@ -69,7 +69,7 @@ class OrderedAlphaBetaAI():
                 # push that move to the board
                 board.push(move)
                 # call minimax on the board with the new move and save the value
-                minimax = self.minimax(board, depth-1, alpha, beta, False)
+                minimax = self.minimax(board, depth-1, alpha, beta, count, False)
                 # pop the move from the board
                 board.pop()
                 # update the max_eval test beta,
@@ -88,7 +88,7 @@ class OrderedAlphaBetaAI():
                 # push that move to the board
                 board.push(move)
                 # call minimax on the board with the new move and save the value
-                minimax = self.minimax(board, depth-1, alpha, beta, True)
+                minimax = self.minimax(board, depth-1, alpha, beta, count, True)
                 # pop the move from the board
                 board.pop()
                 # update the min_eval and test alpha
