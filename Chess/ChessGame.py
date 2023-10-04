@@ -2,12 +2,12 @@ import chess
 
 # define the piece values for evaluation
 piece_values = {
-    chess.PAWN: 1,
-    chess.KNIGHT: 3,
-    chess.BISHOP: 3,
-    chess.ROOK: 5,
-    chess.QUEEN: 9, 
-    chess.KING: 1000
+    chess.PAWN: 10,
+    chess.KNIGHT: 30,
+    chess.BISHOP: 30,
+    chess.ROOK: 50,
+    chess.QUEEN: 90, 
+    chess.KING: 900
 }
 
 class ChessGame:
@@ -25,6 +25,7 @@ class ChessGame:
         # if there are no more moves, print who wins.
         if move == None: 
             print(str(self.board.turn) + " loses!!")
+            return
         self.board.push(move)  # Make the move
         
 
@@ -41,24 +42,5 @@ class ChessGame:
 
         return board_str + "\n" + move_str + "\n"
 
-# Function to evaluate the value of the board at a given state
-def evaluate_board(board, team):
-        
-    # initialize the total value to be 0   
-    total_value = 0
-    # for each square
-    for square in chess.SQUARES:
-        # get that square's piece
-        piece = board.piece_at(square)
-        # if there is a piece in the square 
-        if piece is not None:
-            # get the piece's value
-            piece_value = piece_values[piece.piece_type]
-            # add it to or subtract it from the total value accordingly
-            if piece.color == team:
-                total_value += piece_value
-            else:
-                total_value -= piece_value
-    # return the board's total value 
-    return total_value
+
 

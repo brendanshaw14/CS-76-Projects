@@ -2,6 +2,7 @@ import chess
 import random
 from math import inf
 from ChessGame import * 
+from EvaluateBoard import evaluate_board
 
 class AlphaBetaAI():
 

@@ -5,6 +5,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import QApplication, QWidget
 import sys
 import chess, chess.svg
+from EvaluateBoard import *
 from RandomAI import RandomAI
 from MinimaxAI import *
 from OrderedAlphaBetaAI import *
@@ -64,8 +65,8 @@ if __name__ == "__main__":
 
     # player1 = OrderedAlphaBetaAI(2, True)
     # player1 = AlphaBetaAI(2, True)
-    player1 = OrderedAlphaBetaAI(3, True)
-    player2 = RandomAI()
+    player1 = OrderedAlphaBetaAI(3, True, evaluate_board)
+    player2 = OrderedAlphaBetaAI(5, False, evaluate_board_modified)
 
     game = ChessGame(player1, player2)
     gui = ChessGui(player1, player2)

@@ -1,5 +1,6 @@
 import chess
 from ChessGame import *
+from EvaluateBoard import evaluate_board
 from math import inf
 import random
 

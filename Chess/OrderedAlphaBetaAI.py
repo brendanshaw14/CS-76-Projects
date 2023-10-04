@@ -2,21 +2,30 @@ import chess
 import random
 from math import inf
 from ChessGame import * 
+from EvaluateBoard import evaluate_board
 
 class OrderedAlphaBetaAI():
 
     # initialize the minimiax
-    def __init__(self, depth, team):
+    def __init__(self, depth, team, eval_function):
         self.team = team
         self.depth = depth
+        self.eval_function = eval_function
 
     # call minimax on the moves from the current position
     # return the move with the highest minimax value
     def choose_move(self, board):
         # get the current legal moves
         legal_moves = self.get_ordered_moves(board)
+        
+        # if there are no more moves, return none
+        if len(legal_moves) == 0: 
+            return None
+        
+        # otherwise, store a random move
         best_move = random.choice(legal_moves)
         max_eval = -inf # set this low so that the eval must be higher
+
         # remember how many nodes have been visited
         count = [0]
 
@@ -33,7 +42,7 @@ class OrderedAlphaBetaAI():
                 # update the max value and save best move
                 max_eval = minimax
                 best_move = move
-        print("Ordered Count:" + str(count))
+        print("Ordered Count:" + str(count) + str(self.eval_function))
         # return the best move
         return best_move
 
@@ -44,12 +53,12 @@ class OrderedAlphaBetaAI():
         # base case: cutoff taest
         if self.cutoff_test(board, depth):
             # return the evaluation of the current board
-            return evaluate_board(board, self.team)
+            return self.eval_function(board, self.team)
 
         # get the next possible moves, return the board's value if none exist. 
         next_moves = self.get_ordered_moves(board)
         if next_moves == None:
-            return evaluate_board(board, self.team)
+            return self.eval_function(board, self.team)
 
         # if it is max's turn
         if maximizing_player: 
