@@ -64,8 +64,8 @@ if __name__ == "__main__":
 
     # player1 = OrderedAlphaBetaAI(2, True)
     # player1 = AlphaBetaAI(2, True)
-    player1 = MinimaxAI(2, True)
-    player2 = OrderedAlphaBetaAI(4, False)
+    player1 = OrderedAlphaBetaAI(3, True)
+    player2 = RandomAI()
 
     game = ChessGame(player1, player2)
     gui = ChessGui(player1, player2)
