@@ -15,18 +15,21 @@ class IDSMinimaxAI():
 
     def choose_move(self, board): 
         # store the best move, remember the current depth: 
-        best_move = None
+        best_move = random.choice(list(board.legal_moves))
         current_depth = 1
 
         # while the time limit hasn't been reached
         while self.count[0] < self.time_limit: 
             # run the minimax on that depth
-            best_move = self.run_minimax(board, current_depth)
+            minimax = self.run_minimax(board, current_depth)
+            if minimax == None: break
+            best_move = minimax
             print(best_move)
             print("Ordered Count:" + str(self.count))
             print("IDS Completed at Depth " + str(current_depth))
             current_depth += 1
             
+        self.count[0] = 0
         return best_move
 
 
@@ -52,6 +55,8 @@ class IDSMinimaxAI():
             self.count[0] += 1
             minimax = self.minimax(board, depth-1, -inf, inf)
             board.pop()
+            if minimax == None: 
+                return None
 
             # if the value is greater than the current max: 
             if minimax >= max_eval: 
@@ -65,6 +70,11 @@ class IDSMinimaxAI():
     # recursive minimax algorithm
     def minimax(self, board, depth, alpha, beta, maximizing_player=False):
         self.count[0] += 1
+
+        # test if the time limit was hit, and return none if so: 
+        if self.count[0] > self.time_limit:
+            return None
+
         # base case: cutoff taest
         if self.cutoff_test(board, depth):
             # return the evaluation of the current board
@@ -86,6 +96,10 @@ class IDSMinimaxAI():
                 minimax = self.minimax(board, depth-1, alpha, beta, False)
                 # pop the move from the board
                 board.pop()
+                # if the time limit was hit:
+                if minimax == None: 
+                    return None
+                
                 # update the max_eval test beta,
                 max_eval = max(max_eval, minimax)
                 if max_eval >= beta: return max_eval
@@ -105,6 +119,10 @@ class IDSMinimaxAI():
                 minimax = self.minimax(board, depth-1, alpha, beta, True)
                 # pop the move from the board
                 board.pop()
+                # if the time limit was hit, return none: 
+                if minimax == None: 
+                    return None
+
                 # update the min_eval and test alpha
                 min_eval = min(min_eval, minimax)
                 if min_eval <= alpha: return min_eval
