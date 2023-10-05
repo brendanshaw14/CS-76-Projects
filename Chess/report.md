@@ -4,6 +4,8 @@
 
 Thanks to python's `chess`  library, no time was spent implementing the structure of the game itself. This project focuses on the different strategy approaches I used in the project to design and enhance the chess ai. 
 
+Header comments were removed for anonymity. 
+
 ## Evaluation Function
 
 Before writing the algorithms to search the game states, I needed to develop a way to evaluate the board. I began this by using material evaluation, using the values 1, 3, 3, 5, and 9 for the pawn, knight, bishop, rook, and queen respectively.  
