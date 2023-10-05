@@ -5,7 +5,7 @@ import chess
 from RandomAI import RandomAI
 from HumanPlayer import HumanPlayer
 from MinimaxAI import *
-from Chess.OrderedAlphaBetaAI import AlphaBetaAI
+from OrderedAlphaBetaAI import OrderedAlphaBetaAI
 from ChessGame import ChessGame
 
 
@@ -13,7 +13,7 @@ import sys
 
 
 player1 = HumanPlayer()
-player2 = MinimaxAI(2)
+player2 = MinimaxAI(2, True)
 
 game = ChessGame(player1, player2)
 

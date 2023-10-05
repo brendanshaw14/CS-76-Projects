@@ -43,7 +43,7 @@ class OrderedAlphaBetaAI():
                 # update the max value and save best move
                 max_eval = minimax
                 best_move = move
-        print("Ordered Count:" + str(self.count) + str(self.eval_function))
+        print("Ordered Count:" + str(self.count)) 
         # return the best move
         return best_move
 

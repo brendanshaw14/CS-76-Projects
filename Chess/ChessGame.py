@@ -1,14 +1,5 @@
 import chess
 
-# define the piece values for evaluation
-piece_values = {
-    chess.PAWN: 10,
-    chess.KNIGHT: 30,
-    chess.BISHOP: 30,
-    chess.ROOK: 50,
-    chess.QUEEN: 90, 
-    chess.KING: 900
-}
 
 class ChessGame:
 

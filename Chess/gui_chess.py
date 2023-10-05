@@ -1,10 +1,12 @@
 from PyQt5 import QtGui, QtSvg
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-
 from PyQt5.QtWidgets import QApplication, QWidget
+
 import sys
 import chess, chess.svg
+import random
+
 from EvaluateBoard import *
 from RandomAI import RandomAI
 from MinimaxAI import *
@@ -13,8 +15,7 @@ from AlphaBetaAI import *
 from IDSMinimaxAI import * 
 from ChessGame import ChessGame
 from HumanPlayer import HumanPlayer
-
-import random
+from TranspositionAB import *
 
 
 class ChessGui:
@@ -57,10 +58,47 @@ class ChessGui:
 
 if __name__ == "__main__":
 
-    random.seed(1)
 
-    player1 = IDSMinimaxAI(True, evaluate_board_modified, 50000)
-    player2 = RandomAI()
+    # TO WATCH GAMEPLAY, UNCOMMENT ONE PLAYER 1 AND ONE PLAYER 2, THEN RUN THE FILE. LOGICAL MATCHUPS ARE BELOW. 
+
+    ## Minimax Vs Random AI, depth 2
+    # player1 = Minimax(2, True)
+    # player2 = RandomAI()
+
+    ## Minimax Vs Random AI, depth 3
+    # player1 = Minimax(3, True)
+    # player2 = RandomAI()
+
+    ## AlphaBeta Vs Random AI, depth 2
+    # player1 = AlphaBetaAI(2, True)
+    # player2 = RandomAI()   
+
+    ## AlphaBeta Vs Random AI, depth 3
+    # player1 = AlphaBetaAI(3, True)
+    # player2 = RandomAI()   
+
+    ## AlphaBeta Vs Minimax
+    # player1 = AlphaBetaAI(3, True)
+    # player2 = Minimax(2, False)   
+
+    ## OrderedAlphaBeta Vs RandomAI
+    # player1 = OrderedAlphaBetaAI(3, True, evaluate_board_modified)
+    # player2 = RandomAI()
+
+
+    # testing the non-positional evaluation funciton
+    # player1 = OrderedAlphaBetaAI(3, True, evaluate_board)
+    # player2 = RandomAI()
+
+    # testing the positional evaluation function: 
+    # player1 = OrderedAlphaBetaAI(4, True, evaluate_board_modified)
+    # player2 = RandomAI()
+    
+    # testing the transposition table AI:
+    # player1 = TranspositionABAI(4, True, evaluate_board_modified)
+    # player1 = OrderedAlphaBetaAI(4, True, evaluate_board_modified)
+    # player2 = OrderedAlphaBetaAI(2, False, evaluate_board)
+
 
     game = ChessGame(player1, player2)
     gui = ChessGui(player1, player2)

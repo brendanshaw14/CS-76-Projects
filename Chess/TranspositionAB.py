@@ -51,6 +51,17 @@ class TranspositionABAI():
     
     # recursive minimax algorithm
     def minimax(self, board, depth, alpha, beta, maximizing_player=False):
+
+        # check if the board is in the transposition table 
+        if str(board) in self.transposition_table:
+            # check if the depth is >= to the current:
+            if self.transposition_table[str(board)][1] >= depth:
+                # return the stored evaluation
+                return self.transposition_table[str(board)][0]
+        # otherwise, add it to the transposition table
+        elif depth > 0:
+            self.transposition_table[str(board)] = [self.eval_function(board, self.team), depth]
+
         self.count[0] += 1
         # base case: cutoff taest
         if self.cutoff_test(board, depth):
