@@ -10,6 +10,7 @@ from RandomAI import RandomAI
 from MinimaxAI import *
 from OrderedAlphaBetaAI import *
 from AlphaBetaAI import *
+from IDSMinimaxAI import * 
 from ChessGame import ChessGame
 from HumanPlayer import HumanPlayer
 
@@ -58,15 +59,8 @@ if __name__ == "__main__":
 
     random.seed(1)
 
-    #player_ronda = RandomAI()
-
-    # to do: gui does not work well with HumanPlayer, due to input() use on stdin conflict
-    #   with event loop.
-
-    # player1 = OrderedAlphaBetaAI(2, True)
-    # player1 = AlphaBetaAI(2, True)
-    player1 = RandomAI()
-    player2 = OrderedAlphaBetaAI(4, False, evaluate_board_modified)
+    player1 = IDSMinimaxAI(True, evaluate_board_modified, 50000)
+    player2 = RandomAI()
 
     game = ChessGame(player1, player2)
     gui = ChessGui(player1, player2)
