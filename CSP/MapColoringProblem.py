@@ -1,4 +1,4 @@
-# Map Coloring Problem
+# Map Coloring Problem for CSP input
 
 from CSP import CSP
 
@@ -35,9 +35,7 @@ class MapColoringProblem:
         return self.colors
         
     def is_consistent(self, assignment, variable, value):
-        print("variable: " + str(variable))
         # for each adjacent country
-        print(self.adjacency)
         for country in self.adjacency[variable]: 
             # if that country has the same color as the current assignment
             if country in assignment and assignment[country] == value: return False
