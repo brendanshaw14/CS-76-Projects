@@ -12,7 +12,6 @@ class CSP:
 
     # Backtracking Algorithm
     def backtrack(self, assignment={}):
-        print("Calling backtrack on assignment " + str(assignment))
         # If the assignment is complete, return it as a solution.
         if self.csp.is_assignment_complete(assignment):
             return assignment
@@ -28,7 +27,7 @@ class CSP:
                 assignment[variable] = value
 
                 # Recursively attempt to complete the assignment.
-                result = self.backtrack(assignment, self.csp)
+                result = self.backtrack(assignment)
 
                 # If a solution is found, return it.
                 if result:
