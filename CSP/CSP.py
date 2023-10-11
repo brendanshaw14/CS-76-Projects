@@ -6,21 +6,20 @@ class CSP:
         self.csp = csp
 
         
-    # returns true if all variables have been assigned
-    def is_solved(self): 
-        pass
-
     # Backtracking Algorithm
     def backtrack(self, assignment={}):
+        print("Calling backtrack: "+ str(assignment))
         # If the assignment is complete, return it as a solution.
         if self.csp.is_assignment_complete(assignment):
             return assignment
 
         # Select an unassigned variable using variable selection heuristics.
         variable = self.csp.choose_next_variable(assignment)
+        print("Next variable:" + str(variable))
 
         # Loop through the values in the domain of the selected variable.
         for value in self.csp.order_domain_values(variable):
+            print(str(variable) + " domain value " + str(value))
             # Check if the assignment of the value to the variable is consistent.
             if self.csp.is_consistent(assignment, variable, value):
                 # Assign the value to the variable.
