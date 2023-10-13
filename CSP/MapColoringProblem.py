@@ -6,18 +6,22 @@ class MapColoringProblem:
 
     # constructor
     def __init__(self, countries, colors, adjacency):
-        self.countries = countries
-        self.colors = colors
-        self.adjacency = adjacency
-        
+        self.variables = countries
+        self.constraints = adjacency
+        self.domains = {self.variables[i]: colors for i in range(len(self.variables))}
 
-    # returns true if all the variables have been assigned
-    def is_assignment_complete(self, assignment): 
-        # if the length of the assignment is the same as the number of countries
-        if len(assignment) == len(self.countries): 
-            return True
-        return False
-    
+    # return the variables
+    def get_variables(self):
+        return self.variables
+ 
+    # return the domains
+    def get_domaints(self):
+        return self.domains   
+
+    # return the constraints
+    def get_constraints(self):
+        return self.constraints
+
     # TODO: add ordering (return variables with more options first)
     # returns the next variable that hasn't been assigned yet (no heuristic)
     def choose_next_variable(self, assignment): 
@@ -27,12 +31,6 @@ class MapColoringProblem:
             if country not in assignment:
                 # return it to be visited next
                 return country
-    
-    # TODO: add ordering (return the valid ones first)
-    # returns the domain values to search
-    def order_domain_values(self, variable):
-        # just return the list of available colors in this case
-        return self.colors
         
     def is_consistent(self, assignment, variable, value):
         # for each adjacent country
@@ -41,7 +39,6 @@ class MapColoringProblem:
             if country in assignment and assignment[country] == value: return False
         # if none are the same or the country hasn't yet been assigned, return true
         return True
-
 
 
 
@@ -71,6 +68,8 @@ if __name__ == "__main__":
     # test order_domain_values
 
     # test the backtracking method
-    result = CSP.backtrack(australia_csp)
+    # result = CSP.backtrack(australia_csp)
+    result = CSP.mac3(australia_csp)
+
     print(result)
 
