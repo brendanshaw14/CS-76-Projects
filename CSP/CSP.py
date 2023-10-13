@@ -21,7 +21,7 @@ class CSP:
     def backtrack(self, domains=None):
         # if this is the first call, set the domains to all possible values
         if domains == None:
-            domains = self.csp.domains
+            domains = self.csp.get_domains()
 
         # If the assignment is complete, return it as a solution.
         if self.is_assignment_complete(self.assignment):
@@ -31,9 +31,9 @@ class CSP:
         variable = self.csp.choose_next_variable(self.assignment)
 
         # Loop through the values in the domain of the selected variable.
-        for value in self.csp.order_domain_values(variable):
+        for value in self.csp.order_domain_values(domains, variable):
 
-            # Check if the assignment of the value to the variable is consistent.
+            # Check if the assignment of the value to the variable is consistent with the rest of the assignment.
             if self.csp.is_consistent(self.assignment, variable, value):
 
                 # Assign the value to the variable.
@@ -42,12 +42,15 @@ class CSP:
                 # If inference enabled: Recursively attempt to complete the assignment.
                 if self.inference:
                     # copy the domain for the recursive calls
-                    domain_copy = copy.deepcopy(domains)
+                    domains_copy = copy.deepcopy(domains)
                     # call mac3 to edit domain
-                    inferences = self.MAC3(domain_copy, variable)
+                    inferences = self.MAC3(domains_copy, variable)
                     # if these are all consistent, keep going
                     if inferences: 
-                        result = self.backtrack(self.assignment)
+                        result = self.backtrack(assignment, domains_copy)
+                # if inference isn't enabled, call backtrack recursively again with the same domain
+                else:
+                    result = self.backtrack(domains)
 
                 # If a solution is found, return it.
                 if result:
@@ -76,10 +79,10 @@ class CSP:
             neighbor, assigned_variable = queue.pop()  
             
             # if the neighbor's domain was changed
-            if self.revise(self.csp, neighbor, assigned_variable):
+            if self.revise(self.csp, domains, neighbor, assigned_variable):
 
                 # if the domain is now empty after the change
-                if not self.csp.get_domains(neighbor):  # If a domain becomes empty, return failure
+                if not self.csp.get_domains(domains, neighbor):  # If a domain becomes empty, return failure
                     return False
                 
                 # otherwise, loop thorugh the neighbors, adding them to the queue to be edited as well
@@ -89,18 +92,18 @@ class CSP:
                         queue.append((neighbor_neighbor, neighbor))
         return True
 
-    def revise(self, neighbor, variable):
+    def revise(self, domains, neighbor, assigned_variable):
         # starts at false
         revised = False
         # for each value in the domain of the neighbor (D_i)
-        for neighbor_value in self.csp.get_domains(neighbor):  
+        for neighbor_value in self.csp.get_domains(domains, neighbor):  
 
             # for each value in the domain of the variable
-            for value in self.csp.get_domains(variable):
+            for value in self.csp.get_domains(domains, assigned_variable):
 
                 # if that variable doesn't satisfy the constraint
-                if not self.csp.is_consistent({neighbor:neighbor_value}, variable, value):
-                    self.csp.remove_value(variable, value)  # Remove inconsistent values from the domain
+                if not self.csp.is_consistent({neighbor:neighbor_value}, assigned_variable, value):
+                    self.csp.remove_value(assigned_variable, value)  # Remove inconsistent values from the domain
                     revised = True
                     break
         return revised
@@ -108,6 +111,6 @@ class CSP:
     # returns true if all the variables have been assigned
     def is_assignment_complete(self, assignment): 
         # if the length of the assignment is the same as the number of countries
-        if len(assignment) == len(self.csp.variables): 
+        if len(assignment) == len(self.csp.get_variables()): 
             return True
         return False

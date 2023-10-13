@@ -14,9 +14,11 @@ class MapColoringProblem:
     def get_variables(self):
         return self.variables
  
-    # return the domains
-    def get_domains(self, variable):
-        return self.domains   
+    # return all the domains if no variable is specified,
+    # otherwise return the domain of that variable
+    def get_domains(self, domains=None, variable=None):
+        if variable == None: return self.domains   
+        else: return domains[variable]           
 
     # return the constraints
     def get_constraints(self):
@@ -30,15 +32,21 @@ class MapColoringProblem:
     # returns the next variable that hasn't been assigned yet (no heuristic)
     def choose_next_variable(self, assignment): 
         #loop through countries
-        for country in self.countries: 
+        for country in self.variables: 
             # if the country hasn't been assigned
             if country not in assignment:
                 # return it to be visited next
                 return country
-        
+    
+    # TODO: add some ordering 
+    # returns a list of domain values for a given variable to search through
+    def order_domain_values(self, domains, variable): 
+        return domains[variable]
+
+    # returns whether or not the given variable value pair satisfies all constraints with the current assignment 
     def is_consistent(self, assignment, variable, value):
         # for each adjacent country
-        for country in self.adjacency[variable]: 
+        for country in self.constraints[variable]: 
             # if that country has the same color as the current assignment
             if country in assignment and assignment[country] == value: return False
         # if none are the same or the country hasn't yet been assigned, return true
@@ -72,8 +80,7 @@ if __name__ == "__main__":
     # test order_domain_values
 
     # test the backtracking method
-    # result = CSP.backtrack(australia_csp)
-    result = CSP.mac3(australia_csp)
+    result = CSP.backtrack(australia_csp)
 
     print(result)
 
