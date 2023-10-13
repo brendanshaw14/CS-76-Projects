@@ -15,12 +15,16 @@ class MapColoringProblem:
         return self.variables
  
     # return the domains
-    def get_domaints(self):
+    def get_domains(self, variable):
         return self.domains   
 
     # return the constraints
     def get_constraints(self):
         return self.constraints
+    
+    # return the neighbors (other variables with a constraint involving) of the current variable 
+    def get_neighbors(self, variable): 
+        return self.constraints[variable]
 
     # TODO: add ordering (return variables with more options first)
     # returns the next variable that hasn't been assigned yet (no heuristic)
