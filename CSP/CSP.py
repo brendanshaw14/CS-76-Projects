@@ -52,7 +52,7 @@ class CSP:
                     # if these are all consistent, keep going
                     if inferences: 
                         print("inferences true")
-                        result = self.backtrack(self.assignment, domains_copy)
+                        result = self.backtrack(domains_copy)
                     else: 
                         result = None
                 # if inference isn't enabled, call backtrack recursively again with the same domain
@@ -88,7 +88,7 @@ class CSP:
             
             # if the neighbor's domain was changed
             if self.revise(domains, neighbor, assigned_variable):
-
+                print("revise occurred")
                 # if the domain is now empty after the change
                 if not self.csp.get_domains(domains, neighbor):  # If a domain becomes empty, return failure
                     return False
@@ -103,23 +103,27 @@ class CSP:
     def revise(self, domains, neighbor, assigned_variable):
         # starts at false
         revised = False
-        print("Calling revise on " + str(neighbor) + ", " + str(assigned_variable))
+
         # for each value in the domain of the neighbor (D_i)
-        for neighbor_value in self.csp.get_domains(domains, neighbor):  
+        neighbor_values = list(self.csp.get_domains(domains, neighbor))
+        for neighbor_value in neighbor_values:
             # for each value in the domain of the variable
-            print("Here")
+            consistent = False
+            print("Neighbor value: " + str(neighbor_value))
             for value in self.csp.get_domains(domains, assigned_variable):
-                print("Testing consistency of " + str(value) + " for variable " + str(assigned_variable) + " with assignment " + str({neighbor:neighbor_value}))
+                print("Testing consistency of " + str(assigned_variable) + ":" + str(value) + " with assignment " + str({neighbor:neighbor_value}))
 
                 # if that variable doesn't satisfy the constraint
-                if not self.csp.is_consistent({neighbor:neighbor_value}, assigned_variable, value):
-                    print(domains[neighbor])
-                    domains[neighbor].remove(neighbor_value)  # Remove inconsistent values from the domain
-                    print("removing value " + str(neighbor_value) + " from the domain of " + str(neighbor))
-                    print(domains[neighbor])
-                    print("revised domains " + str(domains))
-                    revised = True
+                if self.csp.is_consistent({neighbor:neighbor_value}, assigned_variable, value):
+                    consistent = True
                     break
+            if not consistent:
+                print(domains)
+                print("removing value " + str(neighbor_value) + " from the domain of " + str(neighbor))
+                print(domains)
+                domains[neighbor].remove(neighbor_value)  # Remove inconsistent values from the domain
+                revised = True
+
         return revised
 
     # returns true if all the variables have been assigned

@@ -1,6 +1,7 @@
 # Map Coloring Problem for CSP input
 
 from CSP import CSP
+import copy
 
 class MapColoringProblem:
 
@@ -8,7 +9,7 @@ class MapColoringProblem:
     def __init__(self, countries, colors, adjacency):
         self.variables = countries
         self.constraints = adjacency
-        self.domains = {self.variables[i]: colors for i in range(len(self.variables))}
+        self.domains = {self.variables[i]: copy.deepcopy(colors) for i in range(len(self.variables))}
 
     # return the variables
     def get_variables(self):
@@ -69,7 +70,8 @@ if __name__ == "__main__":
     
     
     # setup the CSPSolver
-    australia_csp = CSP(australia_problem, True) 
+    australia_csp_inference = CSP(australia_problem, True) 
+    australia_csp_no_inference = CSP(australia_problem) 
     
     # test choose_next_variable
     # print(australia_problem.choose_next_variable("WA"))
@@ -77,7 +79,9 @@ if __name__ == "__main__":
     # test order_domain_values
 
     # test the backtracking method
-    result = CSP.backtrack(australia_csp)
+    result = CSP.backtrack(australia_csp_no_inference)
 
     print(result)
+#    {'WA': 'r', 'NT': 'g', 'SA': 'b', 'Q': 'r', 'NSW': 'g', 'V': 'r', 'T': 'r'}
+#    {'WA': 'r', 'NT': 'g', 'SA': 'b', 'Q': 'r', 'NSW': 'g', 'V': 'r', 'T': 'r'}
 
