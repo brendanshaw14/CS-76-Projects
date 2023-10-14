@@ -1,6 +1,5 @@
 # Constraint Satisfaction Problem Class
 
-from collections import deque
 import copy
 
 class CSP:
@@ -22,6 +21,7 @@ class CSP:
         # if this is the first call, set the domains to all possible values
         if domains == None:
             domains = self.csp.get_domains()
+        
 
         # If the assignment is complete, return it as a solution.
         if self.is_assignment_complete(self.assignment):
@@ -29,10 +29,11 @@ class CSP:
 
         # Select an unassigned variable using variable selection heuristics.
         variable = self.csp.choose_next_variable(self.assignment)
+        print("Calling backtrack on " + str(variable))
 
-        # Loop through the values in the domain of the selected variable.
+        # Loop through the values in the domain of the selected variable
         for value in self.csp.order_domain_values(domains, variable):
-
+            print("Testing value " + str(value))
             # Check if the assignment of the value to the variable is consistent with the rest of the assignment.
             if self.csp.is_consistent(self.assignment, variable, value):
 
@@ -43,11 +44,17 @@ class CSP:
                 if self.inference:
                     # copy the domain for the recursive calls
                     domains_copy = copy.deepcopy(domains)
+                    # edit the domain of the assigned variable
+                    domains_copy[variable] = [value]
+                    print("Domain copy: " + str(domains_copy))
                     # call mac3 to edit domain
                     inferences = self.MAC3(domains_copy, variable)
                     # if these are all consistent, keep going
                     if inferences: 
-                        result = self.backtrack(assignment, domains_copy)
+                        print("inferences true")
+                        result = self.backtrack(self.assignment, domains_copy)
+                    else: 
+                        result = None
                 # if inference isn't enabled, call backtrack recursively again with the same domain
                 else:
                     result = self.backtrack(domains)
@@ -56,30 +63,31 @@ class CSP:
                 if result:
                     return result
 
-            # If no solution is found, undo the assignment.
-            del self.assignment[variable]
+                # If no solution is found, undo the assignment.
+                del self.assignment[variable]
 
         # If no solution is found, return None to indicate failure.
         return None
 
     def MAC3(self, domains, assigned_variable):
         # Initialize a queue for consistency checks
-        queue = deque
+        queue = []
 
         # add all of the arcs from the neighbors of the variable to that variable
-        for neighbor in self.csp.get_neighbors[assigned_variable]:
+        for neighbor in self.csp.get_neighbors(assigned_variable):
             # if the neighbor isn't in the assignment already:
             if neighbor not in self.assignment:
                 # add the tuple of the arc from neighbor to variable as a tuple
                 queue.append((neighbor, assigned_variable))
 
+        print("queue: " + str(queue))
         # while there are still items in the queue:
         while queue:
             # get the next variable assignment
             neighbor, assigned_variable = queue.pop()  
             
             # if the neighbor's domain was changed
-            if self.revise(self.csp, domains, neighbor, assigned_variable):
+            if self.revise(domains, neighbor, assigned_variable):
 
                 # if the domain is now empty after the change
                 if not self.csp.get_domains(domains, neighbor):  # If a domain becomes empty, return failure
@@ -95,15 +103,21 @@ class CSP:
     def revise(self, domains, neighbor, assigned_variable):
         # starts at false
         revised = False
+        print("Calling revise on " + str(neighbor) + ", " + str(assigned_variable))
         # for each value in the domain of the neighbor (D_i)
         for neighbor_value in self.csp.get_domains(domains, neighbor):  
-
             # for each value in the domain of the variable
+            print("Here")
             for value in self.csp.get_domains(domains, assigned_variable):
+                print("Testing consistency of " + str(value) + " for variable " + str(assigned_variable) + " with assignment " + str({neighbor:neighbor_value}))
 
                 # if that variable doesn't satisfy the constraint
                 if not self.csp.is_consistent({neighbor:neighbor_value}, assigned_variable, value):
-                    self.csp.remove_value(assigned_variable, value)  # Remove inconsistent values from the domain
+                    print(domains[neighbor])
+                    domains[neighbor].remove(neighbor_value)  # Remove inconsistent values from the domain
+                    print("removing value " + str(neighbor_value) + " from the domain of " + str(neighbor))
+                    print(domains[neighbor])
+                    print("revised domains " + str(domains))
                     revised = True
                     break
         return revised

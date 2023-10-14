@@ -20,9 +20,6 @@ class MapColoringProblem:
         if variable == None: return self.domains   
         else: return domains[variable]           
 
-    # return the constraints
-    def get_constraints(self):
-        return self.constraints
     
     # return the neighbors (other variables with a constraint involving) of the current variable 
     def get_neighbors(self, variable): 
@@ -72,7 +69,7 @@ if __name__ == "__main__":
     
     
     # setup the CSPSolver
-    australia_csp = CSP(australia_problem)
+    australia_csp = CSP(australia_problem, True) 
     
     # test choose_next_variable
     # print(australia_problem.choose_next_variable("WA"))
