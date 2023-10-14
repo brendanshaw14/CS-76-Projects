@@ -18,7 +18,7 @@ class MapColoringProblem:
     # return all the domains if no variable is specified,
     # otherwise return the domain of that variable
     def get_domains(self, domains=None, variable=None):
-        if variable == None: return self.domains   
+        if variable == None or domains == None: return self.domains   
         else: return domains[variable]           
 
     
@@ -36,11 +36,6 @@ class MapColoringProblem:
                 # return it to be visited next
                 return country
     
-    # TODO: add some ordering 
-    # returns a list of domain values for a given variable to search through
-    def order_domain_values(self, domains, variable): 
-        return domains[variable]
-
     # returns whether or not the given variable value pair satisfies all constraints with the current assignment 
     def is_consistent(self, assignment, variable, value):
         # for each adjacent country
