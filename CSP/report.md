@@ -102,4 +102,16 @@ def revise(self, domains, neighbor, assigned_variable):
     return revised
 ```
 ## Map Coloring Implementation
+
 The map coloring problem is pretty simple. The `variables` are the different countries in the map that need to be colored, each country's domain is comprised of all the possible colors it could be (r, g, or b, in this case), and the only constraint is that no two countries that are adjacent to one another can be the same color. 
+
+Since the only thing that matters is what I return to the `CSP` solving class via the problem class (`MapColoringProblem.py`) methods, it doesn't really matter what I decide to put in the constructor or what I decide to name it. In this case though, it made sense to just set up the constructor as follows:
+```
+class MapColoringProblem:
+    def __init__(self, countries, colors, adjacency):
+        self.variables = countries
+        self.constraints = adjacency
+        self.domains = {self.variables[i]: copy.deepcopy(colors) for i in range(len(self.variables))}
+```
+In this case, the countries are the `variables`, the adjacency map of the countries will allow me to use the 
+
