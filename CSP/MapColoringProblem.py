@@ -11,7 +11,7 @@ class MapColoringProblem:
         self.variables = countries
         self.constraints = adjacency
         self.domains = {self.variables[i]: copy.deepcopy(colors) for i in range(len(self.variables))}
-
+        self.colors = colors
         # minimum remaining values heuristic enable/disable
         self.MRV = MRV
         self.DEG = DEG
@@ -64,9 +64,9 @@ class MapColoringProblem:
     def choose_next_variable(self, assignment, domains): 
         # if MRV enabled: 
         if self.MRV:
-            # remember the least value and which country: initialize to 4 since there are at most 3 values
+            # remember the least value and which country: initialize to num_colors + 1
             min_remaining_values_country = None
-            min_remaining_values = 4
+            min_remaining_values = len(self.colors) + 1
 
             # loop through the domains
             for country, remaining_values in domains.items(): 
@@ -116,14 +116,79 @@ if __name__ == "__main__":
     # setup the australia problem
     australia_countries = ["WA", "NT", "SA", "Q", "NSW", "V", "T"]
     australia_colors = ["r", "g", "b"]
-    australia_adjacency = {"WA": ["NT", "SA"], 
-                           "NT":["WA", "SA", "Q"], 
-                           "SA":["WA", "NT", "Q", "NSW", "V"], 
-                           "Q":["NT", "SA", "NSW"], 
-                           "NSW":["Q", "SA", "V"], 
-                           "V":["NSW", "SA"], 
-                           "T":[]
-                           }
+    australia_adjacency = {
+        "WA": ["NT", "SA"], 
+        "NT":["WA", "SA", "Q"], 
+        "SA":["WA", "NT", "Q", "NSW", "V"], 
+        "Q":["NT", "SA", "NSW"], 
+        "NSW":["Q", "SA", "V"], 
+        "V":["NSW", "SA"], 
+        "T":[]
+    }
+
+    # uncomment these to switch to the US coloring problem. 
+    # names are still australia so that all of the same testing code can be used. 
+    # australia_colors = ["r", "g", "b", "y"]
+    # australia_countries = [
+        # "WA", "OR", "ID", "CA", "NV", "MT", "WY", "UT", "AZ", "NM",
+        # "CO", "ND", "SD", "NE", "KS", "OK", "TX", "MN", "IA", "MO",
+        # "AR", "LA", "WI", "IL", "MI", "IN", "OH", "KY", "WV", "PA",
+        # "NY", "VT", "NH", "ME", "MA", "CT", "RI", "NJ", "DE", "MD",
+        # "VA", "NC", "SC", "GA", "FL", "AL", "MS", "TN", "HI", "AK"
+    # ]
+    # australia_adjacency = {
+        # "WA": ["OR", "ID"],
+        # "OR": ["WA", "ID", "CA", "NV"],
+        # "ID": ["WA", "MT", "WY", "UT", "NV", "OR"],
+        # "CA": ["OR", "NV", "AZ"],
+        # "NV": ["OR", "ID", "UT", "AZ", "CA"],
+        # "MT": ["ID", "ND", "SD", "WY"],
+        # "WY": ["ID", "MT", "SD", "NE", "CO", "UT"],
+        # "UT": ["ID", "WY", "CO", "NM", "AZ", "NV"],
+        # "AZ": ["CA", "NV", "UT", "NM"],
+        # "NM": ["AZ", "UT", "CO", "OK", "TX"],
+        # "CO": ["WY", "NE", "KS", "OK", "NM", "UT"],
+        # "ND": ["MT", "MN", "SD"],
+        # "SD": ["ND", "MT", "WY", "NE", "IA", "MN"],
+        # "NE": ["SD", "WY", "CO", "KS", "MO", "IA"],
+        # "KS": ["NE", "CO", "OK", "MO"],
+        # "OK": ["KS", "CO", "NM", "TX", "AR", "MO"],
+        # "TX": ["OK", "NM", "AR", "LA"],
+        # "MN": ["ND", "SD", "IA", "WI"],
+        # "IA": ["MN", "SD", "NE", "MO", "IL", "WI"],
+        # "MO": ["IA", "NE", "KS", "OK", "AR", "TN", "KY", "IL"],
+        # "AR": ["MO", "OK", "TX", "LA", "MS", "TN"],
+        # "LA": ["TX", "AR", "MS"],
+        # "WI": ["MN", "IA", "IL", "MI"],
+        # "IL": ["WI", "IA", "MO", "KY", "IN", "MI"],
+        # "MI": ["WI", "IL", "IN", "OH"],
+        # "IN": ["MI", "IL", "KY", "OH"],
+        # "OH": ["MI", "IN", "KY", "WV", "PA"],
+        # "KY": ["OH", "IN", "IL", "MO", "TN", "WV"],
+        # "WV": ["PA", "OH", "KY", "VA", "MD"],
+        # "PA": ["OH", "WV", "MD", "DE", "NJ", "NY"],
+        # "NY": ["PA", "NJ", "VT", "MA", "CT"],
+        # "VT": ["NY", "NH"],
+        # "NH": ["VT", "ME"],
+        # "ME": ["NH"],
+        # "MA": ["NY", "CT", "RI"],
+        # "CT": ["MA", "RI", "NY"],
+        # "RI": ["MA", "CT"],
+        # "NJ": ["NY", "PA", "DE"],
+        # "DE": ["NJ", "MD", "PA"],
+        # "MD": ["DE", "PA", "WV", "VA"],
+        # "VA": ["MD", "WV", "KY", "NC", "TN"],
+        # "NC": ["VA", "TN", "GA", "SC"],
+        # "SC": ["NC", "GA"],
+        # "GA": ["NC", "SC", "FL", "AL", "TN"],
+        # "FL": ["GA", "AL"],
+        # "AL": ["FL", "GA", "MS", "TN"],
+        # "MS": ["AL", "LA", "AR", "TN"],
+        # "TN": ["KY", "VA", "NC", "GA", "AL", "MS", "AR", "MO", "IL", "KY"],
+        # "HI": [],
+        # "AK": []
+    # }
+
     # initialize the different problem classes
     australia_problem_no_heuristic = MapColoringProblem(australia_countries, australia_colors, australia_adjacency)
     australia_problem_mrv = MapColoringProblem(australia_countries, australia_colors, australia_adjacency, MRV=True)
@@ -235,16 +300,33 @@ if __name__ == "__main__":
     
 
 
+# Here are the results of the above tests on the states problem: I'll spare the time
+"""
+No Inference No Heuristics Runtime: 16.84667181968689 seconds
+{'WA': 'r', 'OR': 'g', 'ID': 'b', 'CA': 'r', 'NV': 'y', 'MT': 'r', 'WY': 'g', 'UT': 'r', 'AZ': 'g', 'NM': 'b', 'CO': 'y', 'ND': 'g', 'SD': 'b', 'NE': 'r', 'KS': 'g', 'OK': 'r', 'TX': 'g', 'MN': 'r', 'IA': 'g', 'MO': 'b', 'AR': 'y', 'LA': 'r', 'WI': 'b', 'IL': 'r', 'MI': 'g', 'IN': 'b', 'OH': 'r', 'KY': 'y', 'WV': 'g', 'PA': 'b', 'NY': 'r', 'VT': 'g', 'NH': 'r', 'ME': 'g', 'MA': 'g', 'CT': 'b', 'RI': 'r', 'NJ': 'g', 'DE': 'r', 'MD': 'y', 'VA': 'r', 'NC': 'b', 'SC': 'r', 'GA': 'y', 'FL': 'g', 'AL': 'r', 'MS': 'b', 'TN': 'g', 'HI': 'r', 'AK': 'r'}
+No Inference with MRV Runtime: 21.745162963867188 seconds
+{'WA': 'r', 'OR': 'g', 'ID': 'b', 'CA': 'r', 'NV': 'y', 'MT': 'r', 'WY': 'g', 'UT': 'r', 'AZ': 'g', 'NM': 'b', 'CO': 'y', 'ND': 'g', 'SD': 'b', 'NE': 'r', 'KS': 'g', 'OK': 'r', 'TX': 'g', 'MN': 'r', 'IA': 'g', 'MO': 'b', 'AR': 'y', 'LA': 'r', 'WI': 'b', 'IL': 'r', 'MI': 'g', 'IN': 'b', 'OH': 'r', 'KY': 'y', 'WV': 'g', 'PA': 'b', 'NY': 'r', 'VT': 'g', 'NH': 'r', 'ME': 'g', 'MA': 'g', 'CT': 'b', 'RI': 'r', 'NJ': 'g', 'DE': 'r', 'MD': 'y', 'VA': 'r', 'NC': 'b', 'SC': 'r', 'GA': 'y', 'FL': 'g', 'AL': 'r', 'MS': 'b', 'TN': 'g', 'HI': 'r', 'AK': 'r'}
+No Inference with DEG Runtime: 0.00015997886657714844 seconds
+{'TN': 'r', 'MO': 'g', 'ID': 'r', 'WY': 'g', 'UT': 'b', 'CO': 'r', 'SD': 'r', 'NE': 'b', 'OK': 'b', 'IA': 'y', 'AR': 'y', 'IL': 'r', 'KY': 'b', 'PA': 'r', 'NV': 'g', 'NM': 'g', 'OH': 'g', 'WV': 'y', 'NY': 'g', 'VA': 'g', 'GA': 'g', 'OR': 'b', 'MT': 'b', 'AZ': 'r', 'KS': 'y', 'TX': 'r', 'MN': 'b', 'WI': 'g', 'MI': 'b', 'IN': 'y', 'MD': 'b', 'NC': 'b', 'AL': 'b', 'MS': 'g', 'CA': 'y', 'ND': 'g', 'LA': 'b', 'MA': 'r', 'CT': 'b', 'NJ': 'b', 'DE': 'g', 'WA': 'g', 'VT': 'r', 'NH': 'g', 'RI': 'g', 'SC': 'r', 'FL': 'r', 'ME': 'r', 'HI': 'r', 'AK': 'r'}
+No Inference with LCV Runtime: 34.742955923080444 seconds
+{'WA': 'r', 'OR': 'g', 'ID': 'b', 'CA': 'r', 'NV': 'y', 'MT': 'r', 'WY': 'g', 'UT': 'r', 'AZ': 'g', 'NM': 'b', 'CO': 'y', 'ND': 'g', 'SD': 'b', 'NE': 'r', 'KS': 'g', 'OK': 'r', 'TX': 'g', 'MN': 'r', 'IA': 'g', 'MO': 'b', 'AR': 'y', 'LA': 'r', 'WI': 'b', 'IL': 'r', 'MI': 'g', 'IN': 'b', 'OH': 'r', 'KY': 'y', 'WV': 'g', 'PA': 'b', 'NY': 'r', 'VT': 'g', 'NH': 'r', 'ME': 'g', 'MA': 'g', 'CT': 'b', 'RI': 'r', 'NJ': 'g', 'DE': 'r', 'MD': 'y', 'VA': 'r', 'NC': 'b', 'SC': 'r', 'GA': 'y', 'FL': 'g', 'AL': 'r', 'MS': 'b', 'TN': 'g', 'HI': 'r', 'AK': 'r'}
+No Inference with MRV and LCV Runtime: 39.77112007141113 seconds
+{'WA': 'r', 'OR': 'g', 'ID': 'b', 'CA': 'r', 'NV': 'y', 'MT': 'r', 'WY': 'g', 'UT': 'r', 'AZ': 'g', 'NM': 'b', 'CO': 'y', 'ND': 'g', 'SD': 'b', 'NE': 'r', 'KS': 'g', 'OK': 'r', 'TX': 'g', 'MN': 'r', 'IA': 'g', 'MO': 'b', 'AR': 'y', 'LA': 'r', 'WI': 'b', 'IL': 'r', 'MI': 'g', 'IN': 'b', 'OH': 'r', 'KY': 'y', 'WV': 'g', 'PA': 'b', 'NY': 'r', 'VT': 'g', 'NH': 'r', 'ME': 'g', 'MA': 'g', 'CT': 'b', 'RI': 'r', 'NJ': 'g', 'DE': 'r', 'MD': 'y', 'VA': 'r', 'NC': 'b', 'SC': 'r', 'GA': 'y', 'FL': 'g', 'AL': 'r', 'MS': 'b', 'TN': 'g', 'HI': 'r', 'AK': 'r'}
+No Inference with DEG and LCV Runtime: 0.00026297569274902344 seconds
+{'TN': 'r', 'MO': 'g', 'ID': 'r', 'WY': 'g', 'UT': 'b', 'CO': 'r', 'SD': 'r', 'NE': 'b', 'OK': 'b', 'IA': 'y', 'AR': 'y', 'IL': 'r', 'KY': 'b', 'PA': 'r', 'NV': 'g', 'NM': 'g', 'OH': 'g', 'WV': 'y', 'NY': 'g', 'VA': 'g', 'GA': 'g', 'OR': 'b', 'MT': 'b', 'AZ': 'r', 'KS': 'y', 'TX': 'r', 'MN': 'b', 'WI': 'g', 'MI': 'b', 'IN': 'y', 'MD': 'b', 'NC': 'b', 'AL': 'b', 'MS': 'g', 'CA': 'y', 'ND': 'g', 'LA': 'b', 'MA': 'r', 'CT': 'b', 'NJ': 'b', 'DE': 'g', 'WA': 'g', 'VT': 'r', 'NH': 'g', 'RI': 'g', 'SC': 'r', 'FL': 'r', 'ME': 'r', 'HI': 'r', 'AK': 'r'}
+Inference with No Heuristics Runtime: 86.06060576438904 seconds
+{'WA': 'r', 'OR': 'g', 'ID': 'b', 'CA': 'r', 'NV': 'y', 'MT': 'r', 'WY': 'g', 'UT': 'r', 'AZ': 'g', 'NM': 'b', 'CO': 'y', 'ND': 'g', 'SD': 'b', 'NE': 'r', 'KS': 'g', 'OK': 'r', 'TX': 'g', 'MN': 'r', 'IA': 'g', 'MO': 'b', 'AR': 'y', 'LA': 'r', 'WI': 'b', 'IL': 'r', 'MI': 'g', 'IN': 'b', 'OH': 'r', 'KY': 'y', 'WV': 'g', 'PA': 'b', 'NY': 'r', 'VT': 'g', 'NH': 'r', 'ME': 'g', 'MA': 'g', 'CT': 'b', 'RI': 'r', 'NJ': 'g', 'DE': 'r', 'MD': 'y', 'VA': 'r', 'NC': 'b', 'SC': 'r', 'GA': 'y', 'FL': 'g', 'AL': 'r', 'MS': 'b', 'TN': 'g', 'HI': 'r', 'AK': 'r'}
+Inference with MRV Runtime: 0.005126953125 seconds
+{'WA': 'r', 'OR': 'g', 'ID': 'b', 'NV': 'r', 'CA': 'b', 'UT': 'g', 'AZ': 'y', 'WY': 'r', 'MT': 'g', 'NM': 'r', 'CO': 'b', 'SD': 'b', 'ND': 'r', 'NE': 'g', 'KS': 'r', 'OK': 'g', 'TX': 'b', 'MN': 'g', 'IA': 'r', 'MO': 'b', 'AR': 'r', 'LA': 'g', 'WI': 'b', 'IL': 'g', 'MI': 'r', 'IN': 'b', 'OH': 'g', 'KY': 'r', 'WV': 'b', 'PA': 'r', 'MD': 'y', 'DE': 'g', 'NJ': 'b', 'NY': 'g', 'VA': 'g', 'MS': 'b', 'TN': 'y', 'NC': 'r', 'GA': 'g', 'AL': 'r', 'SC': 'b', 'FL': 'b', 'VT': 'r', 'NH': 'g', 'ME': 'r', 'MA': 'r', 'CT': 'b', 'RI': 'g', 'HI': 'r', 'AK': 'r'}
+Inference with DEG Runtime: 0.0032498836517333984 seconds
+{'TN': 'r', 'MO': 'g', 'ID': 'r', 'WY': 'g', 'UT': 'b', 'CO': 'r', 'SD': 'r', 'NE': 'b', 'OK': 'b', 'IA': 'y', 'AR': 'y', 'IL': 'b', 'KY': 'y', 'PA': 'r', 'NV': 'g', 'NM': 'g', 'OH': 'g', 'WV': 'b', 'NY': 'g', 'VA': 'g', 'GA': 'g', 'OR': 'b', 'MT': 'b', 'AZ': 'r', 'KS': 'y', 'TX': 'r', 'MN': 'g', 'WI': 'r', 'MI': 'y', 'IN': 'r', 'MD': 'y', 'NC': 'b', 'AL': 'b', 'MS': 'g', 'CA': 'y', 'ND': 'y', 'LA': 'b', 'MA': 'r', 'CT': 'b', 'NJ': 'b', 'DE': 'g', 'WA': 'g', 'VT': 'r', 'NH': 'g', 'RI': 'g', 'SC': 'r', 'FL': 'r', 'ME': 'r', 'HI': 'r', 'AK': 'r'}
+Inference with LCV Runtime: 0.0055332183837890625 seconds
+{'WA': 'r', 'OR': 'g', 'ID': 'b', 'CA': 'b', 'NV': 'r', 'MT': 'r', 'WY': 'g', 'UT': 'y', 'AZ': 'g', 'NM': 'r', 'CO': 'b', 'ND': 'g', 'SD': 'b', 'NE': 'r', 'KS': 'g', 'OK': 'y', 'TX': 'b', 'MN': 'r', 'IA': 'g', 'MO': 'b', 'AR': 'r', 'LA': 'g', 'WI': 'b', 'IL': 'r', 'MI': 'g', 'IN': 'b', 'OH': 'r', 'KY': 'g', 'WV': 'y', 'PA': 'g', 'NY': 'r', 'VT': 'g', 'NH': 'r', 'ME': 'g', 'MA': 'g', 'CT': 'b', 'RI': 'r', 'NJ': 'b', 'DE': 'y', 'MD': 'r', 'VA': 'b', 'NC': 'r', 'SC': 'y', 'GA': 'b', 'FL': 'y', 'AL': 'r', 'MS': 'b', 'TN': 'y', 'HI': 'r', 'AK': 'r'}
+Inference with MRV and LCV Runtime: 0.008306026458740234 seconds
+{'WA': 'r', 'OR': 'g', 'ID': 'b', 'NV': 'r', 'CA': 'b', 'UT': 'g', 'AZ': 'y', 'WY': 'r', 'MT': 'g', 'NM': 'r', 'CO': 'b', 'SD': 'b', 'ND': 'r', 'NE': 'g', 'KS': 'r', 'OK': 'g', 'TX': 'b', 'MN': 'g', 'IA': 'r', 'MO': 'b', 'AR': 'r', 'LA': 'g', 'WI': 'b', 'IL': 'g', 'MI': 'r', 'IN': 'b', 'OH': 'g', 'KY': 'r', 'WV': 'b', 'PA': 'r', 'MD': 'y', 'DE': 'g', 'NJ': 'b', 'NY': 'g', 'VA': 'g', 'MS': 'b', 'TN': 'y', 'NC': 'r', 'GA': 'b', 'SC': 'g', 'AL': 'r', 'FL': 'g', 'VT': 'r', 'NH': 'g', 'ME': 'r', 'MA': 'r', 'CT': 'b', 'RI': 'g', 'HI': 'r', 'AK': 'r'}
+Inference with DEG and LCV Runtime: 0.004997968673706055 seconds
+{'TN': 'r', 'MO': 'g', 'ID': 'r', 'WY': 'g', 'UT': 'b', 'CO': 'r', 'SD': 'r', 'NE': 'b', 'OK': 'b', 'IA': 'y', 'AR': 'y', 'IL': 'b', 'KY': 'y', 'PA': 'y', 'NV': 'g', 'NM': 'g', 'OH': 'b', 'WV': 'r', 'NY': 'r', 'VA': 'g', 'GA': 'g', 'OR': 'b', 'MT': 'b', 'AZ': 'r', 'KS': 'y', 'TX': 'r', 'MN': 'b', 'WI': 'r', 'MI': 'y', 'IN': 'r', 'MD': 'b', 'NC': 'b', 'AL': 'y', 'MS': 'g', 'CA': 'y', 'ND': 'g', 'LA': 'b', 'MA': 'g', 'CT': 'b', 'NJ': 'b', 'DE': 'r', 'WA': 'g', 'VT': 'g', 'NH': 'r', 'RI': 'r', 'SC': 'r', 'FL': 'r', 'ME': 'g', 'HI': 'r', 'AK': 'r'}
+"""
 
 
 
-
-
-# No inference:
-#    {'WA': 'r', 'NT': 'g', 'SA': 'b', 'Q': 'r', 'NSW': 'g', 'V': 'r', 'T': 'r'}
-# Inference:
-#    {'WA': 'r', 'NT': 'g', 'SA': 'b', 'Q': 'r', 'NSW': 'g', 'V': 'r', 'T': 'r'}
-# No Inference and MRV:
-#    {'WA': 'r', 'NT': 'g', 'SA': 'b', 'Q': 'r', 'NSW': 'g', 'V': 'r', 'T': 'r'}
-# Inference and MRV:
-#    {'WA': 'r', 'NT': 'g', 'SA': 'b', 'Q': 'r', 'NSW': 'g', 'V': 'r', 'T': 'r'}

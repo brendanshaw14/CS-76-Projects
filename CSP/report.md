@@ -152,6 +152,14 @@ In this case, the countries are the `variables`, the adjacency map of the countr
 
 - `get_neighbors(self, variable)`: This was also straightforward here: the constriants of the problem is just an adjacency dictionary, so we just return the value associated with that variable key in the dictionary. 
 
-- `choose_next_variable(self, assignment)`: without the heuristic, this just iterates through the `self.variables` list until it finds a variable that isn't in the assignment, and returns that. 
+- `choose_next_variable(self, assignment, domains)`: without the heuristic, this just iterates through the `self.variables` list until it finds a variable that isn't in the assignment, and returns that. 
 
 - `is_consistent(self, assignment, variable, value)`: We loop through each of the countries in the adjacency list of the given variable. If that country is in the assignment and has the same value, we return `False`.
+
+## Circuit Board Implementation
+
+The circuitboard implementation is of course pretty similar to the map coloring implementation. I used the same methods discussed, making only the minor changes below. 
+
+The main thing that had to be changed in the circuitboard problem was handling the overlap between components and the fact that all components could be adjacent. 
+
+Because of this
