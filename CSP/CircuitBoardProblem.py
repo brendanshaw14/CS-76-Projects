@@ -1,5 +1,6 @@
 # Circuit BOard Problem for CSP input
 
+import time
 from CSP import CSP
 
 class CircuitBoardProblem:
@@ -30,7 +31,29 @@ class CircuitBoardProblem:
                 domains[component] = self.get_component_domain(component)
             return domains
         else: 
-            return domains[variable]
+            if self.LCV:
+                values_with_eliminations = []
+                # for each location this variable can take 
+                for location in domains[variable]:
+                    # remember how many neighboring values it eliminates
+                    values_eliminated = 0
+                    for neighbor in self.get_neighbors(variable):
+                        if location in domains[neighbor]:
+                            values_eliminated += 1
+
+                    # Store the color along with the number of eliminated values as a tuple
+                    values_with_eliminations.append((location, values_eliminated))
+
+                # Sort the list of tuples based on the second element (values_eliminated) in ascending order
+                sorted_values = sorted(values_with_eliminations, key=lambda x: x[1])
+
+                # Extract the sorted colors from the sorted list of tuples
+                sorted_components = [component for component, _ in sorted_values]
+
+                # Return the sorted list of colors
+                return sorted_components
+            else:
+                return domains[variable]
     
     # return the neighboring components (this is all of them, since none can overlap)
     def get_neighbors(self, variable): 
@@ -140,54 +163,89 @@ if __name__ == "__main__":
     components = {"a":(3, 2), "b":(5, 2), "c":(2, 3), "e":(7, 1)}
     board_width = 10
     board_height = 3
-    circuit_problem_no_mrv = CircuitBoardProblem(components, board_width, board_height)
-    circuit_problem_mrv = CircuitBoardProblem(components, board_width, board_height, LCV=True)
 
-    # setup the CSPSolver
-    circuit_csp_no_inference = CSP(circuit_problem_no_mrv)
-    circuit_csp_inference = CSP(circuit_problem_no_mrv, True)
+    circuit_problem_no_heuristic = CircuitBoardProblem(components, board_width, board_height)
+    circuit_problem_mrv = CircuitBoardProblem(components, board_width, board_height, MRV=True)
+    circuit_problem_lcv = CircuitBoardProblem(components, board_width, board_height, LCV=True)
+    circuit_problem_mrv_lcv = CircuitBoardProblem(components, board_width, board_height, MRV=True, LCV=True)
+
+    # setup the CSPSolver without inference
+    circuit_csp_no_inference_no_heuristic = CSP(circuit_problem_no_heuristic)
     circuit_csp_no_inference_mrv = CSP(circuit_problem_mrv)
+    circuit_csp_no_inference_lcv = CSP(circuit_problem_lcv)
+    circuit_csp_no_inference_mrv_lcv = CSP(circuit_problem_mrv_lcv)
+
+    # setup the CSPSolver with inference
+    circuit_csp_inference_no_heuristic = CSP(circuit_problem_mrv, True)
     circuit_csp_inference_mrv = CSP(circuit_problem_mrv, True)
+    circuit_csp_inference_lcv = CSP(circuit_problem_lcv, True)
+    circuit_csp_inference_mrv_lcv = CSP(circuit_problem_mrv_lcv, True)
 
-    # test with no inference, no mrv
-    # result = CSP.backtrack(circuit_csp_no_inference)
-    # print(result)
-    # print(circuit_problem_no_mrv.board_to_string(result))
+    # test no inference no heuristics 
+    start_time = time.time()
+    result = CSP.backtrack(circuit_csp_no_inference_no_heuristic)
+    end_time = time.time()
+    print(f"No Inference No Heuristics Runtime: {end_time - start_time} seconds")
+    print(circuit_problem_no_heuristic.board_to_string(result)) 
 
-        # {'a': (0, 0), 'b': (3, 0), 'c': (8, 0), 'e': (0, 2)}
-        # eeeeeee.cc
-        # aaabbbbbcc
-        # aaabbbbbcc
+    # test no inference MRV 
+    start_time = time.time()
+    result = CSP.backtrack(circuit_csp_no_inference_mrv)
+    end_time = time.time()
+    print(f"No Inference MRV Runtime: {end_time - start_time} seconds")
+    print(circuit_problem_mrv.board_to_string(result)) 
 
-    # test with inference, no mrv
-    # result = CSP.backtrack(circuit_csp_inference)
-    # print(result)
-    # print(circuit_problem_no_mrv.board_to_string(result))
+    # test no inference LCV 
+    start_time = time.time()
+    result = CSP.backtrack(circuit_csp_no_inference_lcv)
+    end_time = time.time()
+    print(f"No Inference LCV Runtime: {end_time - start_time} seconds")
+    print(circuit_problem_lcv.board_to_string(result))
 
-        # {'a': (0, 0), 'b': (3, 0), 'c': (8, 0), 'e': (0, 2)}
-        # eeeeeee.cc
-        # aaabbbbbcc
-        # aaabbbbbcc
+    # test no inference MRV and LCV 
+    start_time = time.time()
+    result = CSP.backtrack(circuit_csp_no_inference_mrv_lcv)
+    end_time = time.time()
+    print(f"No Inference MRV LCV Runtime: {end_time - start_time} seconds")
+    print(circuit_problem_mrv_lcv.board_to_string(result))
 
-    # test with no inference, mrv
-    # result = CSP.backtrack(circuit_csp_no_inference_mrv)
-    # print(result)
-    # print(circuit_problem_mrv.board_to_string(result))
+    # test inference no heuristic
+    start_time = time.time()
+    result = CSP.backtrack(circuit_csp_inference_no_heuristic)
+    end_time = time.time()
+    print(f"Inference No Heuristic Runtime: {end_time - start_time} seconds")
+    print(circuit_problem_no_heuristic.board_to_string(result))
 
-        # {'c': (0, 0), 'b': (2, 0), 'e': (2, 2), 'a': (7, 0)}
-        # cceeeeeee.
-        # ccbbbbbaaa
-        # ccbbbbbaaa
+    # test inference MRV
+    start_time = time.time()
+    result = CSP.backtrack(circuit_csp_inference_mrv)
+    end_time = time.time()
+    print(f"Inference MRV Runtime: {end_time - start_time} seconds")
+    print(circuit_problem_mrv.board_to_string(result))
 
-    # test with inference, mrv
-    # result = CSP.backtrack(circuit_csp_inference_mrv)
-    # print(result)
-    # print(circuit_problem_mrv.board_to_string(result))
+    # test inference LCV
+    start_time = time.time()
+    result = CSP.backtrack(circuit_csp_inference_lcv)
+    end_time = time.time()
+    print(f"Inference LCV Runtime: {end_time - start_time} seconds")
+    print(circuit_problem_lcv.board_to_string(result))
 
-        # {'c': (0, 0), 'a': (2, 0), 'b': (5, 0), 'e': (2, 2)}
-        # cceeeeeee.
-        # ccaaabbbbb
-        # ccaaabbbbb
+    # test inference MRV LCV
+    start_time = time.time()
+    result = CSP.backtrack(circuit_csp_inference_mrv_lcv)
+    end_time = time.time()
+    print(f"Inference MRV LCV Runtime: {end_time - start_time} seconds")
+    print(circuit_problem_mrv_lcv.board_to_string(result))
+
+
+
+
+
+
+
+
+
+
 
 
 
