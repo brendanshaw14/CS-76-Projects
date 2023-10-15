@@ -21,7 +21,7 @@ class GenericCSP:
     # return all the domains if no variable is specified,
     # otherwise return the domain of that variable
     # TYPE: dictionary if no domain specified, list if specified
-    def get_domains(self, domains=None, variable=None):
+    def get_domains(self, assignment=None, domains=None, variable=None):
         if variable == None or domains == None: return self.domains   
         else: return domains[variable]           
 
@@ -33,10 +33,10 @@ class GenericCSP:
 
     # returns the next variable that hasn't been assigned yet (no heuristic)
     # TYPE: identical to the problem's variable type
-    def choose_next_variable(self, assignment): 
-        #loop through countries
+    def choose_next_variable(self, assignment, domains): 
+        #loop through variables
         for variable in self.variables: 
-            # if the country hasn't been assigned
+            # if the variable hasn't been assigned
             if variable not in assignment:
                 # return it to be visited next
                 return variable

@@ -18,6 +18,8 @@ The layout of this report is as follows:
 
 Since we were not given any provided code, I began by deciding what information to store in which class. This was a little bit difficult at first, but I ultimately decided to have two components to the problem representation and solving: the `CSP.py` class for solving logic and then a class to represent each problem. I tried to store as much information and problem logic in the problem classes as possible, becuase this allows for more flexibility specific to each problem. 
 
+Don't pay too much attention to the `GenericCSP.py`: it contains some generic structure with function headers. This was just for me to organize more easily and make a new problem class more easily if need be using this scaffold. 
+
 ## Backtracking algorithm 
 
 I started with the basic backtracking algorithm before I even began coding the representation for the map coloring problem or circuitboard problems. My intention was to have a decent idea of what information I would need to extract from the problem at different points in the algorithm and then build the class around a representation that would allow for simple generic representation. This is what I began with for the backtracking algorithm: 
@@ -250,7 +252,9 @@ All of the methods discussed for the implementation of each problem were tested 
 
 As for backtracking and inference, I did trace through the entire coloring problem and most of the circuitboard problem using print statements to make sure that the recursive calls were occurring correctly. It took some debugging but I did figure this out. 
 
-I got this all working before even moving on to heuristics, which took much more time to test, becuase I had to construct a bunch of different problems to test each heuristic with and without inference.
+I got this all working before even moving on to heuristics, which took much more time to test, becuase I had to construct a bunch of different problems to test each heuristic with and without inference. 
+
+Before moving on to runtime, I ran each heuristic on the problem using print statements to debug and ensure that the heuristics were working as intended. By having the problems print out the domains at different points right before seleting the next variable or domain value to test, I was able to confirm that all the heuristics were working correctly. 
 
 At this point, I had checked all of the solutions outputted by my algorithms, and all were valid, so I was focusing more on the runtime of each heuristic. 
 
@@ -271,3 +275,54 @@ Inference with LCV Runtime: 0.00017189979553222656 seconds
 Inference with MRV and LCV Runtime: 0.0001709461212158203 seconds
 Inference with DEG and LCV Runtime: 0.0001399517059326172 seconds
 ```
+On the map problem, We see that inference is a fair bit slower-- as discussed in the textbook, inference doesn't help out much here. 
+
+The heuristics help more without inference, because they are called less times and can't clutter up the process as much. Without inference, all heuristics reduce the runtime except for LCV. Since constraints can only reduce the domain of another by one here, there isn't much effect. The degree heuristic reduces runtime here by almost 50% though, which is pretty good. MRV reduces it as well, but not by much. 
+
+The same process is done for the Circuit board problem. See `CircuitBoardProblem.py` for the full diagrams printed out. (Notice the degree heuristic doesn't help here so it isn't implemented or tested)
+```
+No Inference No Heuristics Runtime: 2.4080276489257812e-05 seconds
+No Inference MRV Runtime: 1.811981201171875e-05 seconds
+No Inference LCV Runtime: 0.00012803077697753906 seconds
+No Inference MRV LCV Runtime: 4.482269287109375e-05 seconds
+Inference No Heuristic Runtime: 0.00021886825561523438 seconds
+Inference MRV Runtime: 0.00019407272338867188 seconds
+Inference LCV Runtime: 0.0007181167602539062 seconds
+Inference MRV LCV Runtime: 0.0006630420684814453 seconds
+```
+As shown above, inference was much less effective in this problem, due to the increased number of constraint relationships and domain values. 
+MRV was the most effective heuristic here, but it was actually the only one that decreased runtime. Runtimes weren't drastically affected, but of course this is a small problem and most of the runtimes are still in the ten-thousandths of a second range. 
+
+## Extra Credit: 
+
+The Degree heuristic was not too difficult to implement, but did take some extra time. I describe its design and implementation above with the other heuristics. 
+
+I took the time to construct an alternative, larger map coloring problem: the United States. I read about this online and found out that the chromatic number for the United States map is 4: so I created an alternative problem initialization that has the adjacency list of the United States, with every state as a variable and the color set `[r, g, b, y]`. You can test this too: just uncomment the variables with the United States info and comment out the Australia ones (I didn't change the names because setting up all the different problems took forever, and this is way easier for both of us). 
+
+I ran all of the runtime tests and found the following results (these are copied in the comments at the bottom of `MapColoringProblem.py` with the actual assignments included):
+``` 
+No Inference No Heuristics Runtime: 16.84667181968689 seconds
+No Inference with MRV Runtime: 21.745162963867188 seconds
+No Inference with DEG Runtime: 0.00015997886657714844 seconds
+No Inference with LCV Runtime: 34.742955923080444 seconds
+No Inference with MRV and LCV Runtime: 39.77112007141113 seconds
+No Inference with DEG and LCV Runtime: 0.00026297569274902344 seconds
+Inference with No Heuristics Runtime: 86.06060576438904 seconds
+Inference with MRV Runtime: 0.005126953125 seconds
+Inference with DEG Runtime: 0.0032498836517333984 seconds
+Inference with LCV Runtime: 0.0055332183837890625 seconds
+Inference with MRV and LCV Runtime: 0.008306026458740234 seconds
+Inference with DEG and LCV Runtime: 0.004997968673706055 seconds
+```
+
+With a much larger set, the runtimes are much greater. However, the heuristics made a massive impact. 
+
+Here are some of my observations: 
+
+The degree heuristic was by far the most effective, as with the australia problem. However, in this case, it was over 100,000 times faster than the normal backtracking. Again, the MRV and LCV heuristics are better fit to more highly constrained problems, unlike this one. 
+
+Inference also began to make a huge difference: pruning the domain was a massive influence on the runtime. All of the problems that used inference and a heuristic managed to find a solution in less than one hundredth of a second, while the backtracking without inference or the degree heuristic ended up near half a minute of runtime. 
+
+Most interestingly though-- the inference on its own with no heuristics took nearly a minute and a half. The addition of these heuristics then cut all of the times down by an incredible factor. 
+
+All of the problems found valid solutions, which was good to confirm, of course. 

@@ -1,4 +1,7 @@
 # Constraint Satisfaction Problem Class
+# Brendan Shaw, 2023
+# For use with the methods included in the GenericCSPProblem Class. 
+# See MapColoringProblem and CircuitBoardProblem for example implementations
 
 import copy
 
