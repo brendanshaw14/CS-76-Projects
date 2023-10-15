@@ -146,4 +146,12 @@ In this case, the countries are the `variables`, the adjacency map of the countr
 
 ### Discussion of method implementation: 
 
-- `get_variables`: 
+- `get_variables(self)`: since the countries are stored in a list in `self.variables`, we just return it. 
+
+- `get_domains(self, domains=None, variable=None)`: if no `domains` dictionary and `variable` are given, just return the `self.domains` dict. This was simple, because I already initialized the dict to associate each `country` key with the list `['r', 'g', 'b']. If the `domains` dictionary is specified and a `variable` is given, then we just return the value associated with that variable's key in the dictionary. 
+
+- `get_neighbors(self, variable)`: This was also straightforward here: the constriants of the problem is just an adjacency dictionary, so we just return the value associated with that variable key in the dictionary. 
+
+- `choose_next_variable(self, assignment)`: without the heuristic, this just iterates through the `self.variables` list until it finds a variable that isn't in the assignment, and returns that. 
+
+- `is_consistent(self, assignment, variable, value)`: We loop through each of the countries in the adjacency list of the given variable. If that country is in the assignment and has the same value, we return `False`.
