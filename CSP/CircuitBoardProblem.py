@@ -4,7 +4,7 @@ from CSP import CSP
 
 class CircuitBoardProblem:
 
-    # constructor
+    # constructor- just initializes the boards variables, height, and width
     def __init__(self, components, board_width, board_height):
         self.variables = components
         self.board_width = board_width
@@ -14,7 +14,9 @@ class CircuitBoardProblem:
     def get_variables(self):
         return self.variables
 
-    # 
+    # return all the domains if no variable is specified,
+    # otherwise return the domain of that variable
+    # TYPE: dictionary if no domain specified, list if specified
     def get_domains(self, domains=None, variable=None): 
         # if no domain or variable specified
         if variable == None or domains == None: 
@@ -49,7 +51,6 @@ class CircuitBoardProblem:
                 # return it to be visited next
                 return component
     
-    # TODO: add ordering (return the valid ones first)
     # *****************order_domain_values*****************"
     #   - returns the next value in the domain to search
     #   - return the available squares that the component could go into 
@@ -71,7 +72,6 @@ class CircuitBoardProblem:
         return domain_values
     
 
-    # TODO: 
     # ******************is_consistent******************
     #   -returns whether or not giving the input variable the input 
     #   value is within the constraints of the problem. 
@@ -98,8 +98,22 @@ class CircuitBoardProblem:
         return True  # No overlap detected
 
     # takes an input dictionary that assigns component variable keys to tuple location values and prints them out
+    # TYPE: string
     def board_to_string(self, assignment):
-        pass
+        board = [['.' for _ in range(self.board_width)] for _ in range(self.board_height)]
+
+        for component, position in assignment.items():
+            x, y = position
+            component_width, component_height = self.variables[component]
+
+            for i in range(y, y + component_height):
+                for j in range(x, x + component_width):
+                    board[i][j] = component
+                    
+        return '\n'.join([''.join(row) for row in reversed(board)])
+        
+
+
 
 
 if __name__ == "__main__":
@@ -118,5 +132,6 @@ if __name__ == "__main__":
     # test the backtracking method: 
     result = CSP.backtrack(circuit_csp_inference)
     print(result)
+    print(circuit_problem.board_to_string(result))
 
 #   {'a': (0, 0), 'b': (3, 0), 'c': (8, 0), 'e': (0, 2)}

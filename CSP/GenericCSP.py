@@ -46,7 +46,7 @@ class GenericCSP:
     # TYPE: boolean
     def is_consistent(self, assignment, variable, value):
         # implememt assignment consistency here
-
+        pass
 
 
 if __name__ == "__main__":

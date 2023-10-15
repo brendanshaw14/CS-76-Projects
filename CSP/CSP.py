@@ -15,8 +15,6 @@ class CSP:
         # if this is the first call, set the domains to all possible values
         if domains == None:
             domains = self.csp.get_domains()
-            print(domains)
-        
 
         # If the assignment is complete, return it as a solution.
         if self.is_assignment_complete(self.assignment):
@@ -24,12 +22,9 @@ class CSP:
 
         # Select an unassigned variable using variable selection heuristics.
         variable = self.csp.choose_next_variable(self.assignment)
-        print("Calling backtrack on " + str(variable))
-        print("Domain: " + str(domains))
 
         # Loop through the values in the domain of the selected variable
         for value in self.csp.get_domains(domains, variable):
-            # print("Testing value " + str(value))
             # Check if the assignment of the value to the variable is consistent with the rest of the assignment.
             if self.csp.is_consistent(self.assignment, variable, value):
 
@@ -42,12 +37,10 @@ class CSP:
                     domains_copy = copy.deepcopy(domains)
                     # edit the domain of the assigned variable
                     domains_copy[variable] = [value]
-                    # print("Domain copy: " + str(domains_copy))
                     # call mac3 to edit domain
                     inferences = self.MAC3(domains_copy, variable)
                     # if these are all consistent, keep going
                     if inferences: 
-                        # print("inferences true")
                         result = self.backtrack(domains_copy)
                     else: 
                         result = None
@@ -76,7 +69,6 @@ class CSP:
                 # add the tuple of the arc from neighbor to variable as a tuple
                 queue.append((neighbor, assigned_variable))
 
-        # print("queue: " + str(queue))
         # while there are still items in the queue:
         while queue:
             # get the next variable assignment
@@ -84,14 +76,12 @@ class CSP:
             
             # if the neighbor's domain was changed
             if self.revise(domains, neighbor, assigned_variable):
-                # print("revise occurred")
                 # if the domain is now empty after the change
                 if not self.csp.get_domains(domains, neighbor):  # If a domain becomes empty, return failure
                     return False
                 
                 # otherwise, loop thorugh the neighbors, adding them to the queue to be edited as well
                 for neighbor_neighbor in self.csp.get_neighbors(neighbor):
-                    print(self.csp.get_neighbors(neighbor))
                     # if the neighbor is not assigned (this includes assigned_variable):
                     if neighbor_neighbor not in self.assignment:
                         queue.append((neighbor_neighbor, neighbor))
@@ -106,16 +96,13 @@ class CSP:
         for neighbor_value in neighbor_values:
             # for each value in the domain of the variable
             consistent = False
-            # print("Neighbor value: " + str(neighbor_value))
             for value in self.csp.get_domains(domains, assigned_variable):
-                # print("Testing consistency of " + str(assigned_variable) + ":" + str(value) + " with assignment " + str({neighbor:neighbor_value}))
 
                 # if that variable doesn't satisfy the constraint
                 if self.csp.is_consistent({neighbor:neighbor_value}, assigned_variable, value):
                     consistent = True
                     break
             if not consistent:
-                print("removing value " + str(neighbor_value) + " from the domain of " + str(neighbor))
                 domains[neighbor].remove(neighbor_value)  # Remove inconsistent values from the domain
                 revised = True
 
