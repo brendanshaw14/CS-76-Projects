@@ -71,5 +71,35 @@ def backtrack(self, domains=None):
             If a solution is found, return it.
             If no solution is found, undo the assignment.
 ```
+```
+def MAC3(self, domains, assigned_variable):
+        Initialize a queue for consistency checks
+        add all of the arcs from the neighbors of the variable to that variable
+            if the neighbor isn't in the assignment already:
+                add the tuple of the arc from neighbor to variable as a tuple
+        while there are still items in the queue:
+            get the next variable assignment from the queue
+            if the neighbor's domain was changed
+                if the domain is now empty after the change, return failure
+                otherwise, loop thorugh the neighbors, adding them to the queue to be edited as well
+                    if the neighbor is not assigned (this includes assigned_variable):
+                        add it to the queue
+        return True
+```
+```
+def revise(self, domains, neighbor, assigned_variable):
+    initialize to false
+    make a copy of the neghbor values
+    for each value in the domain of the neighbor (D_i)
+        for each value in the domain of the variable
+        initialize bool consistent to false
+            if that variable doesn't satisfy the constraint
+                consistent = True
+                break
+        if not consistent:
+            Remove inconsistent values from the domain
+            set revised to true
+    return revised
+```
 ## Map Coloring Implementation
 The map coloring problem is pretty simple. The `variables` are the different countries in the map that need to be colored, each country's domain is comprised of all the possible colors it could be (r, g, or b, in this case), and the only constraint is that no two countries that are adjacent to one another can be the same color. 
