@@ -24,7 +24,7 @@ class CSP:
         variable = self.csp.choose_next_variable(self.assignment, domains)
 
         # Loop through the values in the domain of the selected variable
-        for value in self.csp.get_domains(domains, variable):
+        for value in self.csp.get_domains(self.assignment, domains, variable):
             # Check if the assignment of the value to the variable is consistent with the rest of the assignment.
             if self.csp.is_consistent(self.assignment, variable, value):
 
@@ -77,7 +77,7 @@ class CSP:
             # if the neighbor's domain was changed
             if self.revise(domains, neighbor, assigned_variable):
                 # if the domain is now empty after the change
-                if not self.csp.get_domains(domains, neighbor):  # If a domain becomes empty, return failure
+                if not self.csp.get_domains(self.assignment, domains, neighbor):  # If a domain becomes empty, return failure
                     return False
                 
                 # otherwise, loop thorugh the neighbors, adding them to the queue to be edited as well
@@ -92,11 +92,11 @@ class CSP:
         revised = False
 
         # for each value in the domain of the neighbor (D_i)
-        neighbor_values = list(self.csp.get_domains(domains, neighbor))
+        neighbor_values = list(self.csp.get_domains(self.assignment, domains, neighbor))
         for neighbor_value in neighbor_values:
             # for each value in the domain of the variable
             consistent = False
-            for value in self.csp.get_domains(domains, assigned_variable):
+            for value in self.csp.get_domains(self.assignment, domains, assigned_variable):
 
                 # if that variable doesn't satisfy the constraint
                 if self.csp.is_consistent({neighbor:neighbor_value}, assigned_variable, value):

@@ -5,13 +5,13 @@ from CSP import CSP
 class CircuitBoardProblem:
 
     # constructor- just initializes the boards variables, height, and width
-    def __init__(self, components, board_width, board_height, MRV=False):
+    def __init__(self, components, board_width, board_height, MRV=False, LCV=False):
         self.variables = components
         self.board_width = board_width
         self.board_height = board_height
 
-        # whether or not MRV is enabled
         self.MRV = MRV
+        self.LCV = LCV
 
     # return the problem's variables
     def get_variables(self):
@@ -20,7 +20,7 @@ class CircuitBoardProblem:
     # return all the domains if no variable is specified,
     # otherwise return the domain of that variable
     # TYPE: dictionary if no domain specified, list if specified
-    def get_domains(self, domains=None, variable=None): 
+    def get_domains(self, assignment=None, domains=None, variable=None): 
         # if no domain or variable specified
         if variable == None or domains == None: 
             domains = {}
@@ -60,7 +60,8 @@ class CircuitBoardProblem:
                     min_remaining_values = len(remaining_values)
                     min_remaining_values_component = component
             return min_remaining_values_component
-        # if MRV not enabled
+        
+        # if no heuristic enabled
         else: 
             # loop through components
             for component in self.variables: 
@@ -140,7 +141,7 @@ if __name__ == "__main__":
     board_width = 10
     board_height = 3
     circuit_problem_no_mrv = CircuitBoardProblem(components, board_width, board_height)
-    circuit_problem_mrv = CircuitBoardProblem(components, board_width, board_height, True)
+    circuit_problem_mrv = CircuitBoardProblem(components, board_width, board_height, LCV=True)
 
     # setup the CSPSolver
     circuit_csp_no_inference = CSP(circuit_problem_no_mrv)
