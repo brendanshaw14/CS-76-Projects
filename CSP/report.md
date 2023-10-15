@@ -160,6 +160,17 @@ In this case, the countries are the `variables`, the adjacency map of the countr
 
 The circuitboard implementation is of course pretty similar to the map coloring implementation. I used the same methods discussed, making only the minor changes below. 
 
-The main thing that had to be changed in the circuitboard problem was handling the overlap between components and the fact that all components could be adjacent. 
+The main thing that had to be changed in the circuitboard problem was handling the overlap between components and the fact that all components could be adjacent. Because of this, I don't even store an adjacency list-- I just use the methods to return all of the other components when this is needed. 
 
-Because of this
+Also, I had to find a way to store the sizes of each component in addition to the name. I just used a dictionary for this-- which doesn't matter in comparison to using just a list for the variables, becuase (once again), the methods handle everything. Thus, my `self.variables` stores each component's name and associates it with a tuple holding the width and height of the component. 
+
+### Discussion of Method Implementation
+- `get_component_domain`: This method was needed early on in the problem solving process: instead of just having a set list of colors like before, the circuit board problem requires us to find the unique domain of each component. I just do this by finding all the bottom-left coordinates for the component that don't cause it to go off the board. 
+- `get_domains`: This method is pretty similar to before: if this is the first call, we construct the dictionary by adding each component and then calling `self.get_component_domain` on it to retrieve its possible values.
+- `get_neighbors`: This is also about the same- since all components could overlap with one another and need to not overlap, the constraints apply to all components. Therefore, we just add every component but that component itself to each component's adjacency list. 
+- `choose_next_variable`: Like before, with no heuristic, we just find the next unassigned variable. 
+- `is_consistent`: This was the hardest method to write for this class, becuase we have to loop through each rectangle and make sure that it doesn't overlap with any other rectangles. This took some time to figure out, but ultimately loops through the components, checking first for any x overlap and then for any y overlap. 
+- `board_to_string`: This method was just used to allow me to print the solutions and make it easier to check if they are valid. 
+
+
+## Implementation of Heuristics

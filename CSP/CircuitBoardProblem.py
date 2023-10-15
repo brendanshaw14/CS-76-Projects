@@ -93,8 +93,6 @@ class CircuitBoardProblem:
                     # return it to be visited next
                     return component
     
-    # *****************order_domain_values*****************"
-    #   - returns the next value in the domain to search
     #   - return the available squares that the component could go into 
     def get_component_domain(self, variable):
         # fetch the height and width of the current component
