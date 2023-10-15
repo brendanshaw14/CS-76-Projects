@@ -2,6 +2,18 @@
 
 This report discusses the design, implementation, and testing processes of the CSP project.
 
+For information on how to run the code and view outputs, see `README.md`. 
+
+The layout of this report is as follows: 
+- General structure and problem approach
+- Backtracking algorithm 
+- Inference and related algorithms
+- Map coloring problem design and implementation
+- Circuit board problem design and implementation
+- Heuristic implementation
+- Testing
+- Extra credit explanation
+
 ## General structure
 
 Since we were not given any provided code, I began by deciding what information to store in which class. This was a little bit difficult at first, but I ultimately decided to have two components to the problem representation and solving: the `CSP.py` class for solving logic and then a class to represent each problem. I tried to store as much information and problem logic in the problem classes as possible, becuase this allows for more flexibility specific to each problem. 
@@ -174,3 +186,88 @@ Also, I had to find a way to store the sizes of each component in addition to th
 
 
 ## Implementation of Heuristics
+
+I won't go into the problem-specific implementation details for each of the heuristics- this can be found in the code and comments. Instead, I explain the general approach and pseudocode for each heuristic. 
+
+To toggle the heuristics, I pass boolean values for the strategies to the constructor. The heuristics are conditionally applied accordingly. 
+
+### MRV 
+
+The aim of the minimum values remaining heuristic is to efficiently select which variable to assign next by choosing the variable with the smallest amount of values remaining in its domain. The logic is that, by assigning variables with less values left in their domain, we reduce the risk of having to backtrack. 
+
+This is implemented in the `choose_next_variable` function in both problems. 
+
+Pseudocode: 
+```
+remember the lowest value and which variable it is associated with
+    loop through the domains of each variable
+        if the variable has less values than the current min and isn't in the assignment
+            udpate the min and variable
+    return whichever item has the fewest remaining values
+```
+
+### DEG
+
+The goal of the degree heuristic is to first assign the variable that is involved with the most other variables, in hopes of reducing the chance of a backtrack. This is useless in the circuitboard problem-- every piece has identical adjacency and therefore an identical degree, so I didn't even bother with implementing it. 
+
+However, this does come in very handy on the map coloring problem, where states have varying degrees. 
+
+This is also applied in the `choose_next_variable` method. This is used in place of the MRV, if enabled. 
+
+Pseudo: 
+```
+remember the highest degree variable and the current highest degree
+loop through the adjacency list of the variable in question
+    if the variable has a higher degree than the current and isn't assigned
+    update the highest degree and highest degree variable
+return the highest degree variable
+```
+
+### LCV
+
+This heuristic is slightly different than the others. It works within the `get_domains` method (which returns the ordered list of which values to search next) rather than in the step where we choose what variable to assign next. 
+
+The aim here is to find the variable that reduces the domains of other variables the least. Thus, the approach is to try each variable, counting how much it reduces the domain of the other variables. Then, we return the variable that has the least repercussions for the domains of other variables. 
+
+Pseudo: 
+```
+store the list of tuples containing values with their numbers of eliminations
+loop through each value of the variable's domain
+    remember how many values of other variables it eliminates
+    for each neighbor of that variable
+        if it eliminates a value in the domain of that neighbor
+            increment 
+    Store the variable along with the number of eliminated values as a tuple
+Sort the list of tuples based on the second element (values_eliminated) in ascending order 
+Extract the sorted variables from the sorted list of tuples
+Return the sorted list of variables
+```
+
+## Testing: 
+Again-- see the `MapColoringProblem.py` and the `CirctuitBoardProblem.py` for the tests themselves and output. Methods are discussed below.
+
+All of the methods discussed for the implementation of each problem were tested invididually throughout. I don't discuss all of those here- it doesn't matter. 
+
+As for backtracking and inference, I did trace through the entire coloring problem and most of the circuitboard problem using print statements to make sure that the recursive calls were occurring correctly. It took some debugging but I did figure this out. 
+
+I got this all working before even moving on to heuristics, which took much more time to test, becuase I had to construct a bunch of different problems to test each heuristic with and without inference.
+
+At this point, I had checked all of the solutions outputted by my algorithms, and all were valid, so I was focusing more on the runtime of each heuristic. 
+
+I imported python's `time` class, saving the time before each call to the problem solver and then subtracting it from the time after the result was found to calculate runtime. 
+
+Here are the results for the map coloring. I've cut out the solutions themselves because it cluttered this report up way too much, but running the `MapColoringProblem.py` file will print the full outputs. 
+```
+No Inference No Heuristics Runtime: 1.3113021850585938e-05 seconds
+No Inference with MRV Runtime: 1.0013580322265625e-05 seconds
+No Inference with DEG Runtime: 7.867813110351562e-06 seconds
+No Inference with LCV Runtime: 2.6702880859375e-05 seconds
+No Inference with MRV and LCV Runtime: 1.3828277587890625e-05 seconds
+No Inference with DEG and LCV Runtime: 1.430511474609375e-05 seconds
+Inference with No Heuristics Runtime: 0.00010704994201660156 seconds
+Inference with MRV Runtime: 9.584426879882812e-05 seconds
+Inference with DEG Runtime: 8.606910705566406e-05 seconds
+Inference with LCV Runtime: 0.00017189979553222656 seconds
+Inference with MRV and LCV Runtime: 0.0001709461212158203 seconds
+Inference with DEG and LCV Runtime: 0.0001399517059326172 seconds
+```
