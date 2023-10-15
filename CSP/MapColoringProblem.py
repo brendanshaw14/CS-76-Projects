@@ -2,6 +2,7 @@
 
 from CSP import CSP
 import copy
+import time 
 
 class MapColoringProblem:
 
@@ -31,24 +32,26 @@ class MapColoringProblem:
         else: 
             # if LCV heuristic is enabled
             if self.LCV:
-                least_values_eliminated = len(self.variable) # set this high so it will be lowered
-                least_constraining_variable = None
+                values_with_eliminations = []
 
-                # loop through possible value choices
                 for color in domains[variable]:
-                    #remember the constraint effects
                     values_eliminated = 0
-                    # for each neighbor of the variable
                     for neighbor in self.get_neighbors(variable):
-                        # if the neighbor has the variable's value in it's domain, increment
-                        if color in domains[neighbor]: 
+                        if color in domains[neighbor]:
                             values_eliminated += 1
-                    # if this eliminates less values than the current best option, save it 
-                    if values_eliminated < least_values_eliminated:
-                        least_values_eliminated = values_eliminated
-                        least_constraining_variable = color
-                # return the LCV
-                return least_constraining_variable
+
+                    # Store the color along with the number of eliminated values as a tuple
+                    values_with_eliminations.append((color, values_eliminated))
+
+                # Sort the list of tuples based on the second element (values_eliminated) in ascending order
+                sorted_values = sorted(values_with_eliminations, key=lambda x: x[1])
+
+                # Extract the sorted colors from the sorted list of tuples
+                sorted_colors = [color for color, _ in sorted_values]
+
+                # Return the sorted list of colors
+                return sorted_colors
+
             else:
                 return domains[variable]           
 
@@ -121,27 +124,122 @@ if __name__ == "__main__":
                            "V":["NSW", "SA"], 
                            "T":[]
                            }
+    # initialize the different problem classes
+    australia_problem_no_heuristic = MapColoringProblem(australia_countries, australia_colors, australia_adjacency)
+    australia_problem_mrv = MapColoringProblem(australia_countries, australia_colors, australia_adjacency, MRV=True)
+    australia_problem_deg = MapColoringProblem(australia_countries, australia_colors, australia_adjacency, DEG=True)
+    australia_problem_lcv = MapColoringProblem(australia_countries, australia_colors, australia_adjacency, LCV=True)
+    australia_problem_mrv_lcv = MapColoringProblem(australia_countries, australia_colors, australia_adjacency, MRV=True, LCV=True)
+    australia_problem_deg_lcv = MapColoringProblem(australia_countries, australia_colors, australia_adjacency, DEG=True, LCV=True)
 
-    australia_problem_nomrv = MapColoringProblem(australia_countries, australia_colors, australia_adjacency)
-    australia_problem_mrv = MapColoringProblem(australia_countries, australia_colors, australia_adjacency, DEG=True)
-
-    
-    
-    # setup the CSPSolver
-    australia_csp_inference = CSP(australia_problem_nomrv, True) 
-    australia_csp_no_inference = CSP(australia_problem_nomrv) 
-    australia_csp_inference_mrv = CSP(australia_problem_mrv, True) 
+    # setup the CSPSolver problems without inference
+    australia_csp_no_inference_no_heuristic = CSP(australia_problem_no_heuristic) 
     australia_csp_no_inference_mrv = CSP(australia_problem_mrv) 
-    
-    # test choose_next_variable
-    # print(australia_problem.choose_next_variable("WA"))
+    australia_csp_no_inference_deg = CSP(australia_problem_deg) 
+    australia_csp_no_inference_lcv = CSP(australia_problem_lcv) 
+    australia_csp_no_inference_mrv_lcv = CSP(australia_problem_mrv_lcv) 
+    australia_csp_no_inference_deg_lcv = CSP(australia_problem_deg_lcv) 
 
-    # test order_domain_values
+    # With inference
+    australia_csp_inference_no_heuristic = CSP(australia_problem_no_heuristic, True) 
+    australia_csp_inference_mrv = CSP(australia_problem_mrv, True) 
+    australia_csp_inference_deg = CSP(australia_problem_deg, True) 
+    australia_csp_inference_lcv = CSP(australia_problem_lcv, True) 
+    australia_csp_inference_mrv_lcv = CSP(australia_problem_mrv_lcv, True) 
+    australia_csp_inference_deg_lcv = CSP(australia_problem_deg_lcv, True) 
 
-    # test the backtracking method
-    result = CSP.backtrack(australia_csp_inference_mrv)
-
+    # test no inference no heuristics 
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_no_inference_no_heuristic)
+    end_time = time.time()
+    print(f"No Inference No Heuristics Runtime: {end_time - start_time} seconds")
     print(result)
+
+    # test no inference with MRV
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_no_inference_mrv)
+    end_time = time.time()
+    print(f"No Inference with MRV Runtime: {end_time - start_time} seconds")
+    print(result)
+
+    # test no inference with DEG
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_no_inference_deg)
+    end_time = time.time()
+    print(f"No Inference with DEG Runtime: {end_time - start_time} seconds")
+    print(result)
+
+    # test no inference with LCV
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_no_inference_lcv)
+    end_time = time.time()
+    print(f"No Inference with LCV Runtime: {end_time - start_time} seconds")
+    print(result)
+
+    # test no inference with MRV and LCV
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_no_inference_mrv_lcv)
+    end_time = time.time()
+    print(f"No Inference with MRV and LCV Runtime: {end_time - start_time} seconds")
+    print(result)
+
+    # test no inference with DEG and LCV
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_no_inference_deg_lcv)
+    end_time = time.time()
+    print(f"No Inference with DEG and LCV Runtime: {end_time - start_time} seconds")
+    print(result)
+
+    # test inference with no heuristic
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_inference_no_heuristic)
+    end_time = time.time()
+    print(f"Inference with No Heuristics Runtime: {end_time - start_time} seconds")
+    print(result)
+
+
+    # test inference with MRV
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_inference_mrv)
+    end_time = time.time()
+    print(f"Inference with MRV Runtime: {end_time - start_time} seconds")
+    print(result)
+
+    # test inference with DEG
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_inference_deg)
+    end_time = time.time()
+    print(f"Inference with DEG Runtime: {end_time - start_time} seconds")
+    print(result)
+
+    # test inference with LCV
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_inference_lcv)
+    end_time = time.time()
+    print(f"Inference with LCV Runtime: {end_time - start_time} seconds")
+    print(result)
+
+    # test inference with MRV and LCV
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_inference_mrv_lcv)
+    end_time = time.time()
+    print(f"Inference with MRV and LCV Runtime: {end_time - start_time} seconds")
+    print(result)
+
+    # test inference with DEG and LCV
+    start_time = time.time()
+    result = CSP.backtrack(australia_csp_inference_deg_lcv)
+    end_time = time.time()
+    print(f"Inference with DEG and LCV Runtime: {end_time - start_time} seconds")
+    print(result)
+    
+
+
+
+
+
+
+
 # No inference:
 #    {'WA': 'r', 'NT': 'g', 'SA': 'b', 'Q': 'r', 'NSW': 'g', 'V': 'r', 'T': 'r'}
 # Inference:
