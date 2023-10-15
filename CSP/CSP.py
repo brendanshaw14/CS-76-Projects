@@ -21,7 +21,7 @@ class CSP:
             return self.assignment
 
         # Select an unassigned variable using variable selection heuristics.
-        variable = self.csp.choose_next_variable(self.assignment)
+        variable = self.csp.choose_next_variable(self.assignment, domains)
 
         # Loop through the values in the domain of the selected variable
         for value in self.csp.get_domains(domains, variable):

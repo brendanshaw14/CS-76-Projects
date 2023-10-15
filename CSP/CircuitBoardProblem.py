@@ -5,10 +5,13 @@ from CSP import CSP
 class CircuitBoardProblem:
 
     # constructor- just initializes the boards variables, height, and width
-    def __init__(self, components, board_width, board_height):
+    def __init__(self, components, board_width, board_height, MRV=False):
         self.variables = components
         self.board_width = board_width
         self.board_height = board_height
+
+        # whether or not MRV is enabled
+        self.MRV = MRV
 
     # return the problem's variables
     def get_variables(self):
@@ -43,13 +46,28 @@ class CircuitBoardProblem:
     # *****************choose_next_variable*****************"
     #   - returns true if all the variables have been assigned
     #   - chooses the next variable to be used by the CSP solver
-    def choose_next_variable(self, assignment): 
-        #loop through components
-        for component in self.variables: 
-            # if the country hasn't been assigned
-            if component not in assignment:
-                # return it to be visited next
-                return component
+    def choose_next_variable(self, assignment, domains): 
+        # if MRV enabled: 
+        if self.MRV:
+            # remember the least value and which component: initialize to the total number of locations on the board
+            min_remaining_values_component = None
+            min_remaining_values = (self.board_height * self.board_width)
+            # loop through the domains
+            for component, remaining_values in domains.items(): 
+                # if the country has less values than the current min
+                if component not in assignment and len(remaining_values) < min_remaining_values:
+                    # udpate the min and country
+                    min_remaining_values = len(remaining_values)
+                    min_remaining_values_component = component
+            return min_remaining_values_component
+        # if MRV not enabled
+        else: 
+            # loop through components
+            for component in self.variables: 
+                # if the country hasn't been assigned
+                if component not in assignment:
+                    # return it to be visited next
+                    return component
     
     # *****************order_domain_values*****************"
     #   - returns the next value in the domain to search
@@ -121,17 +139,54 @@ if __name__ == "__main__":
     components = {"a":(3, 2), "b":(5, 2), "c":(2, 3), "e":(7, 1)}
     board_width = 10
     board_height = 3
-    circuit_problem = CircuitBoardProblem(components, board_width, board_height)
+    circuit_problem_no_mrv = CircuitBoardProblem(components, board_width, board_height)
+    circuit_problem_mrv = CircuitBoardProblem(components, board_width, board_height, True)
 
     # setup the CSPSolver
-    circuit_csp_no_inference = CSP(circuit_problem)
-    circuit_csp_inference = CSP(circuit_problem, True)
+    circuit_csp_no_inference = CSP(circuit_problem_no_mrv)
+    circuit_csp_inference = CSP(circuit_problem_no_mrv, True)
+    circuit_csp_no_inference_mrv = CSP(circuit_problem_mrv)
+    circuit_csp_inference_mrv = CSP(circuit_problem_mrv, True)
 
-    # test the order_domain_variables method
-    # print(circuit_problem.order_domain_values("c"))
-    # test the backtracking method: 
-    result = CSP.backtrack(circuit_csp_inference)
-    print(result)
-    print(circuit_problem.board_to_string(result))
+    # test with no inference, no mrv
+    # result = CSP.backtrack(circuit_csp_no_inference)
+    # print(result)
+    # print(circuit_problem_no_mrv.board_to_string(result))
 
-#   {'a': (0, 0), 'b': (3, 0), 'c': (8, 0), 'e': (0, 2)}
+        # {'a': (0, 0), 'b': (3, 0), 'c': (8, 0), 'e': (0, 2)}
+        # eeeeeee.cc
+        # aaabbbbbcc
+        # aaabbbbbcc
+
+    # test with inference, no mrv
+    # result = CSP.backtrack(circuit_csp_inference)
+    # print(result)
+    # print(circuit_problem_no_mrv.board_to_string(result))
+
+        # {'a': (0, 0), 'b': (3, 0), 'c': (8, 0), 'e': (0, 2)}
+        # eeeeeee.cc
+        # aaabbbbbcc
+        # aaabbbbbcc
+
+    # test with no inference, mrv
+    # result = CSP.backtrack(circuit_csp_no_inference_mrv)
+    # print(result)
+    # print(circuit_problem_mrv.board_to_string(result))
+
+        # {'c': (0, 0), 'b': (2, 0), 'e': (2, 2), 'a': (7, 0)}
+        # cceeeeeee.
+        # ccbbbbbaaa
+        # ccbbbbbaaa
+
+    # test with inference, mrv
+    # result = CSP.backtrack(circuit_csp_inference_mrv)
+    # print(result)
+    # print(circuit_problem_mrv.board_to_string(result))
+
+        # {'c': (0, 0), 'a': (2, 0), 'b': (5, 0), 'e': (2, 2)}
+        # cceeeeeee.
+        # ccaaabbbbb
+        # ccaaabbbbb
+
+
+
