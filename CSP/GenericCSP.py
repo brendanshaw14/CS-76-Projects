@@ -1,7 +1,10 @@
-# Map Coloring Problem for CSP input
+# Generic CSP class for the CSP.py solver
+# By Brendan Shaw, 2023
+# See implemenation notes above methods and modify them accordingly
 
 from CSP import CSP
 import copy
+
 class GenericCSP:
 
     # constructor

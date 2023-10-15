@@ -14,7 +14,7 @@ class CircuitBoardProblem:
     def get_variables(self):
         return self.variables
 
-    #
+    # 
     def get_domains(self, domains=None, variable=None): 
         # if no domain or variable specified
         if variable == None or domains == None: 
@@ -97,7 +97,9 @@ class CircuitBoardProblem:
         # No overlap
         return True  # No overlap detected
 
-
+    # takes an input dictionary that assigns component variable keys to tuple location values and prints them out
+    def board_to_string(self, assignment):
+        pass
 
 
 if __name__ == "__main__":

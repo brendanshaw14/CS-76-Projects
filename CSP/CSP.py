@@ -9,12 +9,6 @@ class CSP:
         self.assignment = {}
         self.inference = inference
 
-    """
-    notes: 
-        - make a copy of the domains to pass to inference so that it doesn't change the domains when recursion stops 
-        - use a method to get neighbors and pass it the domains list 
-        - 
-    """ 
 
     # Backtracking Algorithm
     def backtrack(self, domains=None):
