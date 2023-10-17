@@ -1,23 +1,36 @@
 import random
 
 class SAT:
-    def __init__(self, cnf_file_path, threshold, max_iterations):
+    def __init__(self, cnf_file_path, num_variables, threshold, max_iterations):
+        # parameters
         self.cnf_file_path = cnf_file_path
-        self.num_variables = 81
+        self.num_variables = num_variables
         self.threshold = threshold
         self.max_iterations = max_iterations
-        self.variable_assignments = {}
         self.clauses = self.initialize_clauses()
+
+        # initialize these empty so that the initialize clauses will read the input info
+        self.variable_assignments = {}
+
+        # this isn't used yet- for now we just treat all constriants equally
+        self.fixed_values = {}
+
 
     # initialize the clauses list
     def initialize_clauses(self):
         try:
+            # Read the Sudoku CNF file line by line
             with open(self.cnf_file_path, 'r') as file:
-                # Read each line of the file into a list
-                clauses = file.readlines()
-            # Remove leading and trailing whitespace characters from each line
-            cleaned_clauses = [clause.strip() for clause in clauses]
-            return cleaned_clauses
+                clauses = []
+                for line in file:
+                    # Split the line into individual elements (numbers)
+                    elements = line.strip().split()
+        
+                    # Parse elements into integers and add them to the clauses list
+                    clause = [int(element) for element in elements]
+                    clauses.append(clause)
+                return clauses
+
         except FileNotFoundError:
             print(f"Error: File '{self.cnf_file_path}' not found.")
             return []
@@ -59,11 +72,12 @@ class SAT:
 if __name__ == "__main__":
 
     threshold = 0.3  # Random threshold for accepting non-improving moves
-    max_iterations = 10000  # Maximum number of iterations
+    max_iterations = 100000  # Maximum number of iterations
+    num_variables = 729
 
-    sudoku_solver = SAT("Sudoku/puzzle1.cnf", threshold, max_iterations)
+    sudoku_solver = SAT("Sudoku/puzzle1.cnf", num_variables, threshold, max_iterations)
     # solution = sudoku_solver.gsat(max_iterations)
-    print(sudoku_solver.initialize_random_assignment())
+    print(sudoku_solver.clauses)
 
     # if solution:
         # print("Sudoku Puzzle Solved:")
@@ -71,3 +85,11 @@ if __name__ == "__main__":
             # print(" ".join(str(solution[row * 10 + col]) for col in range(1, 10)))
     # else:
         # print("No solution found within the maximum number of iterations.")
+
+
+"""
+Office hours questions: 
+- fixed vs. unfixed variables- do we store these separately to avoid adjusting them? 
+- how many to assign true initially, do we use a heuristic
+    - do we have a way to avoid assigning the same row or column the same number multiple times randomly? 
+"""

@@ -149,13 +149,13 @@ class Sudoku:
 if __name__ == "__main__":
     test_sudoku = Sudoku()
 
-    test_sudoku.load("puzzle1.sud")
+    test_sudoku.load("Sudoku/puzzle1.sud")
     #print(test_sudoku)
     # print(sudoku_literal(2, 3, 9, neg=True))
 
     # print(cell_clause(1, 1))
 
-    test_sudoku.generate_cnf("puzzle1.cnf")
+    test_sudoku.generate_cnf("Sudoku/puzzle1.cnf")
 
     #test_sudoku.read_solution("rules.sol")
     print(test_sudoku)
