@@ -42,7 +42,6 @@ class SAT:
                 # if the variable isn't in the random assignment, set it to a random value
                 if abs(variable) not in assignment:
                     assignment[variable] = random.choice([True, False])
-        print(assignment)
         return assignment
 
     def count_satisfied_clauses(self):
@@ -71,41 +70,55 @@ class SAT:
         return satisfied_clauses
 
     def gsat(self):
-
-        # while under max iterations
         for i in range(self.max_iterations):
-            
+            # get the number of satisfied clauses
             num_satisfied = self.count_satisfied_clauses()
             print(str(num_satisfied) + '/' + str(len(self.clauses)))
 
-            # if the assignment is complete: 
+            # Check if the current assignment satisfies all clauses
             if num_satisfied == len(self.clauses):
-                # return the assignments as current
                 self.write_solution()
-                return self.variable_assignments  
+                return self.variable_assignments  # Solution found
 
-            # otherwise, randomly choose a variable and flip it 
-            random_variable = random.choice(list(self.variable_assignments.keys()))
-            self.variable_assignments[random_variable] = not self.variable_assignments[random_variable]
+            # Random number between 0 and 1
+            random_threshold = random.random()
+            if random_threshold > self.threshold:
+                # Random Move: Flip a random variable
+                random_var = random.choice(list(self.variable_assignments.keys()))
+                self.variable_assignments[random_var] = not self.variable_assignments[random_var]
 
-            # find the number of clauses satisfied after the flip 
-            num_satisfied_after_flip = self.count_satisfied_clauses()
-            
-            # if it went down:
-            if num_satisfied_after_flip < num_satisfied:
+            # if threshold wasn't reached
+            else:
+                # Flip a variable that maximizes the number of satisfied clauses
+                # initialize the best assignment and best choices set
+                best_flips = []
+                max_num_satisfied = 0
 
-                # Calculate a random value between 0 and 1
-                random_threshold = random.random()
-                
-                # If the random value is not above the threshold, revert the value
-                if random_threshold > self.threshold:
-                    # Revert the flip if the threshold is not met
-                    self.variable_assignments[random_variable] = not self.variable_assignments[random_variable]
+                # for each variable
+                for variable in self.variable_assignments:
+                    # if flipping that variable results in a score higher than the current highest
+                    # flip the variable
+                    self.variable_assignments[variable] = not self.variable_assignments[variable]
+                    # count num clauses satisfied with the new one
+                    new_num_satisfied = self.count_satisfied_clauses()
+                    # flip it bac
+                    self.variable_assignments[variable] = not self.variable_assignments[variable]
+                    # if it's the new highest, reset the list
+                    if new_num_satisfied > max_num_satisfied: 
+                        # empty the list and add it to the list
+                        max_num_satisfied = new_num_satisfied
+                        best_flips = [variable]
+                    # otherwise, if flipping that variable results in an equal score: 
+                    elif new_num_satisfied == max_num_satisfied:
+                        # add it to the list
+                        best_flips.append(variable)
 
-            # write the current assignment to the file 
-            self.write_solution()
+                # flip a random variable from the maximizing list
+                var_to_flip = random.choice(best_flips)
+                self.variable_assignments[var_to_flip] = not self.variable_assignments[var_to_flip]
 
         return None  # No solution found within max_iterations
+
 
     def walksat(self):
         for _ in range(self.max_iterations):
@@ -146,7 +159,7 @@ class SAT:
     def write_solution(self):
         try:
             # make the new file
-            new_filename = self.solution_path + self.cnf_file_path[:3] + ".sol"
+            new_filename = self.solution_path + "sudoku" + ".sol"
             with open(new_filename, 'w') as file:
                 # write each of the variables to a line in a file
                 for variable, assignment in self.variable_assignments.items():
@@ -162,16 +175,16 @@ if __name__ == "__main__":
 
     threshold = 0.3  # Random threshold for accepting non-improving moves
     max_iterations = 100000  # Maximum number of iterations
-    cnf_file_path = "Sudoku/puzzles/rows.cnf"
+    cnf_file_path = "Sudoku/puzzles/all_cells.cnf"
     solution_path = "Sudoku/solutions/"
 
     sudoku_solver = SAT(cnf_file_path, solution_path, threshold, max_iterations)
     solution = sudoku_solver.gsat()
 
-    # if solution:
-        # print("Puzzle Solved:")
-        # print(solution)
-    # else:
-        # print("No solution found within the maximum number of iterations.")
+    if solution:
+        print("Puzzle Solved:")
+        print(solution)
+    else:
+        print("No solution found within the maximum number of iterations.")
 
 
