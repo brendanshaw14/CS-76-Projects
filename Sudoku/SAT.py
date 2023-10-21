@@ -72,6 +72,7 @@ class SAT:
 
     def gsat(self):
 
+        # while under max iterations
         for i in range(self.max_iterations):
             
             num_satisfied = self.count_satisfied_clauses()
@@ -80,6 +81,7 @@ class SAT:
             # if the assignment is complete: 
             if num_satisfied == len(self.clauses):
                 # return the assignments as current
+                self.write_solution()
                 return self.variable_assignments  
 
             # otherwise, randomly choose a variable and flip it 
@@ -90,13 +92,15 @@ class SAT:
             num_satisfied_after_flip = self.count_satisfied_clauses()
             
             # if it went down:
-            if num_satisfied_after_flip < len(self.clauses):
+            if num_satisfied_after_flip < num_satisfied:
 
-                # Calculate a random threshold between 0 and 1
+                # Calculate a random value between 0 and 1
                 random_threshold = random.random()
+                
+                # If the random value is not above the threshold, revert the value
                 if random_threshold > self.threshold:
                     # Revert the flip if the threshold is not met
-                    self.variable_assignments[random_variable] = self.variable_assignments[random_variable]
+                    self.variable_assignments[random_variable] = not self.variable_assignments[random_variable]
 
             # write the current assignment to the file 
             self.write_solution()
@@ -158,11 +162,12 @@ if __name__ == "__main__":
 
     threshold = 0.3  # Random threshold for accepting non-improving moves
     max_iterations = 100000  # Maximum number of iterations
-    cnf_file_path = "Sudoku/puzzles/all_cells.cnf"
+    cnf_file_path = "Sudoku/puzzles/rows.cnf"
     solution_path = "Sudoku/solutions/"
 
     sudoku_solver = SAT(cnf_file_path, solution_path, threshold, max_iterations)
-    # solution = sudoku_solver.gsat()
+    solution = sudoku_solver.gsat()
+
     # if solution:
         # print("Puzzle Solved:")
         # print(solution)
