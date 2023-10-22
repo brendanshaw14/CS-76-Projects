@@ -7,6 +7,7 @@ class SAT:
         self.solution_path = solution_path
         self.threshold = threshold
         self.max_iterations = max_iterations
+        self.iterations_used = 0
         # initialize lists
         self.clauses = []
         self.variable_assignments = {}
@@ -82,6 +83,7 @@ class SAT:
 
             # Check if the current assignment satisfies all clauses
             if num_satisfied == len(self.clauses):
+                self.iterations_used = i
                 self.write_solution()
                 return self.variable_assignments  # Solution found
 
@@ -177,10 +179,10 @@ class SAT:
 # Example usage:
 if __name__ == "__main__":
 
-    threshold = 0.5  # Random threshold for accepting non-improving moves
+    threshold = 0.3  # Random threshold for accepting non-improving moves
     max_iterations = 100000  # Maximum number of iterations
-    cnf_file_path = "Sudoku/puzzles/one_cell.cnf"
-    solution_path = "Sudoku/solutions/one_cell.sol"
+    cnf_file_path = "Sudoku/puzzles/all_cells.cnf"
+    solution_path = "Sudoku/solutions/all_cells.sol"
 
     sudoku_solver = SAT(cnf_file_path, solution_path, threshold, max_iterations)
     print(sudoku_solver.clauses)
@@ -188,7 +190,7 @@ if __name__ == "__main__":
     solution = sudoku_solver.gsat()
 
     if solution:
-        print("Puzzle Solved:")
+        print("Puzzle Solved in " + sudoku_solver.iterations_used + " iterations")
         print(solution)
     else:
         print("No solution found within the maximum number of iterations.")

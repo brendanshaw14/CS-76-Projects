@@ -7,15 +7,16 @@ if __name__ == "__main__":
     #  of values:
     random.seed(1)
 
-    # puzzle_name = str(sys.argv[1][:-4])
-    # sol_filename = puzzle_name + ".sol"
-    # sol_filename = puzzle_name + ".sol"
+    threshold = 0.9  # Random threshold for accepting non-improving moves
+    max_iterations = 100000  # Maximum number of iterations
+    cnf_file_path = "Sudoku/puzzles/all_cells.cnf"
+    solution_path = "Sudoku/solutions/all_cells.sol"
 
-    sat = SAT()
-    result = sat.walksat("Sudoku/puzzle1.cnf", 1000000)
+    sudoku_solver = SAT(cnf_file_path, solution_path, threshold, max_iterations)
+    solution = sudoku_solver.gsat()
 
-    # if a result was found, print it 
-    if result:
-        display_sudoku_solution(result)
-    else: 
-        print("No result found")
+    if solution:
+        print("Puzzle Solved in " + str(sudoku_solver.iterations_used) + " iterations")
+        display_sudoku_solution(solution_path)
+    else:
+        print("No solution found within the maximum number of iterations.")
