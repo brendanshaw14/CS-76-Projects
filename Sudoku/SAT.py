@@ -168,7 +168,7 @@ class SAT:
                 for variable in self.assignmnent:
                     # if the variable is true, write it to the file
                     if variable > 0:
-                        file.write(self.variables[variable] + '\n')
+                        file.write(self.variables[variable-1] + '\n')
         except Exception as e:
             print(f"Error: {e}")
  
@@ -178,8 +178,8 @@ if __name__ == "__main__":
 
     threshold = 0.5  # Random threshold for accepting non-improving moves
     max_iterations = 100000  # Maximum number of iterations
-    cnf_file_path = "Sudoku/puzzles/one_cell.cnf"
-    solution_path = "Sudoku/solutions/one_cell.sol"
+    cnf_file_path = "Sudoku/puzzles/all_cells.cnf"
+    solution_path = "Sudoku/solutions/all_cels.sol"
 
     sudoku_solver = SAT(cnf_file_path, solution_path, threshold, max_iterations)
     solution = sudoku_solver.gsat()
