@@ -11,7 +11,7 @@ class SAT:
         # declare the clauses, variables, and assignments lists
         self.clauses = []
         self.variables = []
-        self.assignment = []
+        self.assignment = {}
 
         # initialize the clauses, variables, and assignment using the functions
         self.initialize_clauses()
@@ -58,9 +58,9 @@ class SAT:
         # for each variable (do this by index)
         for i in range(1, len(self.variables) + 1): 
             # randomly choose positive or negative
-            value = random.choice([-1, 1])
+            value = random.choice([True, False])
             # add the index to the list: positive if true and negative if false
-            self.assignment.append(i*value)
+            self.assignment[i] = value
 
     def count_satisfied_clauses(self):
         satisfied_clauses = 0
@@ -68,7 +68,10 @@ class SAT:
         for clause in self.clauses:
             # if the entire clause is satisfied, increment the count
             for var in clause:
-                if var in self.assignment:
+                if var > 0 and self.assignment[var] == True:
+                    satisfied_clauses += 1
+                    break
+                elif var < 0 and self.assignment[-var] == False:
                     satisfied_clauses += 1
                     break
         # return the number of satisfied clauses
@@ -89,8 +92,8 @@ class SAT:
             random_threshold = random.random()
             if random_threshold > self.threshold:
                 # Random Move: Flip a random variable
-                random_index = random.choice(range(len(self.assignment)))
-                self.assignment[random_index] *= -1
+                random_var = random.choice(list(self.assignment.keys()))
+                self.assignment[random_var] = not self.assignment[random_var]
 
             # if threshold wasn't reached
             else:
@@ -99,26 +102,26 @@ class SAT:
                 max_num_satisfied = 0
 
                 # for each variable
-                for i in range(len(self.assignment)):
+                for variable in list(self.assignment.keys()): 
                     # flip the variable
-                    self.assignment[i] *= -1
+                    self.assignment[variable] = not self.assignment[variable]
                     # count num clauses satisfied with the new one
                     new_num_satisfied = self.count_satisfied_clauses()
                     # flip it back
-                    self.assignment[i] *= -1
+                    self.assignment[variable] = not self.assignment[variable]
                     # if it's the new highest, reset the list
                     if new_num_satisfied > max_num_satisfied: 
                         # empty the list and add it to the list
                         max_num_satisfied = new_num_satisfied
-                        best_flips = [i]
+                        best_flips = [variable]
                     # otherwise, if flipping that variable results in an equal score: 
                     elif new_num_satisfied == max_num_satisfied:
                         # add it to the list
-                        best_flips.append(i)
+                        best_flips.append(variable)
 
                 # flip a random variable from the maximizing list
-                var_to_flip_index = random.choice(best_flips)
-                self.assignment[var_to_flip_index] *= -1
+                var_to_flip = random.choice(best_flips)
+                self.assignment[var_to_flip] *= -1
 
         return None  # No solution found within max_iterations
 
@@ -176,10 +179,10 @@ class SAT:
 # Example usage:
 if __name__ == "__main__":
 
-    threshold = 0.5  # Random threshold for accepting non-improving moves
+    threshold = 0.3  # Random threshold for accepting non-improving moves
     max_iterations = 100000  # Maximum number of iterations
-    cnf_file_path = "Sudoku/puzzles/all_cells.cnf"
-    solution_path = "Sudoku/solutions/all_cels.sol"
+    cnf_file_path = "Sudoku/puzzles/one_cell.cnf"
+    solution_path = "Sudoku/solutions/one_cell.sol"
 
     sudoku_solver = SAT(cnf_file_path, solution_path, threshold, max_iterations)
     solution = sudoku_solver.gsat()
