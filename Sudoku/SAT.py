@@ -7,8 +7,15 @@ class SAT:
         self.solution_path = solution_path
         self.threshold = threshold
         self.max_iterations = max_iterations
-        self.clauses = self.initialize_clauses()
-        self.variable_assignments = self.initialize_random_assignment()
+
+        # declare the clauses, variables, and assignments lists
+        self.clauses = []
+        self.variables = []
+        self.assignment = []
+
+        # initialize the clauses, variables, and assignment using the functions
+        self.initialize_clauses()
+        self.initialize_random_assignment()
 
     # initialize the clauses list
     def initialize_clauses(self):
@@ -17,13 +24,27 @@ class SAT:
             with open(self.cnf_file_path, 'r') as file:
                 clauses = []
                 for line in file:
-                    # Split the line into individual elements (numbers)
-                    elements = line.strip().split()
+                    # Parse elements in clause
+                    clause = line.strip().split()
+                    converted_clause = []
 
-                    # Parse elements and add them to the clauses list
-                    clause = [element for element in elements]
-                    clauses.append(clause)
-                return clauses
+                    # loop through each variable, add it to the var list if it isn't there
+                    for variable in clause: 
+                        neg = False
+                        # if the variable is negative, take of the negative sign
+                        if variable[0] == '-': 
+                            variable = variable[1:]
+                            neg = True
+                        # if the variable not in the variable list, add it
+                        if variable not in self.variables: 
+                            self.variables.append(variable)
+                        if neg: 
+                            converted_clause.append(-1 * (self.variables.index(variable) + 1))
+                        else: 
+                            converted_clause.append(self.variables.index(variable) + 1)
+                    clauses.append(converted_clause)
+                            
+                self.clauses = clauses
 
         except FileNotFoundError:
             print(f"Error: File '{self.cnf_file_path}' not found.")
@@ -34,38 +55,22 @@ class SAT:
 
     # initialize the random variable assignment
     def initialize_random_assignment(self):
-        assignment = {}
-        # for each clause line
-        for clause in self.clauses:
-            # for each variable
-            for variable in clause:
-                # if the variable isn't in the random assignment, set it to a random value
-                if abs(variable) not in assignment:
-                    assignment[variable] = random.choice([True, False])
-        return assignment
+        # for each variable (do this by index)
+        for i in range(1, len(self.variables) + 1): 
+            # randomly choose positive or negative
+            value = random.choice([-1, 1])
+            # add the index to the list: positive if true and negative if false
+            self.assignment.append(i*value)
 
     def count_satisfied_clauses(self):
         satisfied_clauses = 0
         # loop through clauses
         for clause in self.clauses:
-            is_clause_satisfied = False
-            # loop through variables in the clause
-            for var in clause:
-                # if the variable is positive
-                if var >= 0:
-                    # if that variable's value is true
-                    if self.variable_assignments[var]:
-                        is_clause_satisfied = True
-                        break
-                # if the variable is negative
-                if var < 0:
-                    # if that variable's value is false
-                    if not self.variable_assignments[-var]:
-                        is_clause_satisfied = True
-                        break
             # if the entire clause is satisfied, increment the count
-            if is_clause_satisfied:
-                satisfied_clauses += 1
+            for var in clause:
+                if var in self.assignment:
+                    satisfied_clauses += 1
+                    break
         # return the number of satisfied clauses
         return satisfied_clauses
 
@@ -77,44 +82,43 @@ class SAT:
 
             # Check if the current assignment satisfies all clauses
             if num_satisfied == len(self.clauses):
-                self.write_solution()
-                return self.variable_assignments  # Solution found
+                # self.write_solution()
+                return self.assignment  # Solution found
 
             # Random number between 0 and 1
             random_threshold = random.random()
             if random_threshold > self.threshold:
                 # Random Move: Flip a random variable
-                random_var = random.choice(list(self.variable_assignments.keys()))
-                self.variable_assignments[random_var] = not self.variable_assignments[random_var]
+                random_index = random.choice(range(len(self.assignment)))
+                self.assignment[random_index] *= -1
 
             # if threshold wasn't reached
             else:
-                # Flip a variable that maximizes the number of satisfied clauses
                 # initialize the best assignment and best choices set
                 best_flips = []
                 max_num_satisfied = 0
 
                 # for each variable
-                for variable in self.variable_assignments:
+                for i in range(len(self.assignment)):
                     # flip the variable
-                    self.variable_assignments[variable] = not self.variable_assignments[variable]
+                    self.assignment[i] *= -1
                     # count num clauses satisfied with the new one
                     new_num_satisfied = self.count_satisfied_clauses()
                     # flip it back
-                    self.variable_assignments[variable] = not self.variable_assignments[variable]
+                    self.assignment[i] *= -1
                     # if it's the new highest, reset the list
                     if new_num_satisfied > max_num_satisfied: 
                         # empty the list and add it to the list
                         max_num_satisfied = new_num_satisfied
-                        best_flips = [variable]
+                        best_flips = [i]
                     # otherwise, if flipping that variable results in an equal score: 
                     elif new_num_satisfied == max_num_satisfied:
                         # add it to the list
-                        best_flips.append(variable)
+                        best_flips.append(i)
 
                 # flip a random variable from the maximizing list
-                var_to_flip = random.choice(best_flips)
-                self.variable_assignments[var_to_flip] = not self.variable_assignments[var_to_flip]
+                var_to_flip_index = random.choice(best_flips)
+                self.assignment[var_to_flip_index] *= -1
 
         return None  # No solution found within max_iterations
 
@@ -161,10 +165,10 @@ class SAT:
             new_filename = self.solution_path
             with open(new_filename, 'w') as file:
                 # write each of the variables to a line in a file
-                for variable, assignment in self.variable_assignments.items():
+                for variable in self.assignmnent:
                     # if the variable is true, write it to the file
-                    if assignment:
-                        file.write(str(variable) + '\n')
+                    if variable > 0:
+                        file.write(self.variables[variable] + '\n')
         except Exception as e:
             print(f"Error: {e}")
  
