@@ -13,7 +13,7 @@ class SAT:
     # initialize the clauses list
     def initialize_clauses(self):
         try:
-            # Read the Sudoku CNF file line by line
+            # Read the cnf line by line
             with open(self.cnf_file_path, 'r') as file:
                 clauses = []
                 for line in file:
@@ -21,7 +21,7 @@ class SAT:
                     elements = line.strip().split()
 
                     # Parse elements and add them to the clauses list
-                    clause = [int(element) for element in elements]
+                    clause = [element for element in elements]
                     clauses.append(clause)
                 return clauses
 
@@ -96,12 +96,11 @@ class SAT:
 
                 # for each variable
                 for variable in self.variable_assignments:
-                    # if flipping that variable results in a score higher than the current highest
                     # flip the variable
                     self.variable_assignments[variable] = not self.variable_assignments[variable]
                     # count num clauses satisfied with the new one
                     new_num_satisfied = self.count_satisfied_clauses()
-                    # flip it bac
+                    # flip it back
                     self.variable_assignments[variable] = not self.variable_assignments[variable]
                     # if it's the new highest, reset the list
                     if new_num_satisfied > max_num_satisfied: 
@@ -159,7 +158,7 @@ class SAT:
     def write_solution(self):
         try:
             # make the new file
-            new_filename = self.solution_path + "sudoku" + ".sol"
+            new_filename = self.solution_path
             with open(new_filename, 'w') as file:
                 # write each of the variables to a line in a file
                 for variable, assignment in self.variable_assignments.items():
@@ -173,10 +172,10 @@ class SAT:
 # Example usage:
 if __name__ == "__main__":
 
-    threshold = 0.3  # Random threshold for accepting non-improving moves
+    threshold = 0.5  # Random threshold for accepting non-improving moves
     max_iterations = 100000  # Maximum number of iterations
-    cnf_file_path = "Sudoku/puzzles/all_cells.cnf"
-    solution_path = "Sudoku/solutions/"
+    cnf_file_path = "Sudoku/puzzles/one_cell.cnf"
+    solution_path = "Sudoku/solutions/one_cell.sol"
 
     sudoku_solver = SAT(cnf_file_path, solution_path, threshold, max_iterations)
     solution = sudoku_solver.gsat()
