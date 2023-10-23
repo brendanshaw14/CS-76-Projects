@@ -46,15 +46,15 @@ if __name__ == "__main__":
     # random.seed(1)
     # threshold = 0.5  # Random threshold for accepting non-improving moves
     # test_gsat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_gsat_0.5.sol")
-    threshold = 0.3  # Random threshold for accepting non-improving moves
-    random.seed(1)
-    test_gsat(threshold, puzzle_dir + "rows.cnf", solutions_dir + "rows_gsat_0.5.sol")
+    # threshold = 0.3  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_gsat(threshold, puzzle_dir + "rows.cnf", solutions_dir + "rows_gsat_0.5.sol")
 
     ## walksat tests: see solutions folder for outputs. 
     # random.seed(1)
     # test_walksat(threshold, puzzle_dir + "one_cell.cnf", solutions_dir + "one_cell_walksat_0.3.sol")
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.3.sol")
+    random.seed(1)
+    test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.3.sol")
     # random.seed(1)
     # test_walksat(threshold, puzzle_dir + "rows.cnf", solutions_dir + "rows_walksat_0.3.sol")
     # random.seed(1)

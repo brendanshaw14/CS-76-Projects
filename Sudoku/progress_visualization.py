@@ -2,15 +2,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Read progress updates from the file into a pandas DataFrame
-progress_df = pd.read_csv("progress.txt", header=None, names=["Progress"])
+df = pd.read_csv('Sudoku/solutions/all_cells_progress.txt', sep='/', header=None, names=['Clauses Satisfied', 'Total Clauses'])
 
-# Split the progress column into 'x' and 'y' columns
-progress_df["Satisfied"], progress_df["Total"] = progress_df["Progress"].str.split("/", 1).str
-progress_df["Satisfied"] = progress_df["Satisfied"].astype(int)
-progress_df["Total"] = progress_df["Total"].astype(int)
 
 # Plot the progress using pyplot
-plt.plot(progress_df.index, progress_df["Satisfied"])
+plt.plot(df.index, df["Clauses Satisfied"])
 plt.xlabel("Iteration")
 plt.ylabel("Number of Satisfied Clauses")
 plt.title("Progress Over Iterations")
