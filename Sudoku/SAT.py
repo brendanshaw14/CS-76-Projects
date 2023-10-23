@@ -82,54 +82,57 @@ class SAT:
         return satisfied_clauses
 
     def gsat(self):
-        for i in range(self.max_iterations):
-            # get new num_satisfied and print it for observation
-            num_satisfied = self.count_satisfied_clauses()
-            print(str(num_satisfied) + '/' + str(len(self.clauses)))
+        with open("progress.txt", "w") as file:
+            for i in range(self.max_iterations):
+                # get new num_satisfied and print it for observation
+                num_satisfied = self.count_satisfied_clauses()
+                progress = f"{num_satisfied}/{len(self.clauses)}"
+                print(progress)  # Print to console
+                file.write(progress + "\n")  # Write to file
 
-            # Check if the current assignment satisfies all clauses
-            if num_satisfied == len(self.clauses):
-                self.iterations_used = i
-                self.write_solution()
-                return self.variable_assignments  # Solution found
+                # Check if the current assignment satisfies all clauses
+                if num_satisfied == len(self.clauses):
+                    self.iterations_used = i
+                    self.write_solution()
+                    return self.variable_assignments  # Solution found
 
-            # Random number between 0 and 1
-            random_threshold = random.random()
-            if random_threshold > self.threshold:
-                # Random Move: Flip a random variable
-                random_var = random.choice(list(self.variable_assignments.keys()))
-                self.variable_assignments[random_var] = not self.variable_assignments[random_var]
+                # Random number between 0 and 1
+                random_threshold = random.random()
+                if random_threshold > self.threshold:
+                    # Random Move: Flip a random variable
+                    random_var = random.choice(list(self.variable_assignments.keys()))
+                    self.variable_assignments[random_var] = not self.variable_assignments[random_var]
 
-            # if threshold wasn't reached
-            else:
-                # Flip a variable that maximizes the number of satisfied clauses
-                # initialize the best assignment and best choices set
-                best_flips = []
-                max_num_satisfied = 0
+                # if threshold wasn't reached
+                else:
+                    # Flip a variable that maximizes the number of satisfied clauses
+                    # initialize the best assignment and best choices set
+                    best_flips = []
+                    max_num_satisfied = 0
 
-                # for each variable
-                for variable in self.variable_assignments:
-                    # flip the variable
-                    self.variable_assignments[variable] = not self.variable_assignments[variable]
-                    # count num clauses satisfied with the new one
-                    new_num_satisfied = self.count_satisfied_clauses()
-                    # flip it back
-                    self.variable_assignments[variable] = not self.variable_assignments[variable]
-                    # if it's the new highest, reset the list
-                    if new_num_satisfied > max_num_satisfied: 
-                        # empty the list and add it to the list
-                        max_num_satisfied = new_num_satisfied
-                        best_flips = [variable]
-                    # otherwise, if flipping that variable results in an equal score: 
-                    elif new_num_satisfied == max_num_satisfied:
-                        # add it to the list
-                        best_flips.append(variable)
+                    # for each variable
+                    for variable in self.variable_assignments:
+                        # flip the variable
+                        self.variable_assignments[variable] = not self.variable_assignments[variable]
+                        # count num clauses satisfied with the new one
+                        new_num_satisfied = self.count_satisfied_clauses()
+                        # flip it back
+                        self.variable_assignments[variable] = not self.variable_assignments[variable]
+                        # if it's the new highest, reset the list
+                        if new_num_satisfied > max_num_satisfied: 
+                            # empty the list and add it to the list
+                            max_num_satisfied = new_num_satisfied
+                            best_flips = [variable]
+                        # otherwise, if flipping that variable results in an equal score: 
+                        elif new_num_satisfied == max_num_satisfied:
+                            # add it to the list
+                            best_flips.append(variable)
 
-                # flip a random variable from the maximizing list
-                var_to_flip = random.choice(best_flips)
-                self.variable_assignments[var_to_flip] = not self.variable_assignments[var_to_flip]
+                    # flip a random variable from the maximizing list
+                    var_to_flip = random.choice(best_flips)
+                    self.variable_assignments[var_to_flip] = not self.variable_assignments[var_to_flip]
 
-        return None  # No solution found within max_iterations
+            return None  # No solution found within max_iterations
 
 
     def walksat(self):
