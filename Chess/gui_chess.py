@@ -82,9 +82,8 @@ if __name__ == "__main__":
     # player2 = Minimax(2, False)   
 
     ## OrderedAlphaBeta Vs RandomAI
-    # player1 = OrderedAlphaBetaAI(3, True, evaluate_board_modified)
-    # player2 = RandomAI()
-
+    player1 = OrderedAlphaBetaAI(3, True, evaluate_board_modified)
+    player2 = RandomAI()
 
     # testing the non-positional evaluation funciton
     # player1 = OrderedAlphaBetaAI(3, True, evaluate_board)

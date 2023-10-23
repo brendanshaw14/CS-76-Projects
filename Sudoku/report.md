@@ -96,4 +96,67 @@ def count_satisfied_clauses(self):
     return the number of satisfied clauses
 ```
 
+### Printing solution outputs: 
+
+I checked out the solution printing mechanism given to us in `Sudoku.py`, and saw that it takes an input file with a list of true variables. So, I wrote the function `write_solution` within the SAT class, and call it every time the gsat or walksat functions terminate.
+
+This function is very simple- it just loops through each of the variables in the assignmnet dictionary, printing them to the file on a line. This works well, and is used for output of test results. 
 ## GSAT 
+
+The GSAT (greedy SAT) algorithm operates on the principle of local search, starting from an initial assignment of truth values to variables and iteratively refining it. In each iteration, GSAT assesses the current assignment's quality, measured by the number of satisfied clauses. If the assignment satisfies all clauses, the problem is solved. Otherwise, GSAT makes probabilistic decisions: it either flips a randomly chosen variable with a certain probability or identifies the variable whose flip maximizes the number of satisfied clauses. The algorithm's randomized nature allows it to escape local optima and explore diverse configurations, enhancing the chances of converging to a satisfying assignment.
+
+The algorithm operates within a loop controlled by the maximum number of iterations defined by the user. During each iteration, the algorithm evaluates the current assignment, aiming to maximize the number of satisfied clauses. It employs a threshold probability to make stochastic decisions, balancing exploration and exploitation. If the threshold is not met, the algorithm identifies variables whose flips yield the highest satisfaction gains. This local search behavior enables the algorithm to systematically refine the assignment, gradually approaching a satisfying solution.
+
+Keep in mind: this algorithm is pretty terrible at solving the sudoku problem. It's extremely inefficient, relies a lot on random chace for success, and takes absolutely forever. Since it has too loop through every variable seemingly endless times (if the threshold is not met, each iteration will search each constraint for every single variable), this algorithm takes eons. 
+
+Regardless, is the pseudocode representing the GSAT algorithm. 
+
+```
+def gsat(self):
+    # while under max iterations
+        # get new num_satisfied and print it for observation
+        # Check if the current assignment satisfies all clauses, return solution if so
+        # Random number between 0 and 1
+        if the number is greater than the threshold
+            Random Move: Flip a random variable
+        else:
+            # Flip the variable that maximizes the number of satisfied clauses
+    return No solution found within max_iterations
+```
+
+This algorithmic integration not only enhances the solver's performance but also showcases the dynamic nature of SAT problem-solving, where the balance between exploration and exploitation plays a crucial role in finding optimal solutions.
+
+## Walksat
+
+In the WalkSAT algorithm, I employed a different strategy for local search, emphasizing a balance between random exploration and greedy exploitation. The algorithm operates within a loop of a specified maximum number of iterations, aiming to find a satisfying assignment for the given SAT problem. The algorithm starts by randomly selecting an unsatisfied clause from the list of unsatisfied clauses. This choice reflects a deliberate focus on unsatisfied portions of the problem, allowing the algorithm to concentrate its efforts on problematic areas of the solution space.
+
+This was the only part of the problem that called for a stuctural change to my representation, becuase I needed a way to quickly and easily access a list of unsatisfied clauses to choose from. I decided to store this as a separate list within an instance variable. Although this causes a memory hit, it is insignificant (these will only be a fraction of the size of the clauses lists). This made since becuase I already have to test whether or not a clause is satisfied in each iteration of the main loop, so each time it isn't satisfied, I just add it to the unsatisfied set. I pull a random clause from this set and use it for exploration.
+
+During each iteration, the algorithm evaluates two options: it either flips a random variable from the chosen unsatisfied clause with a certain probability, introducing stochastic exploration, or it evaluates potential flips within the clause and selects the variable whose flip maximizes the number of satisfied clauses. This approach blends random exploration with local greedy search, ensuring the algorithm can escape local optima while capitalizing on promising solutions when found. By limiting our search space for the next variable to flip to only the variables within the unsatisfied, we gain massive performance improvements. 
+
+The integration of WalkSAT into the SAT solver framework enhances the solver's adaptability to different problem instances. The algorithm's focus on unsatisfied clauses aligns with the common heuristic that addressing problematic parts of the problem often leads to massive improvements. 
+
+Pseudocode: 
+```
+def walksat(self):
+    while under max iterations
+    get new num_satisfied and print it for observation
+    if the assignment is complete:
+        return the assignments as current
+    choose a random unsatisfied clause
+    Random number between 0 and 1
+    if random_threshold > self.threshold:
+        Random Move: Flip a random variable from the unsatisfied clause
+    otherwise, loop through candidates and flip the best value
+    for variable in random_clause:
+        # flip the variable
+        # count num clauses satisfied with the new one
+        # flip it back
+        # if it's the new highest, reset the list
+            # empty the list and add it to the list
+        # otherwise, if flipping that variable results in an equal score: 
+            # add it to the list
+    # flip a random variable from the maximizing list
+# No solution found within max_iterations
+return None  
+```

@@ -13,7 +13,7 @@ def test_gsat(threshold, cnf_file_path, solution_path):
 
 def test_walksat(threshold, cnf_file_path, solution_path):
     sudoku_solver = SAT(cnf_file_path, solution_path, threshold, max_iterations)
-    solution = sudoku_solver.gsat()
+    solution = sudoku_solver.walksat()
     if solution:
         print("Puzzle Solved in " + str(sudoku_solver.iterations_used) + " iterations")
         display_sudoku_solution(solution_path)
@@ -22,9 +22,6 @@ def test_walksat(threshold, cnf_file_path, solution_path):
 
 
 if __name__ == "__main__":
-    # for testing, always initialize the pseudorandom number generator to output the same sequence
-    #  of values:
-    random.seed(1)
 
     threshold = 0.3  # Random threshold for accepting non-improving moves
     max_iterations = 100000  # Maximum number of iterations
@@ -32,19 +29,60 @@ if __name__ == "__main__":
     # FOR TESTER: READ THIS: 
     # INPUT THE PATH TO THE DIRECTORY OF THE PUZZLES AND SOLUTIONS RESPECTIVELY HERE SO THE TESTS WILL PRINT TO AND FROM THE RIGHT FILE
     # - I have a directory for the whole class, so I have to specify the folder is Sudoku/solutions or Sudoku/puzzles. 
-    # - For you it will likely just be /solutions and /puzzles
-    puzzle_dir = "Sudoku/puzzles/"
-    solutions_dir = "Sudoku/puzzles/"
+    # - For you it will likely just be /solutions/ and /puzzles/
+    # 
+    # ALSO: 
+    # If you don't want to wait for all of these problems to run (it takes a minute or two), 
+    # COMMENT OUT THE `test_walksat` functions, and leave only the display_sudoku_solution calls (below)
+    # - This will just read the solution outputs from my program and display the solutions in the terminal. 
 
 
-    # walksat tests: see solutions folder for outputs. 
-    test_walksat(threshold, "Sudoku/puzzles/one_cell.cnf", "Sudoku/solutions/one_cell_walksat_0.3")
-    test_walksat(threshold, "Sudoku/puzzles/all_cells.cnf", "Sudoku/solutions/all_cells_walksat_0.3")
-    test_walksat(threshold, "Sudoku/puzzles/rows_and_cols.cnf", "Sudoku/solutions/rows_and_cols_walksat_0.3")
-    test_walksat(threshold, "Sudoku/puzzles/rules.cnf", "Sudoku/solutions/rules_walksat_0.3")
+    puzzle_dir = "Sudoku/puzzles/" # probably replace this with /puzzles/
+    solutions_dir = "Sudoku/solutions/" # probably replace this with /solutions/
+
+    ## gsat tests: see solutions folder for outputs. 
+    # random.seed(1)
+    # test_gsat(threshold, puzzle_dir + "one_cell.cnf", solutions_dir + "one_cell_gsat_0.3.sol")
+    # random.seed(1)
+    # threshold = 0.5  # Random threshold for accepting non-improving moves
+    # test_gsat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_gsat_0.5.sol")
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + "rows.cnf", solutions_dir + "rows_gsat_0.5.sol")
+
+    ## walksat tests: see solutions folder for outputs. 
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "one_cell.cnf", solutions_dir + "one_cell_walksat_0.3.sol")
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.3.sol")
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "rows.cnf", solutions_dir + "rows_walksat_0.3.sol")
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "rows_and_cols.cnf", solutions_dir + "rows_and_cols_walksat_0.3.sol")
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "rules.cnf", solutions_dir + "rules_walksat_0.3.sol")
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "puzzle1.cnf", solutions_dir + "puzzle1_walksat_0.3.sol")
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "puzzle2.cnf", solutions_dir + "puzzle2_walksat_0.3.sol")
 
     # print the solutions from the solver outputs without running again: 
-    print("Walksat one cell; 0.5")
-    display_sudoku_solution()
+    print("Walksat one cell; 0.3")
+    display_sudoku_solution(solutions_dir + "one_cell_walksat_0.3.sol")
+
+    print("Walksat all cells; 0.3")
+    display_sudoku_solution(solutions_dir + "all_cells_walksat_0.3.sol")
+
+    print("Walksat rows; 0.3")
+    display_sudoku_solution(solutions_dir + "rows_walksat_0.3.sol")
+
+    print("Walksat rows and cols; 0.3")
+    display_sudoku_solution(solutions_dir + "rows_and_cols_walksat_0.3.sol")
+
+    print("Walksat rules; 0.3")
+    display_sudoku_solution(solutions_dir + "rules_walksat_0.3.sol")
+
+    print("Walksat puzzle 1; 0.3")
+    display_sudoku_solution(solutions_dir + "puzzle1_walksat_0.3.sol")
+
 
 
