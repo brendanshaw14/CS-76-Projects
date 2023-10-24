@@ -199,3 +199,4 @@ def plot_walksat_rules():
     plt.legend()
     plt.show()
 
+plot_gsat_all_cells()
