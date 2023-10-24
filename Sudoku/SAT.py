@@ -82,7 +82,7 @@ class SAT:
         return satisfied_clauses
 
     def gsat(self):
-        with open(self.solution_path[:-4] + "_progress.txt", "w") as file:
+        with open("Sudoku/data/" + self.solution_path[17:-4] + ".txt", "w") as file:
             for i in range(self.max_iterations):
                 # get new num_satisfied and print it for observation
                 num_satisfied = self.count_satisfied_clauses()

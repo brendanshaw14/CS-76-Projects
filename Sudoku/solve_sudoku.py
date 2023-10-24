@@ -24,7 +24,7 @@ def test_walksat(threshold, cnf_file_path, solution_path):
 if __name__ == "__main__":
 
     threshold = 0.3  # Random threshold for accepting non-improving moves
-    max_iterations = 100000  # Maximum number of iterations
+    max_iterations = 2000  # Maximum number of iterations
 
     # FOR TESTER: READ THIS: 
     # INPUT THE PATH TO THE DIRECTORY OF THE PUZZLES AND SOLUTIONS RESPECTIVELY HERE SO THE TESTS WILL PRINT TO AND FROM THE RIGHT FILE
@@ -85,34 +85,100 @@ if __name__ == "__main__":
     # print("Walksat puzzle 1; 0.3")
     # display_sudoku_solution(solutions_dir + "puzzle1_walksat_0.3.sol")
 
-    ## these were used to make the graphs
+    ## these were used to make the graphs for all cells on walksat
+    # cnf_file = "all_cells.cnf"
+    # random_seed = 1
     # threshold = 0.1  # Random threshold for accepting non-improving moves
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.1.sol")
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.1.sol")
     # threshold = 0.2  # Random threshold for accepting non-improving moves
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.2.sol")
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.2.sol")
     # threshold = 0.3  # Random threshold for accepting non-improving moves
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.3.sol")
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.3.sol")
     # threshold = 0.4  # Random threshold for accepting non-improving moves
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.4.sol")
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.4.sol")
     # threshold = 0.5  # Random threshold for accepting non-improving moves
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.5.sol")
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.5.sol")
     # threshold = 0.6  # Random threshold for accepting non-improving moves
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.6.sol")
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.6.sol")
     # threshold = 0.7  # Random threshold for accepting non-improving moves
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.7.sol")
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.7.sol")
     # threshold = 0.8  # Random threshold for accepting non-improving moves
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.8.sol")
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.8.sol")
     # threshold = 0.9  # Random threshold for accepting non-improving moves
-    # random.seed(1)
-    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.9.sol")
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.9.sol")
+
+    # these were used to make the graphs for all cells on gsat
+    cnf_file = "rules.cnf"
+    threshold = 0.1  # Random threshold for accepting non-improving moves
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + cnf_file, solutions_dir + cnf_file + "_gsat_0.1.sol")
+    threshold = 0.2  # Random threshold for accepting non-improving moves
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + cnf_file, solutions_dir + cnf_file + "_gsat_0.2.sol")
+    threshold = 0.3  # Random threshold for accepting non-improving moves
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + cnf_file, solutions_dir + cnf_file + "_gsat_0.3.sol")
+    threshold = 0.4  # Random threshold for accepting non-improving moves
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + cnf_file, solutions_dir + cnf_file + "_gsat_0.4.sol")
+    threshold = 0.5  # Random threshold for accepting non-improving moves
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + cnf_file, solutions_dir + cnf_file +"_gsat_0.5.sol")
+    threshold = 0.6  # Random threshold for accepting non-improving moves
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + cnf_file, solutions_dir + cnf_file + "_gsat_0.6.sol")
+    threshold = 0.7  # Random threshold for accepting non-improving moves
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + cnf_file, solutions_dir + cnf_file + "_gsat_0.7.sol")
+    threshold = 0.8  # Random threshold for accepting non-improving moves
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + cnf_file, solutions_dir + cnf_file + "_gsat_0.8.sol")
+    threshold = 0.9  # Random threshold for accepting non-improving moves
+    random.seed(1)
+    test_gsat(threshold, puzzle_dir + cnf_file, solutions_dir + cnf_file + "_gsat_0.9.sol")
+
+    ## these were used to make the graphs for rules on walksat
+    # cnf_file = "rules.cnf"
+    # random_seed = 1
+    # threshold = 0.1  # Random threshold for accepting non-improving moves
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.1.sol")
+    # threshold = 0.2  # Random threshold for accepting non-improving moves
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.2.sol")
+    # threshold = 0.3  # Random threshold for accepting non-improving moves
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.3.sol")
+    # threshold = 0.4  # Random threshold for accepting non-improving moves
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.4.sol")
+    # threshold = 0.5  # Random threshold for accepting non-improving moves
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.5.sol")
+    # threshold = 0.6  # Random threshold for accepting non-improving moves
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.6.sol")
+    # threshold = 0.7  # Random threshold for accepting non-improving moves
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.7.sol")
+    # threshold = 0.8  # Random threshold for accepting non-improving moves
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.8.sol")
+    # threshold = 0.9  # Random threshold for accepting non-improving moves
+    # random.seed(random_seed)
+    # test_walksat(threshold, puzzle_dir + "cnf_file", solutions_dir + "all_cells_walksat_0.9.sol")
+
+
+
 
 
 

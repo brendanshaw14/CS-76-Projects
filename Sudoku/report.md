@@ -179,3 +179,30 @@ The Walksat was a lot better- it finds solutions pretty quickly, except for some
 
 
 See `README.md` for a tutorial on how to navigate the testing in `sudoku_solver.py`: this is pretty simple. I've printed all the results of my tests to the solutions folder in the directory, so you can just run the second block of code that just prints the outputs of these files (or run the actual tests, I guess). 
+
+## Extra Credit- Threshold Analysis with Pandas and PyPlot
+
+I noticed that there was some variation with the effectiveness of different random_seeds on different problems, so I decided to do some more in-depth analysis of this. 
+
+To do so, I modified the algorithms to print the constraints solved as well as the total number of constraints at each step to a file in the `data` folder. This allowed me to track the progress of the algorithm and the total number of iterations to solve at each step. 
+
+Then, I iterated through each of the files to extract the lists of the number of constraints solved at each step: 
+
+```
+for i in range(1, 10):
+    numerators["0." + str(i)] = []
+    file_path = f"Sudoku/data/all_cells_walksat_0.{i}.txt"
+    with open(file_path, 'r') as file:
+        for line in file:
+            numerator = int(line.strip().split('/')[0])  # Extract numerator before '/'
+            numerators["0." + str(i)].append(numerator)
+```
+I did pretty much the same thing but just on one file to extract a list of the total number of constraints to just draw a straight line on the graph to represent the solution. 
+
+Each threshold value resulted in a different number of iterations to solve the problem of course, so I had to fill in all of the missing values with `NaN` values to ensure they were the same length before putting them into the data frame. This was the trickiest part at first-- there were a lot of different bugs that resulted from trying to read in all of the files separately instead of from one csv sheet. 
+
+This worked though, so I began to use it to plot the progress of the gsat and walksat algorithms at a few different thresholds for the `all_cells.cnf` problem. 
+
+I decided to only include the gsat algorithm on the `all_cells.cnf` and `rules.cnf` problem becuase of the increased runtimes and it's also just bad at solving the problem so I wanted to focus my time to something actually useful. 
+
+Unfortunately doing just these took over an hour on their own of only runtime, so I didn't get as far with this as I would've liked.
