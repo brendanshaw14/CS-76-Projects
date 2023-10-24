@@ -160,3 +160,22 @@ def walksat(self):
 # No solution found within max_iterations
 return None  
 ```
+
+## Testing 
+
+As I developed this project, I first focused mainly on testing the helped methods used for the gsat and walksat algorithms (`initialize_clauses, initializie_random_assignment, and count_satisfied_clauses`). These do a lot of the important work, and since the algorithm is pretty simple, the main work was making sure that these methods worked correctly. I worked mainly with the `one_cell.cnf` constraints, since this was a small enough problem for me to verify manually that every single component was working correctly. 
+
+Initialize clauses was easy: I just had to ensure that every single clause was getting written into the list correctly. I made sure that the files could be read correctly, and then printed the values of the instance variables after initialization to make sure everything was there correctly. 
+
+I did the same for `initialize_random_assignment`: I just had to make sure that every variable was being assigned, and that the values were random each time. I printed the value of the assignment instance variables a few times, making sure that they were about evenly split true and false and that it was a different assignment each time. 
+
+As for count satisfied clauses, I modified the function to print the value of each clause it was evaluated by the counter, as well as its evaluation. This was easy to check with one cell, and I got everything working. 
+
+Then, I wrote both the gsat and walksat algorithms and used them on the simpler puzzles, testing to make sure that the found solutions. I had these print out the number of constraints satisfied out of the total number at each iteration of the loop, so I could observe the progression of the solver. This was helpful. 
+
+Once I got to the larger problems that filled the whole board, I also used the `write_solution` method to print these to a file that could display the outputs using the `Sudoku` method that we were given. This made things easy to check for validity, and allowed me to verify that both algorithms were printing correct solutions and finding them as efficiently as they were supposed to. Then, I just ran them on each of the files until they couldn't find the solution within 100,000 iterations. This was a very long time on the gsat-- and it also depended somewhat on the threshold, the problem, and the random seed. 
+
+The Walksat was a lot better- it finds solutions pretty quickly, except for sometimes when it gets stuck at local optima that are very close to the solutions-- again this is more dependent on the random seed. I found that varying the seed could make a big difference, but generally the walksat was able to solve all of the problems (except bonus). 
+
+
+See `README.md` for a tutorial on how to navigate the testing in `sudoku_solver.py`: this is pretty simple. I've printed all the results of my tests to the solutions folder in the directory, so you can just run the second block of code that just prints the outputs of these files (or run the actual tests, I guess). 
