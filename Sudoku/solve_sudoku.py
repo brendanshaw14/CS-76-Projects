@@ -53,8 +53,8 @@ if __name__ == "__main__":
     ## walksat tests: see solutions folder for outputs. 
     # random.seed(1)
     # test_walksat(threshold, puzzle_dir + "one_cell.cnf", solutions_dir + "one_cell_walksat_0.3.sol")
-    random.seed(1)
-    test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.3.sol")
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.3.sol")
     # random.seed(1)
     # test_walksat(threshold, puzzle_dir + "rows.cnf", solutions_dir + "rows_walksat_0.3.sol")
     # random.seed(1)
@@ -66,24 +66,54 @@ if __name__ == "__main__":
     # random.seed(1)
     # test_walksat(threshold, puzzle_dir + "puzzle2.cnf", solutions_dir + "puzzle2_walksat_0.3.sol")
 
-    # print the solutions from the solver outputs without running again: 
-    print("Walksat one cell; 0.3")
-    display_sudoku_solution(solutions_dir + "one_cell_walksat_0.3.sol")
+    ## print the solutions from the solver outputs without running again: 
+    # print("Walksat one cell; 0.3")
+    # display_sudoku_solution(solutions_dir + "one_cell_walksat_0.3.sol")
 
-    print("Walksat all cells; 0.3")
-    display_sudoku_solution(solutions_dir + "all_cells_walksat_0.3.sol")
+    # print("Walksat all cells; 0.3")
+    # display_sudoku_solution(solutions_dir + "all_cells_walksat_0.3.sol")
 
-    print("Walksat rows; 0.3")
-    display_sudoku_solution(solutions_dir + "rows_walksat_0.3.sol")
+    # print("Walksat rows; 0.3")
+    # display_sudoku_solution(solutions_dir + "rows_walksat_0.3.sol")
 
-    print("Walksat rows and cols; 0.3")
-    display_sudoku_solution(solutions_dir + "rows_and_cols_walksat_0.3.sol")
+    # print("Walksat rows and cols; 0.3")
+    # display_sudoku_solution(solutions_dir + "rows_and_cols_walksat_0.3.sol")
 
-    print("Walksat rules; 0.3")
-    display_sudoku_solution(solutions_dir + "rules_walksat_0.3.sol")
+    # print("Walksat rules; 0.3")
+    # display_sudoku_solution(solutions_dir + "rules_walksat_0.3.sol")
 
-    print("Walksat puzzle 1; 0.3")
-    display_sudoku_solution(solutions_dir + "puzzle1_walksat_0.3.sol")
+    # print("Walksat puzzle 1; 0.3")
+    # display_sudoku_solution(solutions_dir + "puzzle1_walksat_0.3.sol")
+
+    ## these were used to make the graphs
+    # threshold = 0.1  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.1.sol")
+    # threshold = 0.2  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.2.sol")
+    # threshold = 0.3  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.3.sol")
+    # threshold = 0.4  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.4.sol")
+    # threshold = 0.5  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.5.sol")
+    # threshold = 0.6  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.6.sol")
+    # threshold = 0.7  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.7.sol")
+    # threshold = 0.8  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.8.sol")
+    # threshold = 0.9  # Random threshold for accepting non-improving moves
+    # random.seed(1)
+    # test_walksat(threshold, puzzle_dir + "all_cells.cnf", solutions_dir + "all_cells_walksat_0.9.sol")
+
 
 
 
