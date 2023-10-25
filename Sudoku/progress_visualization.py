@@ -195,8 +195,9 @@ def plot_walksat_rules():
     # Customize the plot (add labels, legend, etc. as needed)
     plt.xlabel('Iterations Used')
     plt.ylabel('Constraints Solved')
+    plt.ylim(3200, 3260)
     plt.title('WalkSAT Threshold Value Performances: All Rules')
     plt.legend()
     plt.show()
 
-plot_gsat_all_cells()
+plot_walksat_rules()

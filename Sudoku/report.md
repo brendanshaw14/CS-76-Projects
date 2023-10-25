@@ -201,8 +201,51 @@ I did pretty much the same thing but just on one file to extract a list of the t
 
 Each threshold value resulted in a different number of iterations to solve the problem of course, so I had to fill in all of the missing values with `NaN` values to ensure they were the same length before putting them into the data frame. This was the trickiest part at first-- there were a lot of different bugs that resulted from trying to read in all of the files separately instead of from one csv sheet. 
 
-This worked though, so I began to use it to plot the progress of the gsat and walksat algorithms at a few different thresholds for the `all_cells.cnf` problem. 
+This worked though, so I began to use it to plot the progress of the gsat and walksat algorithms at a few different thresholds for the `all_cells.cnf` problem. I merged the data outputs from each algorithm test, and made charts for all of them to track the progress of the algorithm at different thresholds. 
 
 I decided to only include the gsat algorithm on the `all_cells.cnf` and `rules.cnf` problem becuase of the increased runtimes and it's also just bad at solving the problem so I wanted to focus my time to something actually useful. 
 
 Unfortunately doing just these took over an hour on their own of only runtime, so I didn't get as far with this as I would've liked.
+
+First was the GSAT Performance value on all cells: 
+
+![Alt text](graphs/GSAT_All_Cells.png)
+
+There was no discussion of the optimal value thresholds for the gsat algorithm in the assignment, so the only number I had to go off of for the threshold value was 0.3. I saw online that 0.5 was also a pretty common value, so I was surprised to find that higher threshold values __directly__ resulted in a faster gsat outcome. 
+
+It does appear that each increase of 0.1 resulted in an exponential time decrease, which was interesting. I wondered if this was just because the constraints were pretty loose, so I decided to make things more difficult by running the same on rules. 
+
+I didn't get to 0.9 threshold here becuase this took legitimately hours to run (gsat sucks), but the results were similar. 
+
+![Alt text](graphs/GSAT_rules.png)
+
+Although most of the thresholds didn't actually arrive at a solution within the timefram (2000 on gsat takes a long time), tresholds 0.5, 0.6, 0.7, and 0.8 were much more effective than the rest. 
+
+This seemed like a silly use of time though, so I went on to the walksat variations, which ended up being much more interesting.
+
+Here is the walksat for all cells:
+ ![Alt text](graphs/WalkSAT_All_Cells.png)
+
+Before, the gsats neverk crossed paths on the `all_cells` problem, whereas the walksats did.
+
+At the point 150 iterations in, the algorithms with lower thresholds were generally doing better, but not by a ton. There were a few exceptions though: 
+- [0.1, 0.2, 0.5, 0.3, 0.6, 0.4, 0.7, 0.8, 0.9]
+
+All of the paths cross though, and in the end, the order (from best to worst) is: 
+
+- [0.6, 0.5, 0.8, 0.9, 0.4 0.3, 0.2, 0.1]
+
+This reflected more what Prof. Balkom mentioned: the upper middle values were strongest, followed by middle, then upper, and then lower. This still wasn't his magic number of 0.3, but this was just the all cells constraints. 
+
+Then I did the same for all rules: here is the uncropped graph. 
+![Alt text](<graphs/WalkSAT All Rules (uncropped).png>)
+
+As you can see, graphs jump right up to nearly the goal value, so I had to grop the graph. 
+
+![Alt text](graphs/WalkSAT_All_Rules_Cropped.png)
+
+I didn't exactly know what to make of this data. As you can see, the higher thresholds exhibit much more variation on the chart, but this doesn't necessarily lead to solving first. This chart was also a bit messy. 
+
+It looks like 0.2 was solved first, followed by 0.4 (this makes more sense according to what the assignmnet said). In over twice as many iterations, 0.9 and 0.6 were then solved. 
+
+I didn't get time do do much more because this analysis in itself took forever, but I hope you enjoy the visualizations. 
