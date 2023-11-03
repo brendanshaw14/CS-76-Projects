@@ -21,32 +21,29 @@ class MazeHMM:
     
     # initialize the transition probabilities
     def initialize_transition_probabilities(self):
+        actions = [(0, 1), (-1, 0), (0, -1), (1, 0)]
         # for each index in the transition probabilities matrix
         for i in range(self.maze.width * self.maze.height):
             # get the x and y coordinates of the index
             x = i % self.maze.width
             y = i // self.maze.width
+            print(x, y)
             # for each adjacent spot to this index:
-            
-
-            for j in range(self.maze.width * self.maze.height):
-                # get the x and y coordinates of the other spot
-                x2 = j % self.maze.width
-                y2 = j // self.maze.width
-                # if the other spot is adjacent to the current spot
-                if abs(x - x2) + abs(y - y2) == 1:
-                    # if the other spot is a floor tile:
-                    if self.maze.is_floor(x2, y2):
-                        # increment the current spot's probability of transition to itself (not moving) by 0.25
-                        self.transition_probabilities[i][i] += 0.25
-                    # if not a floor tile:
-                    else:
-                        # set the transition probability to 0.25
-                        self.transition_probabilities[i][j] = 0.25
-                # if not adjacent:
+            for action in actions:
+                # get the x and y coordinates of the adjacent spot
+                new_x, new_y = x + action[0], y + action[1]
+                # if that spot is a floor:
+                if self.maze.is_floor(new_x, new_y):
+                    # calculate the index of this spot in the array
+                    index = new_y * self.maze.width + new_x 
+                    # set the probability of moving there by 0.25
+                    self.transition_probabilities[i][index] = 0.25
+                # if that spot is not a floor:
                 else:
-                    # set the transition probability to 0
-                    self.transition_probabilities[i][j] = 0
+                    # increment the probability of not moving at all by 0.25 
+                    self.transition_probabilities[i][i] += 0.25
+
+
 
     # initialize the probability distribution to be evenly since we don't know the robot's start location 
     def initialize_start_distribution(self):
@@ -95,6 +92,5 @@ if __name__ == "__main__":
     print(hmm.maze, hmm.distribution)
     print(hmm.maze.colors_map)
     # print the transition probabilities instance variable in a readable format with even spacing
-    for row in hmm.transition_probabilities:
-        print(row)
-    # print the start distribution instance variable in a readable format with even spacing
+    np.set_printoptions(precision=2, suppress=True, linewidth=100)
+    print(hmm.transition_probabilities)
