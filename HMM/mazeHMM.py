@@ -12,12 +12,14 @@ class MazeHMM:
         self.maze = maze
         self.emissions = {}
         # initialize self.distribution to be an empty numpy matrix
-        self.distribution = np.zeros((self.maze.width, self.maze.height))
+        self.distribution = np.zeros((self.maze.width*self.maze.height))
         # initialize the probability distribution evenly since we don't know anything yet
         self.initialize_start_distribution()
         # initialize self.transition probabilities to be an empty numpy matrix that is the size of the entire maze squared
         self.transition_probabilities = np.zeros((self.maze.width * self.maze.height, self.maze.width * self.maze.height))
         self.initialize_transition_probabilities()
+        # initialize print settings
+        np.set_printoptions(precision=4, suppress=True, linewidth=100)
     
     # initialize the transition probabilities
     def initialize_transition_probabilities(self):
@@ -27,7 +29,6 @@ class MazeHMM:
             # get the x and y coordinates of the index
             x = i % self.maze.width
             y = i // self.maze.width
-            print(x, y)
             # for each adjacent spot to this index:
             for action in actions:
                 # get the x and y coordinates of the adjacent spot
@@ -61,7 +62,7 @@ class MazeHMM:
             for y in range(self.maze.height):
                 # if the location is a floor, set the numpy matrix at that location to be 1 / (width * height)
                 if self.maze.is_floor(x, y):
-                    self.distribution[self.maze.height - y - 1][x] = 1 / (floorspace)
+                    self.distribution[maze.width * y + x] = 1 / floorspace
 
     # get the user's next move
     def get_next_location(self):
@@ -96,8 +97,22 @@ class MazeHMM:
 
     # multiply the probability distribution by the transition probabilities
     def predict(self): 
-        # reshape the probability distribution to be a column vector
-        self.distribution.reshape(16, 1)
+        # create a duplicate matrix the same size of the transition probabilities matrix 
+        new_distribution = np.zeros((self.maze.width * self.maze.height, self.maze.width * self.maze.height))
+        # for each column in the transition probabilities matrix
+        for i in range(self.maze.width * self.maze.height):
+            # for each row in the transition probabilities matrix
+            for j in range(self.maze.width * self.maze.height):
+                # multiply the probability distribution by the transition probabilities
+                new_distribution[i][j] = self.distribution[i] * self.transition_probabilities[i][j]
+        # for each row in the new distribution matrix
+        for i in range(self.maze.width * self.maze.height):
+            # print the sum of every value in that row
+            print(sum(new_distribution[i]))
+        # update each value in self.distribution to be the sum of the values in the corresponding row of new_distribution
+        for i in range(self.maze.width * self.maze.height):
+            self.distribution[i] = sum(new_distribution[i])
+        # print the probability distribution
         print(self.distribution)
 
 
@@ -109,6 +124,5 @@ if __name__ == "__main__":
     print(hmm.maze, hmm.distribution)
     print(hmm.maze.colors_map)
     # print the transition probabilities instance variable in a readable format with even spacing
-    np.set_printoptions(precision=4, suppress=True, linewidth=100)
     print(hmm.transition_probabilities)
     hmm.predict()
