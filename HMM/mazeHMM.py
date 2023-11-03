@@ -64,18 +64,39 @@ class MazeHMM:
                 if self.maze.is_floor(x, y):
                     self.distribution[maze.width * y + x] = 1 / floorspace
 
+    # multiply the probability distribution by the transition probabilities
+    def predict(self): 
+        # create a duplicate matrix the same size of the transition probabilities matrix 
+        new_distribution = np.zeros((self.maze.width * self.maze.height, self.maze.width * self.maze.height))
+        # for each column in the transition probabilities matrix
+        for i in range(self.maze.width * self.maze.height):
+            # for each row in the transition probabilities matrix
+            for j in range(self.maze.width * self.maze.height):
+                # multiply the probability distribution by the transition probabilities
+                new_distribution[i][j] = self.distribution[i] * self.transition_probabilities[i][j]
+        # update each value in self.distribution to be the sum of the values in the corresponding row of new_distribution
+        for i in range(self.maze.width * self.maze.height):
+            self.distribution[i] = sum(new_distribution[i])
+        # print the probability distribution
+        print(self.distribution)
+
     # get the user's next move
     def get_next_location(self):
         moves = {"w": (0, 1), "a": (-1, 0), "s": (0, -1), "d": (1, 0)}
         # prompt the user to type w, a, s, or d to move the robot
-        move = input("Enter w, a, s, or d to move the robot: ")
-        # move the robotloc in the maze using move
-        new_location = [self.maze.robotloc[0] + moves[move][0], self.maze.robotloc[1] + moves[move][1]]
-        # make sure the move is valid
-        if self.maze.is_floor(new_location[0], new_location[1]):
-            # update the robot's location
-            self.maze.robotloc = new_location
-        # update the probability distribution based on the sensor reading
+        move = input("Enter w, a, s, or d to move the robot; q to quit: ")
+        # if the use quits, return False
+        if move == "q":
+            return False
+        # otherwise, update the robot's location
+        else:
+            # get the new location
+            new_location = [self.maze.robotloc[0] + moves[move][0], self.maze.robotloc[1] + moves[move][1]]
+            # make sure the move is valid
+            if self.maze.is_floor(new_location[0], new_location[1]):
+                # update the robot's location
+                self.maze.robotloc = new_location
+            return True
 
     # get the sensor's reading based on the robot's location 
     def get_sensor_emission(self):
@@ -88,32 +109,56 @@ class MazeHMM:
         # return a random one of the other three colors with 0.04 probability each
         else:
             return random.choice("rygb".replace(color, ""))
-    
-    def filtering_algorithm(self): 
-        # get the user's next move and update the robot's location with it 
-        self.get_next_location()
-        # get the sensor's reading based on the new location
-        emission = self.get_sensor_emission()
 
-    # multiply the probability distribution by the transition probabilities
-    def predict(self): 
-        # create a duplicate matrix the same size of the transition probabilities matrix 
-        new_distribution = np.zeros((self.maze.width * self.maze.height, self.maze.width * self.maze.height))
-        # for each column in the transition probabilities matrix
+    # function to update the distribution based on the sensor's reading
+    def update(self, emission):
+        # for each state
         for i in range(self.maze.width * self.maze.height):
-            # for each row in the transition probabilities matrix
-            for j in range(self.maze.width * self.maze.height):
-                # multiply the probability distribution by the transition probabilities
-                new_distribution[i][j] = self.distribution[i] * self.transition_probabilities[i][j]
-        # for each row in the new distribution matrix
-        for i in range(self.maze.width * self.maze.height):
-            # print the sum of every value in that row
-            print(sum(new_distribution[i]))
-        # update each value in self.distribution to be the sum of the values in the corresponding row of new_distribution
-        for i in range(self.maze.width * self.maze.height):
-            self.distribution[i] = sum(new_distribution[i])
-        # print the probability distribution
-        print(self.distribution)
+            # get the x and y coordinates of the state
+            x = i % self.maze.width
+            y = i // self.maze.width
+            # if the state is a floor
+            if self.maze.is_floor(x, y):
+                # get the color of the state
+                color = self.maze.get_color(x, y)
+                # if the color of the state matches the sensor's reading
+                if color == emission:
+                    # multiply the probability distribution by 0.88
+                    self.distribution[i] *= 0.88
+                # if the color of the state does not match the sensor's reading
+                else:
+                    # multiply the probability distribution by 0.04
+                    self.distribution[i] *= 0.04
+
+    # normalize the distribution
+    def normalize(self):
+        # sum all the probabilities in the distribution
+        total = sum(self.distribution)
+        # for each probability in the distribution
+        for i in range(len(self.distribution)):
+            # divide the probability by the total
+            self.distribution[i] /= total
+     
+    def filtering_algorithm(self): 
+        # use the current state to predict the next state with transition probabilities
+        self.predict()
+        while True:
+            # get the user's next move and update the robot's location with it 
+            if not self.get_next_location():
+                print("Quitting...")
+                return False
+            # get the sensor's reading based on the new location
+            emission = self.get_sensor_emission()
+            # udpate the distribution 
+            self.update(emission)
+            # normalize it 
+            self.normalize()
+            print("Maze:\n" + str(self.maze))
+            print("Distribution:\n " + self.dist_to_string())
+    
+    def dist_to_string(self):
+        reshaped_dist = np.reshape(self.distribution, (self.maze.height, self.maze.width), order='C')[::-1]
+        return str(reshaped_dist)
 
 
 
@@ -125,4 +170,4 @@ if __name__ == "__main__":
     print(hmm.maze.colors_map)
     # print the transition probabilities instance variable in a readable format with even spacing
     print(hmm.transition_probabilities)
-    hmm.predict()
+    hmm.filtering_algorithm()

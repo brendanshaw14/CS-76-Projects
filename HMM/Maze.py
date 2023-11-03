@@ -77,8 +77,7 @@ class Maze:
         return (self.height - y - 1) * self.width + x
 
     def get_color(self, x, y):
-        if (x, y) in self.colors_map:
-            return self.colors_map[(x, y)]
+        return self.colors_map[(x, y)]
 
     # returns True if the location is a floor
     def is_floor(self, x, y):
