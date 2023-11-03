@@ -47,11 +47,21 @@ class MazeHMM:
 
     # initialize the probability distribution to be evenly since we don't know the robot's start location 
     def initialize_start_distribution(self):
+        # keep track of maze floorspace
+        floorspace = 0
         # for each location in the maze
         for x in range(self.maze.width):
             for y in range(self.maze.height):
-                # set the numpy matrix at that location to be 1 / (width * height)
-                self.distribution[x][y] = 1 / (self.maze.width * self.maze.height)
+                # if the location is a floor
+                if self.maze.is_floor(x, y):
+                    # increment floorspace
+                    floorspace += 1
+        # for each location in the maze
+        for x in range(self.maze.width):
+            for y in range(self.maze.height):
+                # if the location is a floor, set the numpy matrix at that location to be 1 / (width * height)
+                if self.maze.is_floor(x, y):
+                    self.distribution[self.maze.height - y - 1][x] = 1 / (floorspace)
 
     # get the user's next move
     def get_next_location(self):
@@ -84,6 +94,13 @@ class MazeHMM:
         # get the sensor's reading based on the new location
         emission = self.get_sensor_emission()
 
+    # multiply the probability distribution by the transition probabilities
+    def predict(self): 
+        # reshape the probability distribution to be a column vector
+        self.distribution.reshape(16, 1)
+        print(self.distribution)
+
+
 
 # main
 if __name__ == "__main__":
@@ -92,5 +109,6 @@ if __name__ == "__main__":
     print(hmm.maze, hmm.distribution)
     print(hmm.maze.colors_map)
     # print the transition probabilities instance variable in a readable format with even spacing
-    np.set_printoptions(precision=2, suppress=True, linewidth=100)
+    np.set_printoptions(precision=4, suppress=True, linewidth=100)
     print(hmm.transition_probabilities)
+    hmm.predict()
