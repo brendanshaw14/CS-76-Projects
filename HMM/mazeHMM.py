@@ -74,10 +74,14 @@ class MazeHMM:
             for j in range(self.maze.width * self.maze.height):
                 # multiply the probability distribution by the transition probabilities
                 new_distribution[i][j] = self.distribution[i] * self.transition_probabilities[i][j]
+        print("Current distribution:\n")
+        print(self.distribution)
         # update each value in self.distribution to be the sum of the values in the corresponding row of new_distribution
         for i in range(self.maze.width * self.maze.height):
             self.distribution[i] = sum(new_distribution[i])
         # print the probability distribution
+        print("Distribution after prediction:\n")
+        print(self.distribution)
 
     # get the user's next move
     def get_next_location(self):
@@ -151,6 +155,7 @@ class MazeHMM:
         # print start state
         print("Initial Maze:\n" + str(self.maze))
         print("Initial Distribution:\n " + self.dist_to_string()) 
+        print(self.transition_probabilities)
         
         # initialize the loop
         while True:
