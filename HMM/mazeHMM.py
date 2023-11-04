@@ -78,13 +78,20 @@ class MazeHMM:
         for i in range(self.maze.width * self.maze.height):
             self.distribution[i] = sum(new_distribution[i])
         # print the probability distribution
-        print(self.distribution)
 
     # get the user's next move
     def get_next_location(self):
-        moves = {"w": (0, 1), "a": (-1, 0), "s": (0, -1), "d": (1, 0)}
+        moves = {"w": (0, 1), "a": (-1, 0), "s": (0, -1), "d": (1, 0), "q": (0, 0)}
+        valid_key = False
         # prompt the user to type w, a, s, or d to move the robot
         move = input("Enter w, a, s, or d to move the robot; q to quit: ")
+        while not valid_key:
+            if move in moves:
+                valid_key = True
+                break
+            else:
+                print("Invalid key")
+            move = input("Enter w, a, s, or d to move the robot; q to quit: ")
         # if the use quits, return False
         if move == "q":
             return False
@@ -140,9 +147,15 @@ class MazeHMM:
             self.distribution[i] /= total
      
     def filtering_algorithm(self): 
-        # use the current state to predict the next state with transition probabilities
-        self.predict()
+
+        # print start state
+        print("Initial Maze:\n" + str(self.maze))
+        print("Initial Distribution:\n " + self.dist_to_string()) 
+        
+        # initialize the loop
         while True:
+            # use the current state to predict the next state with transition probabilities
+            self.predict()
             # get the user's next move and update the robot's location with it 
             if not self.get_next_location():
                 print("Quitting...")
@@ -153,6 +166,7 @@ class MazeHMM:
             self.update(emission)
             # normalize it 
             self.normalize()
+            print("Color Emitted: " + emission + "\n" + maze.get_colored_maze())
             print("Maze:\n" + str(self.maze))
             print("Distribution:\n " + self.dist_to_string())
     
@@ -166,8 +180,5 @@ class MazeHMM:
 if __name__ == "__main__":
     maze = Maze.Maze("HMM/maze1.maz") 
     hmm = MazeHMM(maze)
-    print(hmm.maze, hmm.distribution)
-    print(hmm.maze.colors_map)
     # print the transition probabilities instance variable in a readable format with even spacing
-    print(hmm.transition_probabilities)
     hmm.filtering_algorithm()

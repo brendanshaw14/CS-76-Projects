@@ -140,6 +140,25 @@ class Maze:
             s += "\n"
 
         return s
+    
+    def get_colored_maze(self):
+        # render robot locations into the map
+        renderlist = self.create_render_list()
+
+        # use the renderlist to construct a string, by
+        #  adding newlines appropriately
+        s = ""
+        for y in range(self.height - 1, -1, -1):
+            for x in range(self.width):
+                if self.is_floor(x, y):
+                    s+= self.get_color(x, y)
+                else:
+                    s+= renderlist[self.index(x, y)]
+
+            s += "\n"
+
+        return s
+ 
 
 
 def robotchar(robot_number):
