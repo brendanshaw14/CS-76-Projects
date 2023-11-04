@@ -29,6 +29,9 @@ class MazeHMM:
             # get the x and y coordinates of the index
             x = i % self.maze.width
             y = i // self.maze.width
+            # skip if not a floor
+            if not self.maze.is_floor(x, y):
+                continue
             # for each adjacent spot to this index:
             for action in actions:
                 # get the x and y coordinates of the adjacent spot
@@ -37,12 +40,12 @@ class MazeHMM:
                 if self.maze.is_floor(new_x, new_y):
                     # calculate the index of this spot in the array
                     index = new_y * self.maze.width + new_x 
-                    # set the probability of moving there by 0.25
-                    self.transition_probabilities[i][index] = 0.25
+                    # set the probability of moving there to 0.25
+                    self.transition_probabilities[i, index] = 0.25
                 # if that spot is not a floor:
                 else:
                     # increment the probability of not moving at all by 0.25 
-                    self.transition_probabilities[i][i] += 0.25
+                    self.transition_probabilities[i, i] += 0.25
 
 
 
@@ -66,22 +69,16 @@ class MazeHMM:
 
     # multiply the probability distribution by the transition probabilities
     def predict(self): 
-        # create a duplicate matrix the same size of the transition probabilities matrix 
-        new_distribution = np.zeros((self.maze.width * self.maze.height, self.maze.width * self.maze.height))
-        # for each column in the transition probabilities matrix
-        for i in range(self.maze.width * self.maze.height):
-            # for each row in the transition probabilities matrix
-            for j in range(self.maze.width * self.maze.height):
-                # multiply the probability distribution by the transition probabilities
-                new_distribution[i][j] = self.distribution[i] * self.transition_probabilities[i][j]
-        print("Current distribution:\n")
-        print(self.distribution)
-        # update each value in self.distribution to be the sum of the values in the corresponding row of new_distribution
-        for i in range(self.maze.width * self.maze.height):
-            self.distribution[i] = sum(new_distribution[i])
-        # print the probability distribution
-        print("Distribution after prediction:\n")
-        print(self.distribution)
+        # print("Current distribution:\n")
+        # print(self.dist_to_string())
+        # multiply each column in the transition probabilities matrix by the probability distribution value for that that index
+        new_distribution = np.matmul(self.transition_probabilities, self.distribution)
+        # Normalize the new distribution
+        self.distribution = new_distribution / new_distribution.sum()
+
+        #print("Distribution after prediction:\n")
+        #print("")
+        #print(self.dist_to_string())
 
     # get the user's next move
     def get_next_location(self):
@@ -121,7 +118,7 @@ class MazeHMM:
         else:
             return random.choice("rygb".replace(color, ""))
 
-    # function to update the distribution based on the sensor's reading
+    # function to update the tribution based on the sensor's reading
     def update(self, emission):
         # for each state
         for i in range(self.maze.width * self.maze.height):
