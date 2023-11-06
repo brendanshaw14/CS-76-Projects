@@ -159,8 +159,6 @@ class Maze:
 
         return s
  
-
-
 def robotchar(robot_number):
     return chr(ord("A") + robot_number)
 

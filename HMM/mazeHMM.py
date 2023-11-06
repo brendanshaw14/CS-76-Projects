@@ -94,6 +94,7 @@ class MazeHMM:
         else:
             # get the new location
             new_location = [self.maze.robotloc[0] + moves[move][0], self.maze.robotloc[1] + moves[move][1]]
+            print("Moving robot to location " + str(new_location) + " with color " + str(self.maze.get_color(new_location[0], new_location[1])))
             # make sure the move is valid
             if self.maze.is_floor(new_location[0], new_location[1]):
                 # update the robot's location

@@ -173,4 +173,26 @@ def update(self, emission):
     # divide the entire array by the total using broadcasting
 ```
 
-These are all of the main method components I used for the markov model. I did write one more easy helper method though, `def dist_to_string(self)`, which prints the probability distribution in the same dimensions as the maze to make it easier to visualize. This way, at each step, the maze with the actual colors and the maze showing the robot's location are printed with the probability distribution in the same format below them, so you can easily see the distribution's predicted value for the robot's true location. 
+These are all of the main method components I used for the markov model. I did write one more easy helper method though, `def dist_to_string(self)`, which prints the probability distribution in the same dimensions as the maze to make it easier to visualize. This way, at each step, the maze with the actual colors and the maze showing the robot's location are printed with the probability distribution in the same format below them, so you can easily see the distribution's predicted value for the robot's true location. I also print the location the robot was moved to, the actual color of that location, and the reading emitted by the sensor. 
+
+## Challenges and Solving
+
+Here were a few challenges I encountered on this project and how I solved them:
+
+- **matrix indexing, structure, and manipulation:** This generally just took a while to figure out, and I'm not great with linear so it took a while to make sure that the values were being stored in the correct places. I also had to figure out how to use NumPy's matrix multiplication and broadcasting to make the prediction and update steps work, and debug a few issues here with print statements. This was tedious. 
+
+- **using the existing maze interface to maniuplate this specific problem:** This wasn't actually too hard to figure out, but I just had to sort out what information to store in the maze and what to store in my HMM class. I ended up just using the maze from the mazeworld problem, and only added the color components. I didn't use any of the multirobot methods, and use some of the `get` methods to retrieve information from the class when needed
+
+- **adding walls in the maze** Working from the original problem with an empty 4x4 maze, I encountered some issues with the walls being added messing up the distribution and transitions. This took a little to figured out, but I only had to add a few lines here and there to handle the edge cases. 
+
+- **displaying the distribution, robot movements, and color:** I wanted a way for the user to be able to determine the location of the robot and update it on their own at each step with the new distribution being displayed. I thought this would be a lot better than just hardcoding a pathway and siplaying each step to scroll back through it, and would make it easier to test the effectiveness of the program. I just did this with the `get_next_location` method above and the `run` loop, which was not too hard in the end.
+
+## Testing
+
+To test this maze, I just used a few different maze files and ran the program in the command line. I would just move the robot around and see how the distribution changed, and if it was accurate. I also tested it with a few different maze sizes and layouts and it seemed to work well.
+
+When the sensor is accurate for a few moves in a row, the distribution almost always correctly guesses the location of the robot. Otherwise, it depends highly on the accuracy of the sensor and the layout of the maze-- I found there were some instances where the color layout was spaced so that it was much easier to predict the robot's location than others.
+
+If the sensor outputs a few incorrect readings in a row, this can really throw off the probability distribution, but a few more correct moves always gets it to find the correct location or at least identify the corrrect location as one of the top 3 most likely. I spend a good bit of time moving the robot around the maze and testing this, and found a few bugs along the way. 
+
+After fixing those, I'm very confident my program is working correctly. 
