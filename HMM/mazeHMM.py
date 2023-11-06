@@ -68,16 +68,11 @@ class MazeHMM:
 
     # multiply the probability distribution by the transition probabilities
     def predict(self): 
-        # print("Current distribution:\n")
-        # print(self.dist_to_string())
         # multiply each column in the transition probabilities matrix by the probability distribution value for that that index
         new_distribution = np.matmul(self.transition_probabilities, self.distribution)
         # Normalize the new distribution
         self.distribution = new_distribution / new_distribution.sum()
 
-        #print("Distribution after prediction:\n")
-        #print("")
-        #print(self.dist_to_string())
 
     # get the user's next move
     def get_next_location(self):
@@ -136,16 +131,12 @@ class MazeHMM:
                 else:
                     # multiply the probability distribution by 0.04
                     self.distribution[i] *= 0.04
+        # calculate the total sum of probabilities using NumPy sum function
+        total = np.sum(self.distribution)
+        # divide the entire array by the total using broadcasting
+        self.distribution /= total
 
-    # normalize the distribution
-    def normalize(self):
-        # sum all the probabilities in the distribution
-        total = sum(self.distribution)
-        # for each probability in the distribution
-        for i in range(len(self.distribution)):
-            # divide the probability by the total
-            self.distribution[i] /= total
-     
+    # main event loop
     def run(self): 
 
         # print start state
@@ -165,8 +156,6 @@ class MazeHMM:
             emission = self.get_sensor_emission()
             # udpate the distribution 
             self.update(emission)
-            # normalize it 
-            self.normalize()
             print("Color Emitted: " + emission + "\n" + maze.get_colored_maze())
             print("Maze:\n" + str(self.maze))
             print("Distribution:\n " + self.dist_to_string())

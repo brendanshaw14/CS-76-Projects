@@ -79,8 +79,22 @@ def run(self):
 
 Before this loop can be run though, we must initialize the probability distribution, as well as the transition probability matrix.
 
+`def initialize_start_distribution(self)`:
+This function sets up the initial probabilities for the robot localization problem. It explores the maze, counting the available floor spaces. For each valid floor area, the function assigns a uniform probability, ensuring the robot's starting position remains unknown and equally probable across all possible spots. By dividing 1 by the total number of valid floor spaces, this function establishes a starting belief where the robot could be anywhere in the maze with an equal chance, laying the groundwork for the probabilistic calculations. 
+
+Pseudo: 
+```
+        # keep track of maze floorspace
+        # for each location in the maze
+            # if the location is a floor
+                # increment floorspace
+        # for each location in the maze
+            # if the location is a floor, set the numpy matrix at that location to be 1 / (width * height)
+```
+
 `def initialize_transition_probabilities(self)`:
 This method systematically explores each position in the maze, considering only the valid floor spaces where the robot can move. For every valid spot, the function calculates transition probabilities to neighboring locations. These probabilities are set to 0.25, indicating an equal likelihood of the robot moving in any of the four cardinal directions. If a neighboring spot is a wall, the probability of staying in the current position (represented by the diagonal elements of the transition matrix) is incremented by 0.25. 
+
 Pseudo: 
 ``` 
 def initialize_transition_probabilities(self):
@@ -97,3 +111,66 @@ def initialize_transition_probabilities(self):
                 increment the probability of not moving at all by 0.25 
 ```
 
+Afterwards, I wrote the methods for the prediction, update, and normalization steps of the HMM. First was the prediction step, which calculates the predicted probability distribution after the move before getting the sensor emission.  
+
+`def predict(self)`:
+This method turned out to be pretty simple becasue I figured out how to just use numpy matrix multiplocation to do the prediction step. I just multiply the transition probabilities matrix by the distribution matrix, and then normalize the result to account for the scale factor. This multiplies the probability of transitioning from one state to another by the probability that the robot is in the start state, and adds the resulting probabilities that the robot is in each location. Then, I normalize the result to account for the scale factor.
+```
+    new_distribution = np.matmul(self.transition_probabilities, self.distribution)
+    self.distribution = new_distribution / new_distribution.sum()
+```
+
+Now, we have to get the robot's next move from the user. Rather than inputting a set of moves that was precoded, I made it so that the run function awaits user input using the `get_next_location` function:
+
+`def get_next_location(self)`:
+If the user inputs a valid move, the robot moves in that direction. This is done by applying the action associated with the movement key, and updating the `Maze` object's `self.robotloc` instance variable, which allows us to accurately use the `get_color` method I added to `Maze.py`. If the user inputs an invalid move, the robot stays in place, and an error message is displaced. If the user inputs q, the program quits. 
+
+Pseudo: (**note**: I did have to add a few other lines to this to make the user interface work correctly, but this is the general logic.)
+```
+def get_next_location(self):
+    define a dictionary associating moves in the form `(dx, dy)` with the keys w, a, s, and d.
+    prompt the user to type w, a, s, or d to move the robot
+    wait for a valid key input
+    update the robot's location
+        if the new space is a floor
+            move the robot there
+        if not a floor:
+            do not move the robot
+```
+
+Once the robot is moved, we need to get the sensor's next reading to update the model, which I did with `get_sensor_reading`. This function just uses the `self.maze.get_color` method I added to `Maze.py` to get the color of the floor space the robot is currently in. Then, it picks a random number between 0 and 1. If this number is less than the probability of the sensor reading the correct color, we return the correct color. Otherwise, we randomly choose one of the other colors to return. 
+
+This is simple, so here's the actual code: 
+```
+    def get_sensor_emission(self):
+        # get the color of the robot's current location
+        color = self.maze.get_color(self.maze.robotloc[0], self.maze.robotloc[1])
+        # get the probability of the sensor reading the color of the robot's current location
+        # return the same color as the color with 88% probability
+        if random.random() < 0.88:
+            return color
+        # return a random one of the other three colors with 0.04 probability each
+        else:
+            return random.choice("rygb".replace(color, ""))
+```
+
+Finally, we update and normalize this distribution to account for the sensor reading. First this uses the `update` method. 
+
+`def update(self, sensor_reading)`: Here, we use our knowledge of the color locations in the maze to update the probability. We iterate through the maze, and for each floor space, we check if the sensor reading matches the color of that space. If it does, we multiply the probability of the robot being in that space by 0.88. If it doesn't, we multiply the probability by 0.04. This is because the sensor has an 88% chance of reading the correct color, and a 4% chance of reading any of the other colors. As discussed in class, we then account for the scale factor by normalizing the distribution. 
+
+Pseudo: 
+```
+def update(self, emission):
+    # for each state
+        # get the x and y coordinates of the state
+        # if the state is a floor
+            # get the color of the state
+            # if the color of the state matches the sensor's reading
+                # multiply the probability distribution by 0.88
+            # if the color of the state does not match the sensor's reading
+                # multiply the probability distribution by 0.04
+    # calculate the total sum of probabilities using NumPy sum function
+    # divide the entire array by the total using broadcasting
+```
+
+These are all of the main method components I used for the markov model. I did write one more easy helper method though, `def dist_to_string(self)`, which prints the probability distribution in the same dimensions as the maze to make it easier to visualize. This way, at each step, the maze with the actual colors and the maze showing the robot's location are printed with the probability distribution in the same format below them, so you can easily see the distribution's predicted value for the robot's true location. 
