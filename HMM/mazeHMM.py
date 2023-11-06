@@ -10,7 +10,6 @@ class MazeHMM:
 
     def __init__ (self, maze):
         self.maze = maze
-        self.emissions = {}
         # initialize self.distribution to be an empty numpy matrix
         self.distribution = np.zeros((self.maze.width*self.maze.height))
         # initialize the probability distribution evenly since we don't know anything yet
@@ -147,7 +146,7 @@ class MazeHMM:
             # divide the probability by the total
             self.distribution[i] /= total
      
-    def filtering_algorithm(self): 
+    def run(self): 
 
         # print start state
         print("Initial Maze:\n" + str(self.maze))
@@ -180,7 +179,7 @@ class MazeHMM:
 
 # main
 if __name__ == "__main__":
-    maze = Maze.Maze("HMM/maze1.maz") 
+    maze = Maze.Maze("HMM/maze6.maz") 
     hmm = MazeHMM(maze)
     # print the transition probabilities instance variable in a readable format with even spacing
-    hmm.filtering_algorithm()
+    hmm.run()
