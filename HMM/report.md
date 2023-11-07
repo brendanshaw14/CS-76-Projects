@@ -196,3 +196,76 @@ When the sensor is accurate for a few moves in a row, the distribution almost al
 If the sensor outputs a few incorrect readings in a row, this can really throw off the probability distribution, but a few more correct moves always gets it to find the correct location or at least identify the corrrect location as one of the top 3 most likely. I spend a good bit of time moving the robot around the maze and testing this, and found a few bugs along the way. 
 
 After fixing those, I'm very confident my program is working correctly. 
+
+I used a few different mazes of many sizes: i left 1, 4, 5, and 6 in the directory to mess with. 
+
+## Extra Credit Implementation: Visualizing Probability Distribution
+
+In addition to the core requirements of the assignment, I implemented a graphical representation of the probability distribution, where each grid cell in the maze is shaded with a color representing the probability of the robot being in that particular cell. To achieve this, I used Pygame, a Python library for game development, to create a graphical user interface. Each cell's color intensity was determined by the probability value, ranging from dark shades for lower probabilities to brighter shades for higher probabilities. This visualization provides a dynamic and intuitive representation of the robot's belief state as it navigates the maze. Additionally, I incorporated transparency to the colored cells to emphasize the varying probabilities, allowing for a clear distinction between high and low probability areas.
+
+This was kind of a pain to do because I have very little gui experience in python, but I was able to make this work with help from the documentation. 
+
+It took me a while to do the implementation because I had to readapt the system controls to the gui for updates and handle window opening and closing properly. Additionally, the square coloring, placement, and rendering sequences were a massive pain. This is the main function that displays the distribution at each step with the maze: (don't read it it's a pain but the pseudo is helpful)
+
+```
+# Handle events
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        # Draw the maze (colored squares)
+        for x in range(self.maze.width):
+            for y in range(self.maze.height):
+                if self.maze.is_floor(x, y):
+                    color = self.colors[self.maze.get_color(x, y)]
+                else:
+                    color = self.BLACK
+                # Calculate the correct y-coordinate based on maze height
+                x_coord = x * self.square_size + 200
+                y_coord = (self.maze.height - 1 - y) * self.square_size + 200
+                # Fill the rectangle with the specified color
+                pygame.draw.rect(window, color, (x_coord, y_coord, self.square_size, self.square_size))
+                # Set width parameter to 1 for a black stroke
+                pygame.draw.rect(window, self.BLACK, (x_coord, y_coord, self.square_size, self.square_size), 1)
+
+        # Draw the robot (a dot) at its current location
+        robot_x, robot_y = maze.robotloc
+        pygame.draw.circle(window, (255, 255, 255), (robot_x * self.square_size + 200 + self.square_size//2, (self.maze.height - 1 - robot_y) * self.square_size + self.square_size//2 + 200), 5)
+
+        # Draw the probability distribution (opacity indicates probability)
+        for x in range(self.maze.width):
+            for y in range(self.maze.height):
+                index = y * self.maze.width + x
+                probability = self.distribution[index]
+        
+                # Calculate color with opacity based on probability
+                # scale the probability so that the minimum value is black and the maximum value is colored
+                scaled_probability = (probability - self.distribution.min()) / (self.distribution.max() - self.distribution.min())
+                opacity = int(scaled_probability * 255)  # Calculate opacity based on probability
+        
+                # Calculate rectangle position and size for the right half of the screen
+                rect_x = x * self.square_size + 400
+                rect_y = (self.maze.height - 1 - y) * self.square_size + 200
+                rect_width = self.square_size
+                rect_height = self.square_size
+        
+                # Draw rectangle with black stroke and purple fill with transparency
+                pygame.draw.rect(window, (255-opacity, 255- opacity, 255 - opacity), (rect_x, rect_y, rect_width, rect_height))  # Purple fill with transparency
+                pygame.draw.rect(window, (0, 0, 0), (rect_x, rect_y, rect_width, rect_height), 1)  # Black stroke
+
+                # Update the display
+                pygame.display.flip()
+```
+
+To run this, just go in `GUIHMM.py`. It's pretty cool- the white dot on the left is the robot, and the colors in the maze are displayed accurately. The right side is the probability distribution, with the darker colors being lower probabilities and the brighter colors being higher probabilities. The robot moves around the maze and the distribution updates accordingly. 
+
+It's super easy to pip install this pygam lib, so just do that and run that file with whatever maze you want. 
+
+Here are some pics: **(Open this in preview mode on vscode so you can actually see the images-- they're in the screenshots directory.)**
+A medium maze:
+![Alt text](screenshots/Screenshot%202023-11-06%20at%207.16.31%20PM.png)
+![Alt text](screenshots/Screenshot%202023-11-06%20at%207.15.57%20PM.png)
+
+A giant maze: 
+
+![Alt text](screenshots/Screenshot%202023-11-06%20at%207.11.33%20PM.png)

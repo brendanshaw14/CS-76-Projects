@@ -19,7 +19,7 @@ class GUIHMM:
     def __init__ (self, maze):
         self.maze = maze
         # set the square size to be the minimum of the maze's width and height
-        self.square_size = min(self.WIDTH/3 // self.maze.width, self.HEIGHT/3 // self.maze.height)
+        self.square_size = min(self.WIDTH/2 // self.maze.width, self.HEIGHT/2 // self.maze.height)
         # initialize self.distribution to be an empty numpy matrix
         self.distribution = np.zeros((self.maze.width*self.maze.height))
         # initialize the probability distribution evenly since we don't know anything yet
@@ -217,7 +217,7 @@ class GUIHMM:
                 else:
                     color = self.BLACK
                 # Calculate the correct y-coordinate based on maze height
-                x_coord = x * self.square_size + 200
+                x_coord = x * self.square_size + (400-self.maze.width*self.square_size)
                 y_coord = (self.maze.height - 1 - y) * self.square_size + 200
                 # Fill the rectangle with the specified color
                 pygame.draw.rect(window, color, (x_coord, y_coord, self.square_size, self.square_size))
@@ -226,7 +226,7 @@ class GUIHMM:
 
         # Draw the robot (a dot) at its current location
         robot_x, robot_y = maze.robotloc
-        pygame.draw.circle(window, (255, 255, 255), (robot_x * self.square_size + 200 + self.square_size//2, (self.maze.height - 1 - robot_y) * self.square_size + self.square_size//2 + 200), 5)
+        pygame.draw.circle(window, (255, 255, 255), (robot_x * self.square_size + 400-self.maze.width*self.square_size + self.square_size//2, (self.maze.height - 1 - robot_y) * self.square_size + self.square_size//2 + 200), 5)
 
         # Draw the probability distribution (opacity indicates probability)
         for x in range(self.maze.width):
