@@ -7,18 +7,27 @@ class Robot:
     def __init__(self, num_links, link_lengths):
         self.num_links = num_links
         self.link_lengths = link_lengths
-        self.joint_angles = np.zeros(num_links)  # Initialize joint angles to zero
 
-    def forward_kinematics(self):
-        x, y = 0, 0  # Base position
-
+    # initialize self.points to be a list of points that represent the robot arm using the angles and lengths
+    def get_points(self):
+        # initialize empty list, x and y to be 0
+        points = []
+        x, y = 0, 0 
+        points.append((x, y)) # add the first point to the list
+        
+        # for each link in the list
         for i in range(self.num_links):
-            x += self.link_lengths[i] * np.cos(np.sum(self.joint_angles[:i+1]))
-            y += self.link_lengths[i] * np.sin(np.sum(self.joint_angles[:i+1]))
-
-        return x, y
+            link_length = self.link_lengths[i]
+            angle = np.sum(self.joint_angles[:i+1])
+            x_end = x + link_length * np.cos(angle)
+            y_end = y + link_length * np.sin(angle)
+            points.append((x_end, y_end))
+            x = x_end
+            y = y_end
+        return points
 
     def set_joint_angles(self, angles):
+        print("her")
         self.joint_angles = angles
 
     def draw_configuration_space(self):
@@ -45,12 +54,14 @@ class Robot:
 
         x = 0  # Start at the base along the X-axis
         y = 0  # Start at the base along the Y-axis
+        print(self.joint_angles)
 
-        # for each robot arm lin
+        # for each robot arm link
         for i in range(self.num_links):
             # get the length and base angle of that link
             link_length = self.link_lengths[i]
-            angle = np.sum(self.joint_angles[i])
+            # set the angle to the sum of all previous angles
+            angle = np.sum(self.joint_angles[:i+1])
 
             # Calculate the end point of the current link given that x and y are the start point
             x_end = x + link_length * np.cos(angle)
@@ -108,7 +119,7 @@ link_lengths = [1, 1]  # Example link lengths
 robot = Robot(num_links, link_lengths)
 
 # Set joint angles for testing
-joint_angles_test = np.radians([45, -45])
+joint_angles_test = np.radians([30, 30])
 robot.set_joint_angles(joint_angles_test)
 
 # Draw the robot configuration
