@@ -4,9 +4,10 @@ from shapely.geometry import Point, Polygon
 from shapely import affinity
 
 class Robot:
-    def __init__(self, num_links, link_lengths):
-        self.num_links = num_links
+    def __init__(self, angles, link_lengths, obstacles):
+        self.angles = angles
         self.link_lengths = link_lengths
+        self.obstacles = obstacles
 
     # initialize self.points to be a list of points that represent the robot arm using the angles and lengths
     def get_points(self):
@@ -16,7 +17,7 @@ class Robot:
         points.append((x, y)) # add the first point to the list
         
         # for each link in the list
-        for i in range(self.num_links):
+        for i in range(len(self.link_lengths)):
             link_length = self.link_lengths[i]
             angle = np.sum(self.joint_angles[:i+1])
             x_end = x + link_length * np.cos(angle)
@@ -27,7 +28,6 @@ class Robot:
         return points
 
     def set_joint_angles(self, angles):
-        print("her")
         self.joint_angles = angles
 
     def draw_configuration_space(self):
@@ -35,7 +35,7 @@ class Robot:
         plt.figure()
         ax = plt.axes()
 
-        for i in range(self.num_links):
+        for i in range(len(self.link_lengths)):
             x = np.cumsum([0] + [self.link_lengths[j] * np.cos(np.sum(self.joint_angles[:j+1])) for j in range(i)])
             y = np.cumsum([0] + [self.link_lengths[j] * np.sin(np.sum(self.joint_angles[:j+1])) for j in range(i)])
 
@@ -57,7 +57,7 @@ class Robot:
         print(self.joint_angles)
 
         # for each robot arm link
-        for i in range(self.num_links):
+        for i in range(len(self.link_lengths)):
             # get the length and base angle of that link
             link_length = self.link_lengths[i]
             # set the angle to the sum of all previous angles
@@ -97,7 +97,7 @@ class Robot:
         # Generate polygons representing the links of the robot arm
         polygons = []
 
-        for i in range(self.num_links):
+        for i in range(len(self.link_lengths)):
             link_polygon = self.get_link_polygon(i)
             polygons.append(link_polygon)
 
@@ -113,23 +113,22 @@ class Robot:
         link_polygon = Polygon([(xi, yi) for xi, yi in zip(x, y)])
         return link_polygon
 
-# Example usage:
-num_links = 2
-link_lengths = [1, 1]  # Example link lengths
-robot = Robot(num_links, link_lengths)
+if __name__ == '__main__':
+    num_links = 2
+    link_lengths = [1, 1]  # Example link lengths
+    # make obstacle
+    obstacle_polygon = Point(2, 1).buffer(0.5)  # Example obstacle
+    obstacles = [obstacle_polygon]
+    robot = Robot(num_links, link_lengths, obstacles)
 
-# Set joint angles for testing
-joint_angles_test = np.radians([30, 30])
-robot.set_joint_angles(joint_angles_test)
+    # Set joint angles for testing
+    joint_angles_test = np.radians([30, 120])
+    robot.set_joint_angles(joint_angles_test)
 
-# Draw the robot configuration
-robot.draw_robot_arm()
-
-# # Check collision with an obstacle
-# obstacle_polygon = Point(2, 1).buffer(0.5)  # Example obstacle
-# obstacles = [obstacle_polygon]
-
-# if robot.check_collision(obstacles):
-    # print("Collision detected!")
-# else:
-    # print("No collision.")
+    # Draw the robot configuration
+    robot.draw_configuration_space()
+    robot.draw_robot_arm()
+    # if robot.check_collision(obstacles):
+        # print("Collision detected!")
+    # else:
+        # print("No collision.")
