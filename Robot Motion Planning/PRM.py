@@ -2,7 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from robot import Robot
-from mpl_toolkits.mplot3d import Axes3D
+# import the shapely class
+from shapely.geometry import Point, Polygon, LineString
 
 class PRM:
     def __init__(self, samples_per_dimension, num_neighbors, num_dimensions, obstacles):
@@ -82,20 +83,47 @@ class PRM:
         # get the distance between the samples
         distance = get_distance(sample1, sample2)
         # get the number of steps to take
-        num_steps = int(distance / 0.1)
+        num_steps = int(distance / 0.05)
+        print(num_steps)
         # for each step
-        for i in range(num_steps):
+        for i in range(num_steps+1):
             # get the interpolated sample
             interpolated_sample = []
             for j in range(self.num_dimensions):
                 interpolated_sample.append(sample1[j] + (sample2[j] - sample1[j]) * i / num_steps)
+            # set the robot to the interpolated sample 
+            robot = Robot(interpolated_sample, [1] * self.num_dimensions)
             # check if the interpolated sample is in collision
+            print(robot.angles)
             if robot.check_collision(self.obstacles):
                 # if it is, set the path to be invalid
                 valid = False
                 break
         # return whether or not the path is valid
         return valid
+
+    # graph the adjacency list
+    def graph(self):
+        # graph the adjacency list, assuming 2D samples
+        if self.num_dimensions == 2:
+            # initialize the figure
+            fig, ax = plt.subplots()
+            # for each sample in the list of samples
+            for sample in self.samples:
+                # for each other sample in the list of samples
+                for other_sample in self.adjacency_list[sample]:
+                    # plot a line between the samples
+                    ax.plot([sample[0], other_sample[0]], [sample[1], other_sample[1]], color='k')
+            # for each sample in the list of samples
+            for sample in self.samples:
+                # plot the sample
+                ax.plot(sample[0], sample[1], 'o', color='k')
+            # show the plot
+            plt.show()
+
+    def query(self, start, goal):
+        # initialize the path to be empty
+        pass
 
 # retrieve the distance between two samples
 def get_distance(sample1, sample2): 
@@ -109,11 +137,15 @@ def get_distance(sample1, sample2):
     return np.sqrt(distance)
 
 
-
 # main
 if __name__ == "__main__":
-    motion_planner = PRM(samples_per_dimension=10, num_neighbors=10, num_dimensions=3, obstacles=[])
+    obstacle_polygon = Polygon([(0.5, 0.5), (0.5, 0.7), (0.3, 0.7), (0.3, 0.5)])
+    obstacles = [obstacle_polygon]
+    motion_planner = PRM(samples_per_dimension=30, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
     motion_planner.build_graph()
-    for sample in motion_planner.samples:
-        print(sample, motion_planner.adjacency_list[sample])
-        print(len(motion_planner.adjacency_list[sample]))
+    print()
+    sample1 = np.radians([45, 135])
+    sample2 = np.radians([55, 135])
+    print(motion_planner.validate_path(sample1, sample2))
+
+

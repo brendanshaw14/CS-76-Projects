@@ -9,6 +9,9 @@ class Robot:
         self.link_lengths = link_lengths
         self.points = self.get_points()
 
+    def __str__(self):
+        return f'Robot: {self.angles}'
+
     # initialize self.points to be a list of points that represent the robot arm using the angles and lengths
     def get_points(self):
         # initialize empty list, x and y to be 0
@@ -80,7 +83,8 @@ class Robot:
 if __name__ == '__main__':
     num_links = 2
     link_lengths = [1, 1]  # Example link lengths
-    joint_angles = np.radians([45, 135])
+    joint_angles = np.radians([55, 135])
+    print(joint_angles)
 
     # make obstacle
     obstacle_polygon = Point(0.6, 0.6)  # Example obstacle
