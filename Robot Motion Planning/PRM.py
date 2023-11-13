@@ -1,9 +1,11 @@
 # class to handle the robot motion planner k-PRM
 import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class PRM:
     def __init__(self, samples_per_dimension, num_neighbors, num_dimensions, obstacles):
-        self.samples_per_dimension = samples_per_dimension
+        self.samples_per_dimension = samples_per_dimension # resolution of the PRM
         self.num_neighbors = num_neighbors
         self.obstacles = obstacles
         self.num_dimensions = num_dimensions
@@ -33,8 +35,8 @@ class PRM:
             current_sample_copy.append((i / self.samples_per_dimension) * 2 * np.pi)
             # pass it to the next recursive call
             self.uniform_dense_sample_recursive(current_sample_copy)
+            
 
-    
 # main
 if __name__ == "__main__":
     motion_planner = PRM(samples_per_dimension=10, num_neighbors=10, num_dimensions=3, obstacles=[])
