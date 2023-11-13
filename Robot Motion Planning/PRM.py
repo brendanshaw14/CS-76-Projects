@@ -1,4 +1,5 @@
 # class to handle the robot motion planner k-PRM
+from collections import deque
 import numpy as np
 import matplotlib.pyplot as plt
 from robot import Robot
@@ -111,19 +112,82 @@ class PRM:
             # for each sample in the list of samples
             for sample in self.samples:
                 # for each other sample in the list of samples
-                for other_sample in self.adjacency_list[sample]:
-                    # plot a line between the samples
-                    ax.plot([sample[0], other_sample[0]], [sample[1], other_sample[1]], color='k')
-            # for each sample in the list of samples
-            for sample in self.samples:
-                # plot the sample
-                ax.plot(sample[0], sample[1], 'o', color='k')
+                if sample in self.adjacency_list:
+                    ax.plot(sample[0], sample[1], 'o', color='k')
+                    for other_sample in self.adjacency_list[sample]:
+                        # plot a line between the samples
+                        ax.plot([sample[0], other_sample[0]], [sample[1], other_sample[1]], color='k')
             # show the plot
             plt.show()
 
     def query(self, start, goal):
-        # initialize the path to be empty
-        pass
+        # if the start or goal node isn't in the graph, connect it to its nearest neighbor
+        if start not in self.adjacency_list:
+            self.connect_node_to_graph(start)
+        if goal not in self.adjacency_list: 
+            self.connect_node_to_graph(goal)
+
+    def connect_node_to_graph(self, node):
+        # start the new adjacency list
+        self.adjacency_list[node] = []
+        # for each other sample
+        for other_sample in self.get_sample_distances(node):
+            # if the sample is not the node of interest
+            if node != other_sample:
+                # if the there is a valid path
+                if self.validate_path(node, other_sample):
+                    self.adjacency_list[node].append(other_sample)
+                    break           
+
+# takes a start robot and an end robot, returning a path of robot configurations to connect them (adapted from Foxes and Chickens/uninformed_search.py)
+    def search(self, start_state, goal_state):
+        # initialize queue, add the start node
+        queue = deque()
+        queue.append(start_state)
+
+        # visted satates set to avoid revisits
+        visited_states = set() 
+        visited_states.add(start_state)
+
+        # track how many nodes have been visited and initialize the solution
+        path = []
+        num_nodes_visited = 0
+
+        # begin the search
+        while queue: 
+            # get the next node in queue and increment num_nodes_visited
+            current = queue.popleft()
+            num_nodes_visited += 1
+
+            # if this is the goal node, backchain 
+            if current.state == goal_state: 
+                path = backchain(current)
+                return path
+
+            # otherwise, get its unvisited successors and add them to the queue
+            else: 
+                for state in self.adjacency_list[current.state]:
+                    # check if already visited
+                    if state not in visited_states:
+                        visited_states.add(current.state)
+                        queue.append(state)
+        return False
+
+
+# Backchain function for BFS to reconstruct the path
+def backchain(goal):
+    path = []
+    current_node = goal
+
+    # Start from the goal node and follow parent references
+    while current_node is not None:
+        path.append(current_node.state)
+        current_node = current_node.parent
+
+    # Reverse the path to get it in the correct order and return it
+    path.reverse()
+    return path
+
 
 # retrieve the distance between two samples
 def get_distance(sample1, sample2): 
@@ -131,8 +195,14 @@ def get_distance(sample1, sample2):
     distance = 0
     # for each dimension
     for i in range(len(sample1)):
-        # add the squared difference in the dimension
-        distance += (sample1[i] - sample2[i]) ** 2
+        # if the difference is less than pi
+        if abs(sample1[i] - sample2[i]) < np.pi:
+            # add the squared difference in the dimension
+            distance += (sample1[i] - sample2[i]) ** 2
+        # if the difference is greater than pi
+        else:
+            # add the squared difference in the dimension
+            distance += (2 * np.pi - abs(sample1[i] - sample2[i])) ** 2
     # return the square root of the distance
     return np.sqrt(distance)
 
@@ -141,6 +211,7 @@ def get_distance(sample1, sample2):
 if __name__ == "__main__":
     obstacle_polygon = Polygon([(0.5, 0.5), (0.5, 0.7), (0.3, 0.7), (0.3, 0.5)])
     obstacles = [obstacle_polygon]
+
     motion_planner = PRM(samples_per_dimension=30, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
     motion_planner.build_graph()
     motion_planner.graph()
