@@ -32,27 +32,15 @@ class Robot:
         plt.figure()
         ax = plt.axes()
 
-        x = 0  # Start at the base along the X-axis
-        y = 0  # Start at the base along the Y-axis
-
         # for each robot arm link
         for i in range(len(self.link_lengths)):
             # get the length and base angle of that link
-            link_length = self.link_lengths[i]
-            # set the angle to the sum of all previous angles
-            angle = np.sum(self.angles[:i+1])
+            start_point = self.points[i]
+            end_point = self.points[i+1]
+            print(start_point, end_point)
 
-            # Calculate the end point of the current link given that x and y are the start point
-            x_end = x + link_length * np.cos(angle)
-            y_end = y + link_length * np.sin(angle)
-
-            # plot a line from x to x_end and y to y_end
-            ax.plot([x, x_end], [y, y_end], marker='o')
-
-            # update x and y to be the end point of the current link
-            x = x_end
-            y = y_end
-
+            # plot a line from start_point to end_point
+            plt.plot([start_point[0], end_point[0]], [start_point[1], end_point[1]], linewidth=2, marker='o')
 
         plt.title('Robot Arm Diagram')
         plt.xlabel('X-axis')
