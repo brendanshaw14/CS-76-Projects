@@ -82,6 +82,7 @@ class Robot:
         plt.grid(True)
         plt.show()
 
+    # function 
 
     def check_collision(self, obstacles):
         # Check if the robot arm configuration collides with any obstacles
