@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point, Polygon, LineString
 from shapely import affinity
 
 class Robot:
@@ -28,9 +28,13 @@ class Robot:
         return points
 
     # a function to draw the actual robot arm with different line colors and accurate angles and lengths, scaled accordingly
-    def draw_robot_arm(self):
+    def draw_robot_arm(self, obstacles):
         plt.figure()
-        ax = plt.axes()
+
+        # draw the obstacles, if they exist
+        if obstacles:
+            for obstacle in obstacles:
+                plt.plot(*obstacle.exterior.xy, color='black')
 
         # for each robot arm link
         for i in range(len(self.link_lengths)):
@@ -50,36 +54,27 @@ class Robot:
         plt.show()
 
     # function 
-
     def check_collision(self, obstacles):
-        # Check if the robot arm configuration collides with any obstacles
-        arm_polygons = self.get_arm_polygons()
-
-        for obstacle in obstacles:
-            if arm_polygons.intersects(obstacle):
-                return True  # Collision detected
-
-        return False  # No collision
-
-    def get_arm_polygons(self):
-        # Generate polygons representing the links of the robot arm
-        polygons = []
-
+        # for each link in the robot arm
         for i in range(len(self.link_lengths)):
-            link_polygon = self.get_link_polygon(i)
-            polygons.append(link_polygon)
+            # get the start and end points of that link
+            start_point = self.points[i]
+            end_point = self.points[i+1]
 
-        return affinity.rotate(Polygon(), -self.angles[0])
+            # for each obstacle
+            for obstacle in obstacles:
+                # if the start or end point is inside the obstacle
+                if obstacle.contains(Point(start_point)) or obstacle.contains(Point(end_point)):
+                    return True
 
-    def get_link_polygon(self, link_index):
-        # Generate a polygon representing a single link of the robot arm
-        link_length = self.link_lengths[link_index]
+                # if the obstacle intersects the line between the start and end points
+                if obstacle.intersects(LineString([start_point, end_point])):
+                    return True
 
-        x = np.cumsum([0] + [link_length * np.cos(np.sum(self.angles[:link_index+1]))])
-        y = np.cumsum([0] + [link_length * np.sin(np.sum(self.angles[:link_index+1]))])
+        # if no collision is detected, return false
+        return False
 
-        link_polygon = Polygon([(xi, yi) for xi, yi in zip(x, y)])
-        return link_polygon
+
 
 if __name__ == '__main__':
     num_links = 2
@@ -88,11 +83,14 @@ if __name__ == '__main__':
 
     # make obstacle
     obstacle_polygon = Point(0.6, 0.6)  # Example obstacle
+
+    # make an example square that will collide with the above line
+    obstacle_polygon = Polygon([(0.5, 0.5), (0.5, 0.7), (0.7, 0.7), (0.7, 0.5)])
     obstacles = [obstacle_polygon]
     robot = Robot(joint_angles, link_lengths)
 
     # Draw the robot configuration
-    robot.draw_robot_arm()
+    robot.draw_robot_arm(obstacles)
     if robot.check_collision(obstacles):
         print("Collision detected!")
     else:
