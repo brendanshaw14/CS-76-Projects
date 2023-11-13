@@ -113,4 +113,7 @@ def get_distance(sample1, sample2):
 # main
 if __name__ == "__main__":
     motion_planner = PRM(samples_per_dimension=10, num_neighbors=10, num_dimensions=3, obstacles=[])
-    print((motion_planner.samples))
+    motion_planner.build_graph()
+    for sample in motion_planner.samples:
+        print(sample, motion_planner.adjacency_list[sample])
+        print(len(motion_planner.adjacency_list[sample]))
