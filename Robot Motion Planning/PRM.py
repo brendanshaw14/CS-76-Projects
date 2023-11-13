@@ -143,9 +143,6 @@ if __name__ == "__main__":
     obstacles = [obstacle_polygon]
     motion_planner = PRM(samples_per_dimension=30, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
     motion_planner.build_graph()
-    print()
-    sample1 = np.radians([45, 135])
-    sample2 = np.radians([55, 135])
-    print(motion_planner.validate_path(sample1, sample2))
+    motion_planner.graph()
 
 
