@@ -45,15 +45,34 @@ class PRM:
             if not robot.check_collision(self.obstacles):
                 # add the sample to the adjacency list
                 self.adjacency_list[sample] = []
+                k = 0
                 # for each other sample in the list of samples
-                for other_sample in self.samples:
+                for other_sample in self.get_sample_distances(sample):
                     # if the sample is not the other sample
                     if sample != other_sample:
                         # check if the edge is valid
                         if self.validate_path(sample, other_sample):
                             # if it is, add it to the adjacency list
                             self.adjacency_list[sample].append(other_sample)
-
+                            k += 1
+                            if k == self.num_neighbors:
+                                break
+            
+    # sort samples by distance
+    def get_sample_distances(self, sample):
+        # Initialize an empty list of distances
+        distances = {}
+        # For each other sample in the list of samples
+        for other_sample in self.samples:
+            # If the sample is not the other sample
+            if sample != other_sample:
+                # Calculate and store the distance in the distances dictionary
+                distances[other_sample] = get_distance(sample, other_sample)
+        # Sort the dictionary items by the distance value and get the keys
+        sorted_keys = [k for k, _ in sorted(distances.items(), key=lambda item: item[1])]
+        # Return the list of keys sorted by distance
+        return sorted_keys
+    
     # check that the path between two samples is valid
     def validate_path(self, sample1, sample2): 
         # initialize the path to be valid
@@ -78,20 +97,7 @@ class PRM:
         # return whether or not the path is valid
         return valid
 
-    def get_sample_distances(self, sample):
-        # initialize empty list of distances
-        distances = {}
-        # for each other sample in the list of samples
-        for other_sample in self.samples:
-            # if the sample is not the other sample
-            if sample != other_sample:
-                # if it is, add it to the distances list
-                distances[other_sample] = get_distance(sample, other_sample)
-        # sort the dictionary of distances by the distance
-        distances = {k: v for k, v in sorted(distances.items(), key=lambda item: item[1])}
-        # return the list of distances
-        return distances
-    
+# retrieve the distance between two samples
 def get_distance(sample1, sample2): 
     # initialize the distance to 0
     distance = 0
@@ -101,6 +107,8 @@ def get_distance(sample1, sample2):
         distance += (sample1[i] - sample2[i]) ** 2
     # return the square root of the distance
     return np.sqrt(distance)
+
+
 
 # main
 if __name__ == "__main__":
