@@ -34,7 +34,8 @@ class Robot:
         # draw the obstacles, if they exist
         if obstacles:
             for obstacle in obstacles:
-                plt.plot(*obstacle.exterior.xy, color='black')
+                plt.plot(*obstacle.exterior.xy, color='red', linewidth=2, linestyle='-', alpha=0.5)
+                plt.fill(*obstacle.exterior.xy, color='gray', alpha=0.5)
 
         # for each robot arm link
         for i in range(len(self.link_lengths)):
@@ -85,7 +86,7 @@ if __name__ == '__main__':
     obstacle_polygon = Point(0.6, 0.6)  # Example obstacle
 
     # make an example square that will collide with the above line
-    obstacle_polygon = Polygon([(0.5, 0.5), (0.5, 0.7), (0.7, 0.7), (0.7, 0.5)])
+    obstacle_polygon = Polygon([(0.5, 0.5), (0.5, 0.7), (0.3, 0.7), (0.3, 0.5)])
     obstacles = [obstacle_polygon]
     robot = Robot(joint_angles, link_lengths)
 
