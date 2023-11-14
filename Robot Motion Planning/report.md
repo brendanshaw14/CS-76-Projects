@@ -268,6 +268,12 @@ I tested the majority of these methods in isolation, piece by piece so that no f
 
 I then made the function `def graph(self, path=None)` to visualize the adjacency list. I did this with multiple different problems of different sample resolutions, and different connectivity parameters. I could see the outline of the obstacles easily in the configuration space. 
 
+Low Resolution:
+![Alt text](screenshots/s=10n=15.png)
+
+High Resolution (these are different obstacles of course):
+![Alt text](screenshots/s=50n=10.png)
+
 - **PRM.connect_node_to_graph()**: To test this, I used print statements on smaller graphs to verify that the node was being added to the graph, and that the correct nearest neighbor was being found. I did this at multiple steps throughout the program. 
 
 - **PRM.find_path()**: I tested this using the same method `def graph(self, path=None)` to visualize the adjacency list, with the path found by the search algorithm in red. The paths were indeed shortest paths, and followed existing edges and vertices in the graph. 

@@ -47,7 +47,10 @@ class PRM:
     # build the graph using the adjacency list
     def build_graph(self):
         # for each sample in the list of samples
+        progress = 0
         for sample in self.samples:
+            print(str(int(progress/len(self.samples)*100)) + "% Complete", end="\r")
+            progress  += 1
             robot = Robot(sample, [1] * self.num_dimensions)
             # check if the sample is in collision
             if not robot.check_collision(self.obstacles):
@@ -217,15 +220,16 @@ class PRM:
     
     def animate_robot_movement(self, path):
         fig, ax = plt.subplots()
-        path_configs = []
+        smoothed_path = []
 
         # get each robot's points and save them 
         xmax, ymax = 0, 0
         xmin, ymin = 0, 0
+        
+        # save axis limits
         for i in range(len(path)):
             robot = Robot(path[i], [1] * self.num_dimensions)
             points = robot.get_points()
-            path_configs.append(points)
             for point in points:
                 if point[0] > xmax:
                     xmax = point[0]
@@ -235,12 +239,38 @@ class PRM:
                     xmin = point[0]
                 if point[1] < ymin:
                     ymin = point[1]
+        
+        # fill path with points between each configuration in the path
+        smoothed_path.append(path[0]) # add the initial point
+        step_size = 0.01
+        # for each point
+        for i in range(len(path) - 2):
+            dif = []
+            # get the differences between the it and the next point
+            for j in range((self.num_dimensions)): 
+                dif.append(path[i+1][j] - path[i][j])
+            # get the number of steps to take
+            num_steps = int(max(dif) / self.step_size)
+            # reset num steps if it is just 1
+            if num_steps == 0:
+                num_steps = 1
+            # for each step
+            for j in range(num_steps+1):
+                # get the interpolated sample
+                interpolated_sample = []
+                for k in range(self.num_dimensions):
+                    interpolated_sample.append(path[i][k] + dif[k] * j / num_steps)
+
+        smoothed_path.append(path[-1]) # add the final point
+            
+
 
         def update(frame):
             ax.clear()
             # Set initial axis limits based on obstacle positions
-            ax.set_xlim(xmin + 1, xmax + 1)  # Adjust as needed
-            ax.set_ylim(ymin + 1, ymax + 1)  # Adjust as needed
+            ax.set_xlim(xmin - 1, xmax + 1)  # Adjust as needed
+            ax.set_ylim(ymin - 1, ymax + 1)  # Adjust as needed
+
 
 
             # Draw obstacles (if applicable)
@@ -248,7 +278,7 @@ class PRM:
                 plt.plot(*obstacle.exterior.xy, color='black', linewidth=2, linestyle='-', alpha=0.5)
 
             # Draw robot arm
-            robot = Robot(path[frame], [1] * self.num_dimensions)
+            robot = Robot(smoothed_path[frame], [1] * self.num_dimensions)
             points = robot.get_points()
 
             for i in range(len(points) - 1):
@@ -261,7 +291,7 @@ class PRM:
             # Return the iterable of Artists (in this case, an empty list)
             return []
 
-        ani = FuncAnimation(fig, update, frames=len(path), interval=500, repeat=True)
+        ani = FuncAnimation(fig, update, frames=len(smoothed_path), interval=500, repeat=True)
         plt.show()
 
 
@@ -290,12 +320,13 @@ if __name__ == "__main__":
     obstacles.append(Polygon([(0.5, 1.2), (0.5, 1.7), (0.3, 1.7), (0.3, 1.2)]))
     robot = Robot([0, 0], [1] * 2)
     obstacles.append(Polygon([(-0.2, -1), (-0.2, -0.5), (-0.5, -0.5), (-0.5, -1)]))
-    robot.draw_robot_arm(obstacles=obstacles)
+    # robot.draw_robot_arm(obstacles=obstacles)
 
-    motion_planner = PRM(samples_per_dimension=10, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
+    motion_planner = PRM(samples_per_dimension=30, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
     motion_planner.build_graph()
+    motion_planner.graph()
     path = motion_planner.query((0.5, 0.5), (3, 5))
-    print(path)
+    print("Path: " + str(path))
     # motion_planner.graph(path=path)
     motion_planner.animate_robot_movement(path)
 
