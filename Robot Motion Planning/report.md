@@ -208,4 +208,72 @@ After the `uniform_dense_sample` and `build_graph` functions have been executed,
 
 The process of the querier is as follows: 
 
-1. If the start or goal configurations 
+1. If the start or goal configurations are in collision with obstacles, return an empty path.
+2. If the start or goal configurations are not already in the graph, find their nearest neighbors in the graph and add them to the graph.
+3. Find the shortest path between the start and goal configurations using a search algorithm.
+4. Return the path.
+
+To do this, the user can call the `query(self, start, goal)` function of the `PRM` class. This function takes two configurations as input, and returns a list of configurations representing the path between the two configurations, or `None` if no path is found. 
+
+I've split this logic into several functions that made it easier to test and debug. 
+
+**Verifying states and modifying the graph: def_query(self, start, goal):**
+
+The main query function that handles the user's query encapsulates the logic for the start and end configuration verification, as well as graph modification. This function then calls the `find_path` function to find the path between the two configurations.
+
+Pseudo: 
+```
+def query(self, start, goal):
+1. If the start or goal configurations are in collision with obstacles, return an empty path.
+2. If the start or goal configurations are not already in the graph, connect them to the graph using `def connect_node_to_graph(self, node)`. 
+3. return `self.find_path(start, goal)`
+```
+This function is pretty simple, serving as a wrapper for the other functions, described below. 
+
+**Connecting the start or goal node to the graph: `def connect_node_to_graph(self, node)`:**
+
+This function is called by the `query` function to connect the start or goal configuration to the graph. It does this by finding the nearest neighbor of the configuration in the graph, and adding an edge between the two. 
+Pseudo: 
+```
+def connect_node_to_graph(self, node):
+1. add the node to the `self.samples` list
+2. Initialize it's adacency list to an empty list in the graph
+3. for each other node ordered by nearest distance
+    a. if the node isn't the node we are trying to add and there is a valid path between the two nodes:
+        - add an edge between the two nodes
+        - break the loop
+```
+
+**Finding the Path: `def find_path(self, start, goal)`**
+
+Because the search spaces are relatively small here, I decided to use a simple breadth-first search to find the path between the start and goal configurations. This was adapted from the foxes and chickens lab, but without the search solution object. It also uses the same backchain function as before, which I won't describe in detail here. 
+
+## Method Testing 
+
+I tested the majority of these methods in isolation, piece by piece so that no further errors would arise. Below I briefly describe each of the methods and how I tested them. 
+
+- **robot.get_points()**: I tested this by creating a robot object with a known configuration, and then checking that the points returned by the function were correct. I also wrote the function draw_robot arm to visualize the robot, and used that to verify that the points were correct. This was not too difficult. 
+
+- **robot.check_collision()**: I tested this by creating a robot object and obstacles with known configurations. Then, I used the `robot.draw_robot_arm` function to visualize the robot and obstacles, printing whether or not a collision was detected to the console and verifying with the visualization. 
+
+- **PRM.uniform_dense_sample()**: I tested this by creating a few less-complex robot arm problems, using print statements to investigate the samples and the sizes. I verified that the angle intervals were being calculated correctly, and that the number of samples was correct. 
+
+- **PRM.get_distance()**: I tested this by creating a few less-complex robot arm problems, using print statements to investigate the distances. I verified that the distances were being calculated correctly, which they were. 
+
+- **PRM.get_sample_distances() and PRM.get_distance()**: I again tested this with a few less-complex robot arm problems, using print statements to investigate the samples that were being calculated as neighbors. The algorithm here is very simple, so it was pretty easy to see that the list was indeed ordered correctly by distance. 
+
+- **PRM.validate_path()**: I tested this algorithm separately fromt the rest of the program in order to truly verify its funcitonality. I did this by just passing it two robot configurations that I constructed, with an obstacle between or with the start or end configuration having an obstacle.   
+
+- **PRM.build_graph()**: I tested this by creating a few less-complex robot arm problems, using print statements to investigate the graph that was being built. I verified that the adjacency list had the correct number of neighbors, and that the neighbors were indeed the closest neighbors. 
+
+I then made the function `def graph(self, path=None)` to visualize the adjacency list. I did this with multiple different problems of different sample resolutions, and different connectivity parameters. I could see the outline of the obstacles easily in the configuration space. 
+
+- **PRM.connect_node_to_graph()**: To test this, I used print statements on smaller graphs to verify that the node was being added to the graph, and that the correct nearest neighbor was being found. I did this at multiple steps throughout the program. 
+
+- **PRM.find_path()**: I tested this using the same method `def graph(self, path=None)` to visualize the adjacency list, with the path found by the search algorithm in red. The paths were indeed shortest paths, and followed existing edges and vertices in the graph. 
+
+## Extra Credit Animation Testing:
+
+Originally, I had just viewed the graph using the `def graph(self, path=None)` function, but I decided to make an animation of the robot moving along the path. I did this by creating a function `def animate_path(self, path)` that takes a path as input, and then iterates through the path, drawing the robot at each configuration. I then used the `matplotlib.animation` library to animate the robot moving along the path.
+
+I also implemented a few advancements that smooth the path, while, also allowing the user to see which vertex points were met along the way. 

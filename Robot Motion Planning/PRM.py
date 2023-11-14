@@ -148,7 +148,7 @@ class PRM:
         if goal not in self.adjacency_list: 
             self.connect_node_to_graph(goal)
         # run the search algorithm
-        return self.bfs(start, goal)
+        return self.find_path(start, goal)
         
     # connect the start or goal node to the graph if it isn't already in it
     def connect_node_to_graph(self, node):
@@ -167,7 +167,7 @@ class PRM:
                     break           
 
     # takes a start robot and an end robot, returning a path of robot configurations to connect them (adapted from Foxes and Chickens/uninformed_search.py)
-    def bfs(self, start_state, goal_state):
+    def find_path(self, start_state, goal_state):
         # initialize queue, add the start node
         queue = deque()
         queue.append(start_state)
@@ -239,8 +239,8 @@ class PRM:
         def update(frame):
             ax.clear()
             # Set initial axis limits based on obstacle positions
-            ax.set_xlim(xmin, xmax)  # Adjust as needed
-            ax.set_ylim(ymin, ymax)  # Adjust as needed
+            ax.set_xlim(xmin + 1, xmax + 1)  # Adjust as needed
+            ax.set_ylim(ymin + 1, ymax + 1)  # Adjust as needed
 
 
             # Draw obstacles (if applicable)
@@ -261,7 +261,7 @@ class PRM:
             # Return the iterable of Artists (in this case, an empty list)
             return []
 
-        ani = FuncAnimation(fig, update, frames=len(path), interval=500, repeat=False)
+        ani = FuncAnimation(fig, update, frames=len(path), interval=500, repeat=True)
         plt.show()
 
 
@@ -288,11 +288,11 @@ if __name__ == "__main__":
     # make some obstacles
     obstacles = []
     obstacles.append(Polygon([(0.5, 1.2), (0.5, 1.7), (0.3, 1.7), (0.3, 1.2)]))
-    robot = Robot([0, 0], [1] * 3)
+    robot = Robot([0, 0], [1] * 2)
     obstacles.append(Polygon([(-0.2, -1), (-0.2, -0.5), (-0.5, -0.5), (-0.5, -1)]))
     robot.draw_robot_arm(obstacles=obstacles)
 
-    motion_planner = PRM(samples_per_dimension=10, num_neighbors=10, num_dimensions=3, obstacles=obstacles)
+    motion_planner = PRM(samples_per_dimension=10, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
     motion_planner.build_graph()
     path = motion_planner.query((0.5, 0.5), (3, 5))
     print(path)
