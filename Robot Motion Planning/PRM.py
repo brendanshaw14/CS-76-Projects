@@ -16,7 +16,7 @@ class PRM:
         self.samples = [] # list of samples
         self.adjacency_list = {} # graph represented as an adjacency list
         self.visited_from = {} # dictionary to keep track of which node a node was visited from
-        self.step_size = 0.1 # step size for collision checking along the path
+        self.step_size = 0.05 # step size for collision checking along the path
 
         self.uniform_dense_sample() # initialize the list of samples
 
@@ -159,7 +159,7 @@ class PRM:
                     self.adjacency_list[other_sample].append(node)
                     break           
 
-# takes a start robot and an end robot, returning a path of robot configurations to connect them (adapted from Foxes and Chickens/uninformed_search.py)
+    # takes a start robot and an end robot, returning a path of robot configurations to connect them (adapted from Foxes and Chickens/uninformed_search.py)
     def search(self, start_state, goal_state):
         # initialize queue, add the start node
         queue = deque()
@@ -227,7 +227,7 @@ class PRM:
                 if point[0] < xmin:
                     xmin = point[0]
                 if point[1] < ymin:
-                    ymin = point[0]
+                    ymin = point[1]
 
         def update(frame):
             ax.clear()
@@ -278,12 +278,16 @@ def get_distance(sample1, sample2):
 
 # main
 if __name__ == "__main__":
-    obstacle_polygon = Polygon([(0.5, 0.5), (0.5, 0.7), (0.3, 0.7), (0.3, 0.5)])
-    obstacles = [obstacle_polygon]
+    # make some obstacles
+    obstacles = []
+    obstacles.append(Polygon([(0.5, 1.2), (0.5, 1.7), (0.3, 1.7), (0.3, 1.2)]))
+    robot = robot = Robot([0, 0], [1] * 2)
+    obstacles.append(Polygon([(-0.2, -1), (-0.2, -0.5), (-0.5, -0.5), (-0.5, -1)]))
+    robot.draw_robot_arm(obstacles=obstacles)
 
-    motion_planner = PRM(samples_per_dimension=20, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
+    motion_planner = PRM(samples_per_dimension=40, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
     motion_planner.build_graph()
-    path = motion_planner.query(tuple([0.2, 0.2]), tuple([4, 4]))
+    path = motion_planner.query((0.5, 0.5), (3, 5))
     print(path)
     motion_planner.graph(path=path)
     motion_planner.animate_robot_movement(path)
