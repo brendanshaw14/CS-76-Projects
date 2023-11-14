@@ -9,21 +9,23 @@ from shapely.geometry import Point, Polygon, LineString
 class PRM:
     def __init__(self, samples_per_dimension, num_neighbors, num_dimensions, obstacles):
         self.samples_per_dimension = samples_per_dimension # resolution of the PRM
-        self.num_neighbors = num_neighbors
-        self.obstacles = obstacles
-        self.num_dimensions = num_dimensions
-        self.samples = []
-        self.edges = []
-        self.adjacency_list = {}
-        self.path = []
-        self.uniform_dense_sample()
-        self.step_size = 0.1
+        self.num_neighbors = num_neighbors # connectivity of the PRM (k)
+        self.obstacles = obstacles # array of obstacles in the environment (shapely polygons)
+        self.num_dimensions = num_dimensions # number of arm links
+        self.samples = [] # list of samples
+        self.adjacency_list = {} # graph represented as an adjacency list
+        self.visited_from = {} # dictionary to keep track of which node a node was visited from
+        self.step_size = 0.1 # step size for collision checking along the path
 
+        self.uniform_dense_sample() # initialize the list of samples
+
+    # collect the uniform dense samples
     def uniform_dense_sample(self, current_sample=None):
         # Get the number of samples to take per dimension
         current_sample = []
         self.uniform_dense_sample_recursive(current_sample)
 
+    # recursive helper for uniform_dense_sample
     def uniform_dense_sample_recursive(self, current_sample):
         # base case: if the index is num_dimensions, then we have assigned the last dimension
         if len(current_sample) == self.num_dimensions:
@@ -40,6 +42,7 @@ class PRM:
             # pass it to the next recursive call
             self.uniform_dense_sample_recursive(current_sample_copy)
             
+    # build the graph using the adjacency list
     def build_graph(self):
         # for each sample in the list of samples
         for sample in self.samples:
@@ -86,9 +89,9 @@ class PRM:
         distance = get_distance(sample1, sample2)
         # get the number of steps to take
         num_steps = int(distance / self.step_size)
+        # reset num steps if it is just 1
         if num_steps == 0:
             num_steps = 1
-
         # for each step
         for i in range(num_steps+1):
             # get the interpolated sample
@@ -106,7 +109,7 @@ class PRM:
         return valid
 
     # graph the adjacency list
-    def graph(self):
+    def graph(self, path=None):
         # graph the adjacency list, assuming 2D samples
         if self.num_dimensions == 2:
             # initialize the figure
@@ -119,9 +122,17 @@ class PRM:
                     for other_sample in self.adjacency_list[sample]:
                         # plot a line between the samples
                         ax.plot([sample[0], other_sample[0]], [sample[1], other_sample[1]], color='k')
+            # if a path is provided
+            if path: 
+                # plot that path in a different color
+                for i in range(len(path)-1):
+                    ax.plot([path[i][0], path[i+1][0]], [path[i][1], path[i+1][1]], color='r')
             # show the plot
             plt.show()
+        else: 
+            print("cannot graph: incorrect dimensionality")
 
+    # handle a query from the user for the planner
     def query(self, start, goal):
         # if the start or goal node isn't in the graph, connect it to its nearest neighbor
         if start not in self.adjacency_list:
@@ -131,8 +142,10 @@ class PRM:
         # run the search algorithm
         return self.search(start, goal)
         
-
+    # connect the start or goal node to the graph if it isn't already in it
     def connect_node_to_graph(self, node):
+        # add the sample to self.samples
+        self.samples.append(node)
         # start the new adjacency list
         self.adjacency_list[node] = []
         # for each other sample
@@ -142,6 +155,7 @@ class PRM:
                 # if the there is a valid path
                 if self.validate_path(node, other_sample):
                     self.adjacency_list[node].append(other_sample)
+                    self.adjacency_list[other_sample].append(node)
                     break           
 
 # takes a start robot and an end robot, returning a path of robot configurations to connect them (adapted from Foxes and Chickens/uninformed_search.py)
@@ -156,17 +170,15 @@ class PRM:
 
         # track how many nodes have been visited and initialize the solution
         path = []
-        num_nodes_visited = 0
 
         # begin the search
         while queue: 
             # get the next node in queue and increment num_nodes_visited
             current = queue.popleft()
-            num_nodes_visited += 1
 
             # if this is the goal node, backchain 
             if current == goal_state: 
-                path = backchain(current)
+                path = self.backchain(current)
                 return path
 
             # otherwise, get its unvisited successors and add them to the queue
@@ -174,24 +186,26 @@ class PRM:
                 for state in self.adjacency_list[current]:
                     # check if already visited
                     if state not in visited_states:
-                        visited_states.add(current)
+                        self.visited_from[state] = current
+                        visited_states.add(state)
                         queue.append(state)
         return False
 
 
-# Backchain function for BFS to reconstruct the path
-def backchain(goal):
-    path = []
-    current_node = goal
+    # Backchain function for BFS to reconstruct the path
+    def backchain(self, goal):
+        path = []
+        current = goal
 
-    # Start from the goal node and follow parent references
-    while current_node is not None:
-        path.append(current_node.state)
-        current_node = current_node.parent
+        # Start from the goal node and follow parent references
+        while current in self.visited_from:
+            path.append(current)
+            current = self.visited_from[current]
+        path.append(current)
 
-    # Reverse the path to get it in the correct order and return it
-    path.reverse()
-    return path
+        # Reverse the path to get it in the correct order and return it
+        path.reverse()
+        return path
 
 
 # retrieve the distance between two samples
@@ -216,9 +230,9 @@ if __name__ == "__main__":
     obstacle_polygon = Polygon([(0.5, 0.5), (0.5, 0.7), (0.3, 0.7), (0.3, 0.5)])
     obstacles = [obstacle_polygon]
 
-    motion_planner = PRM(samples_per_dimension=10, num_neighbors=15, num_dimensions=2, obstacles=obstacles)
+    motion_planner = PRM(samples_per_dimension=5, num_neighbors=15, num_dimensions=2, obstacles=obstacles)
     motion_planner.build_graph()
-    motion_planner.graph()
-
-    print(motion_planner.query(tuple([3, 5]), tuple(([3, 3]))))
+    path = motion_planner.query(tuple([3, 3]), tuple([3, 5]))
+    print(path)
+    motion_planner.graph(path=path)
 
