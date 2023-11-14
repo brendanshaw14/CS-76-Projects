@@ -17,13 +17,14 @@ class PRM:
         self.adjacency_list = {}
         self.path = []
         self.uniform_dense_sample()
+        self.step_size = 0.1
 
     def uniform_dense_sample(self, current_sample=None):
         # Get the number of samples to take per dimension
         current_sample = []
         self.uniform_dense_sample_recursive(current_sample)
 
-    def uniform_dense_sample_recursive(self, current_sample, depth=0):
+    def uniform_dense_sample_recursive(self, current_sample):
         # base case: if the index is num_dimensions, then we have assigned the last dimension
         if len(current_sample) == self.num_dimensions:
             # append the sample to the list of samples
@@ -84,8 +85,10 @@ class PRM:
         # get the distance between the samples
         distance = get_distance(sample1, sample2)
         # get the number of steps to take
-        num_steps = int(distance / 0.05)
-        print(num_steps)
+        num_steps = int(distance / self.step_size)
+        if num_steps == 0:
+            num_steps = 1
+
         # for each step
         for i in range(num_steps+1):
             # get the interpolated sample
@@ -95,7 +98,6 @@ class PRM:
             # set the robot to the interpolated sample 
             robot = Robot(interpolated_sample, [1] * self.num_dimensions)
             # check if the interpolated sample is in collision
-            print(robot.angles)
             if robot.check_collision(self.obstacles):
                 # if it is, set the path to be invalid
                 valid = False
@@ -126,6 +128,9 @@ class PRM:
             self.connect_node_to_graph(start)
         if goal not in self.adjacency_list: 
             self.connect_node_to_graph(goal)
+        # run the search algorithm
+        return self.search(start, goal)
+        
 
     def connect_node_to_graph(self, node):
         # start the new adjacency list
@@ -160,16 +165,16 @@ class PRM:
             num_nodes_visited += 1
 
             # if this is the goal node, backchain 
-            if current.state == goal_state: 
+            if current == goal_state: 
                 path = backchain(current)
                 return path
 
             # otherwise, get its unvisited successors and add them to the queue
             else: 
-                for state in self.adjacency_list[current.state]:
+                for state in self.adjacency_list[current]:
                     # check if already visited
                     if state not in visited_states:
-                        visited_states.add(current.state)
+                        visited_states.add(current)
                         queue.append(state)
         return False
 
@@ -206,14 +211,14 @@ def get_distance(sample1, sample2):
     # return the square root of the distance
     return np.sqrt(distance)
 
-
 # main
 if __name__ == "__main__":
     obstacle_polygon = Polygon([(0.5, 0.5), (0.5, 0.7), (0.3, 0.7), (0.3, 0.5)])
     obstacles = [obstacle_polygon]
 
-    motion_planner = PRM(samples_per_dimension=30, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
+    motion_planner = PRM(samples_per_dimension=10, num_neighbors=15, num_dimensions=2, obstacles=obstacles)
     motion_planner.build_graph()
     motion_planner.graph()
 
+    print(motion_planner.query(tuple([3, 5]), tuple(([3, 3]))))
 
