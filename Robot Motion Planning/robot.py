@@ -77,8 +77,7 @@ class Robot:
 
         # if no collision is detected, return false
         return False
-
-
+    
 
 if __name__ == '__main__':
     num_links = 2

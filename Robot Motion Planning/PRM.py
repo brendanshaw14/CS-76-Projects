@@ -2,6 +2,7 @@
 from collections import deque
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from robot import Robot
 # import the shapely class
 from shapely.geometry import Point, Polygon, LineString
@@ -206,6 +207,56 @@ class PRM:
         # Reverse the path to get it in the correct order and return it
         path.reverse()
         return path
+    
+    def animate_robot_movement(self, path):
+        fig, ax = plt.subplots()
+        path_configs = []
+
+        # get each robot's points and save them 
+        xmax, ymax = 0, 0
+        xmin, ymin = 0, 0
+        for i in range(len(path)):
+            robot = Robot(path[i], [1] * self.num_dimensions)
+            points = robot.get_points()
+            path_configs.append(points)
+            for point in points:
+                if point[0] > xmax:
+                    xmax = point[0]
+                if point[1] > ymax:
+                    ymax = point[1]
+                if point[0] < xmin:
+                    xmin = point[0]
+                if point[1] < ymin:
+                    ymin = point[0]
+
+        def update(frame):
+            ax.clear()
+            # Set initial axis limits based on obstacle positions
+            ax.set_xlim(xmin, xmax)  # Adjust as needed
+            ax.set_ylim(ymin, ymax)  # Adjust as needed
+
+
+            # Draw obstacles (if applicable)
+            for obstacle in self.obstacles:
+                plt.plot(*obstacle.exterior.xy, color='black', linewidth=2, linestyle='-', alpha=0.5)
+
+            # Draw robot arm
+            robot = Robot(path[frame], [1] * self.num_dimensions)
+            points = robot.get_points()
+
+            for i in range(len(points) - 1):
+                plt.plot([points[i][0], points[i + 1][0]], [points[i][1], points[i + 1][1]], marker='o', color='blue')
+
+            plt.title('Robot Arm Movement')
+            plt.xlabel('X-axis')
+            plt.ylabel('Y-axis')
+            plt.grid(True)
+            # Return the iterable of Artists (in this case, an empty list)
+            return []
+
+        ani = FuncAnimation(fig, update, frames=len(path), interval=500, repeat=False)
+        plt.show()
+
 
 
 # retrieve the distance between two samples
@@ -230,9 +281,10 @@ if __name__ == "__main__":
     obstacle_polygon = Polygon([(0.5, 0.5), (0.5, 0.7), (0.3, 0.7), (0.3, 0.5)])
     obstacles = [obstacle_polygon]
 
-    motion_planner = PRM(samples_per_dimension=5, num_neighbors=15, num_dimensions=2, obstacles=obstacles)
+    motion_planner = PRM(samples_per_dimension=20, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
     motion_planner.build_graph()
-    path = motion_planner.query(tuple([3, 3]), tuple([3, 5]))
+    path = motion_planner.query(tuple([0.2, 0.2]), tuple([4, 4]))
     print(path)
     motion_planner.graph(path=path)
+    motion_planner.animate_robot_movement(path)
 
