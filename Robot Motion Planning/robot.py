@@ -57,7 +57,7 @@ class Robot:
         plt.grid(True)
         plt.show()
 
-    # function 
+    # function to check if the robot arm is in collision with any obstacles
     def check_collision(self, obstacles):
         # for each link in the robot arm
         for i in range(len(self.link_lengths)):

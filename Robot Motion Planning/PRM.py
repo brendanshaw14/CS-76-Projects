@@ -21,7 +21,8 @@ class PRM:
         self.uniform_dense_sample() # initialize the list of samples
 
     # collect the uniform dense samples
-    def uniform_dense_sample(self, current_sample=None):
+    def uniform_dense_sample(self):
+        print("Generating samples...")
         # Get the number of samples to take per dimension
         current_sample = []
         self.uniform_dense_sample_recursive(current_sample)
@@ -67,7 +68,7 @@ class PRM:
             
     # sort samples by distance
     def get_sample_distances(self, sample):
-        # Initialize an empty list of distances
+        # Initialize an empty dict of distances
         distances = {}
         # For each other sample in the list of samples
         for other_sample in self.samples:
@@ -135,13 +136,19 @@ class PRM:
 
     # handle a query from the user for the planner
     def query(self, start, goal):
+        # ensure valid start and goal states
+        start_robot = Robot(start, [1] * self.num_dimensions)
+        goal_robot = Robot(goal, [1] * self.num_dimensions)
+        if start_robot.check_collision(self.obstacles) or goal_robot.check_collision(self.obstacles):
+            print("start or goal is in collision")
+            return None
         # if the start or goal node isn't in the graph, connect it to its nearest neighbor
         if start not in self.adjacency_list:
             self.connect_node_to_graph(start)
         if goal not in self.adjacency_list: 
             self.connect_node_to_graph(goal)
         # run the search algorithm
-        return self.search(start, goal)
+        return self.bfs(start, goal)
         
     # connect the start or goal node to the graph if it isn't already in it
     def connect_node_to_graph(self, node):
@@ -160,7 +167,7 @@ class PRM:
                     break           
 
     # takes a start robot and an end robot, returning a path of robot configurations to connect them (adapted from Foxes and Chickens/uninformed_search.py)
-    def search(self, start_state, goal_state):
+    def bfs(self, start_state, goal_state):
         # initialize queue, add the start node
         queue = deque()
         queue.append(start_state)
@@ -281,14 +288,14 @@ if __name__ == "__main__":
     # make some obstacles
     obstacles = []
     obstacles.append(Polygon([(0.5, 1.2), (0.5, 1.7), (0.3, 1.7), (0.3, 1.2)]))
-    robot = robot = Robot([0, 0], [1] * 2)
+    robot = Robot([0, 0], [1] * 3)
     obstacles.append(Polygon([(-0.2, -1), (-0.2, -0.5), (-0.5, -0.5), (-0.5, -1)]))
     robot.draw_robot_arm(obstacles=obstacles)
 
-    motion_planner = PRM(samples_per_dimension=40, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
+    motion_planner = PRM(samples_per_dimension=10, num_neighbors=10, num_dimensions=3, obstacles=obstacles)
     motion_planner.build_graph()
     path = motion_planner.query((0.5, 0.5), (3, 5))
     print(path)
-    motion_planner.graph(path=path)
+    # motion_planner.graph(path=path)
     motion_planner.animate_robot_movement(path)
 
