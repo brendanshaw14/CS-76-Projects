@@ -282,6 +282,8 @@ High Resolution (these are different obstacles of course):
 
 I used this system a lot to test the different configurations and make them work. 2D configurations are by far the easiest to test since you can choose a start and end in the configuration space that will work well with the obstacles. I did this with a few different sets of polygons, which you can find in the main method of the `PRM` class. Below is an explanation of the original implementation and the animation upgrades. 
 
+Although the animation sometimes does go over an obstacle, this is because the sampling resolution is too low, and the robot arm is not able to move around the obstacle. This is not a problem with the algorithm, but rather a problem with the sampling resolution. If this happens in testing, increase it. 
+
 Originally, I had just viewed the graph using the `def graph(self, path=None)` function, but I decided to make an animation of the robot moving along the path. I did this by creating a function `def animate_path(self, path)` that takes a path as input, and then iterates through the path, drawing the robot at each configuration. I then used the `matplotlib.animation` library to animate the robot moving along the path.
 
 I originally did this by using the matplotlib animation feature, and I wrote the function `def animate_robot_movement` to view each step in the path sequentially, ensuring that the arm could manouver its way through obstacles. These obstacle sets are hard coded into the main function of `PRM.py`, and you can use them to test the PRM. 
@@ -323,32 +325,33 @@ def animate_robot_movement(self, path):
         # for each point in the path
         for i in range(len(path) - 1):
             dif = []
-
             # get the absolute differences between the current and the next point
             for j in range(self.num_dimensions):
-                difference = path[i+1][j] - path[i][j]
-
-                # Adjust the difference considering the sign and magnitude
-                adjusted_difference = np.where(np.abs(difference) > np.pi, np.sign(difference) * (2 * np.pi - np.abs(difference)), difference)
-
-                dif.append(adjusted_difference)
+                difference = (path[i+1][j] - path[i][j])
+                if abs(difference) > np.pi: 
+                    if difference > 0:
+                        difference = -(2 * np.pi - abs(difference))
+                    else:
+                        difference = (2 * np.pi - abs(difference))
+                dif.append(difference)
+            print(dif) 
 
             # get the number of steps to take
             num_steps = 10
-
+    
             # for each step
             for j in range(int(num_steps)):  # start from 1 to avoid adding duplicate points
                 # get the interpolated sample
                 interpolated_sample = []
-
                 for k in range(self.num_dimensions):
                     # interpolate each dimension using a consistent step size
                     interpolated_sample.append(path[i][k] + (dif[k] / num_steps * j))
-
                 smoothed_path.append(interpolated_sample)
 
         # add the final point
         smoothed_path.append(path[-1])
+
+
 ```
 After this smooothed path is created, we draw it in matplotlib. This is stored in the `update` function, which is pretty long and boring, so I won't include it here. Its funciton is to draw the start and end locations in light green and red, draw the obstacles, and then draw the robot in its current location in each step. The result looks pretty good-- to run it, just run `PRM.py`. 
 

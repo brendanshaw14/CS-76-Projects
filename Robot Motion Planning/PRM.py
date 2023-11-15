@@ -271,28 +271,27 @@ class PRM:
         # for each point in the path
         for i in range(len(path) - 1):
             dif = []
-
             # get the absolute differences between the current and the next point
             for j in range(self.num_dimensions):
-                difference = path[i+1][j] - path[i][j]
-
-                # Adjust the difference considering the sign and magnitude
-                adjusted_difference = np.where(np.abs(difference) > np.pi, np.sign(difference) * (2 * np.pi - np.abs(difference)), difference)
-
-                dif.append(adjusted_difference)
+                difference = (path[i+1][j] - path[i][j])
+                if abs(difference) > np.pi: 
+                    if difference > 0:
+                        difference = -(2 * np.pi - abs(difference))
+                    else:
+                        difference = (2 * np.pi - abs(difference))
+                dif.append(difference)
+            print(dif) 
 
             # get the number of steps to take
             num_steps = 10
-
+    
             # for each step
             for j in range(int(num_steps)):  # start from 1 to avoid adding duplicate points
                 # get the interpolated sample
                 interpolated_sample = []
-
                 for k in range(self.num_dimensions):
                     # interpolate each dimension using a consistent step size
                     interpolated_sample.append(path[i][k] + (dif[k] / num_steps * j))
-
                 smoothed_path.append(interpolated_sample)
 
         # add the final point
@@ -348,7 +347,7 @@ class PRM:
             # Return the iterable of Artists (in this case, an empty list)
             return []
 
-        ani = FuncAnimation(fig, update, frames=len(smoothed_path), interval=50, repeat=True)
+        ani = FuncAnimation(fig, update, frames=len(smoothed_path), interval=20, repeat=True)
         plt.show()
 
 
@@ -374,31 +373,48 @@ def get_distance(sample1, sample2):
 if __name__ == "__main__":
     # make some obstacles
     obstacles = []
-    # Create a square with side length 0.3
-    small_square = Polygon([(-0.15, -0.15), (0.15, -0.15), (0.15, 0.15), (-0.15, 0.15)])
-    # Create a triangle with vertices (-0.15, 0), (0.15, 0), and (0, 0.15)
-    small_triangle = Polygon([(-0.15, 0), (0.15, 0), (0, 0.15)])
-    # Create a circle with radius 0.3
-    small_circle = Point(0, 0).buffer(0.3)
-    # Create a hexagon with side length 0.2
+   # Create a smaller square with side length 0.3 at position (1, 1)
+    small_square = Polygon([
+        (0.85, 0.85), (1.15, 0.85), (1.15, 1.15), (0.85, 1.15)
+    ])
+
+    # Create a smaller triangle with vertices (0.85, 1), (1.15, 1), and (1, 1.15)
+    small_triangle = Polygon([
+        (0.85, -0.6), (1.15, -0.6), (1, -1.15)
+    ])
+
+    # Create a smaller circle with radius 0.3 at position (2, 2)
+    small_circle = Point(-0.5, 1).buffer(0.3)
+
+    # Create a smaller hexagon with side length 0.2 at position (-1, -1)
     small_hexagon = Polygon([
-        (-0.1, -0.2),
-        (0.1, -0.2),
-        (0.2, 0),
-        (0.1, 0.2),
-        (-0.1, 0.2),
-        (-0.2, 0)
+        (-1.1, -1.2), (-0.9, -1.2), (-0.8, -1), (-0.9, -0.8), (-1.1, -0.8), (-1.2, -1)
     ])
     square1 = Polygon([(0.5, 1.2), (0.5, 1.7), (0.3, 1.7), (0.3, 1.2)])
     square2 = Polygon([(-0.2, -1), (-0.2, -0.5), (-0.5, -0.5), (-0.5, -1)])
 
-    # TODO: CHOOSE YOUR ARRAY OF POLYGONS HERE
-    # Adjust the other parameters as needed: Keep dimensions to 2 if you want to be able to graph and view the animation. 
-    # Remember, if you change the dimensionality, link lenghts need to be adjusted accordingly. 
-    motion_planner = PRM(samples_per_dimension=40, num_neighbors=10, num_dimensions=2,link_lengths=[1, 0.5], obstacles=obstacles)
+
+    # # TODO: CHOOSE YOUR ARRAY OF POLYGONS HERE
+    # obstacles = [small_square, small_triangle, small_circle, small_hexagon]
+
+    # # TODO: Adjust the other parameters as needed: Keep dimensions to 2 if you want to be able to graph and view the animation. 
+    # # Remember, if you change the dimensionality, link lenghts need to be adjusted accordingly. 
+    obstacles = [small_circle, small_triangle, small_hexagon, small_square, square1]
+    motion_planner = PRM(samples_per_dimension=45, num_neighbors=10, num_dimensions=2,link_lengths=[1, 0.5], obstacles=obstacles)
     motion_planner.build_graph()
-    path = motion_planner.query((0.5, 0.5), (3, 5))
+    motion_planner.graph()
+    path = motion_planner.query((0, 0), (3, 5))
     print("Path: " + str(path))
-    # motion_planner.graph(path=path)
+    motion_planner.graph(path=path)
     if path: motion_planner.animate_robot_movement(path)
+
+
+    # This is code that I preprogrammed so that i know the start and goal configurations are unobstructed, and that there is a path. Comment this out if you dont' want it. 
+    # obstacles = [square1, square2]
+    # motion_planner = PRM(samples_per_dimension=40, num_neighbors=10, num_dimensions=2,link_lengths=[1, 0.5], obstacles=obstacles)
+    # motion_planner.build_graph()
+    # path = motion_planner.query((0.5, 0.5), (3, 5))
+    # print("Path: " + str(path))
+    # # motion_planner.graph(path=path)
+    # if path: motion_planner.animate_robot_movement(path)
 
