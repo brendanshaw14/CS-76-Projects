@@ -6,13 +6,16 @@ from matplotlib.animation import FuncAnimation
 from robot import Robot
 # import the shapely class
 from shapely.geometry import Point, Polygon, LineString
+from sklearn.neighbors import NearestNeighbors
+
 
 class PRM:
-    def __init__(self, samples_per_dimension, num_neighbors, num_dimensions, obstacles):
+    def __init__(self, samples_per_dimension, num_neighbors, num_dimensions, link_lengths, obstacles):
         self.samples_per_dimension = samples_per_dimension # resolution of the PRM
         self.num_neighbors = num_neighbors # connectivity of the PRM (k)
         self.obstacles = obstacles # array of obstacles in the environment (shapely polygons)
         self.num_dimensions = num_dimensions # number of arm links
+        self.link_lengths = link_lengths # length of each arm link
         self.samples = [] # list of samples
         self.adjacency_list = {} # graph represented as an adjacency list
         self.visited_from = {} # dictionary to keep track of which node a node was visited from
@@ -51,7 +54,7 @@ class PRM:
         for sample in self.samples:
             print(str(int(progress/len(self.samples)*100)) + "% Complete", end="\r")
             progress  += 1
-            robot = Robot(sample, [1] * self.num_dimensions)
+            robot = Robot(sample, self.link_lengths)
             # check if the sample is in collision
             if not robot.check_collision(self.obstacles):
                 # add the sample to the adjacency list
@@ -83,13 +86,35 @@ class PRM:
         sorted_keys = [k for k, _ in sorted(distances.items(), key=lambda item: item[1])]
         # Return the list of keys sorted by distance
         return sorted_keys
+
+    def get_nearest_neighbors(self, sample):
+        samples_array = np.array(self.samples)
+
+        # Create a NearestNeighbors object
+        nn = NearestNeighbors(n_neighbors=len(self.samples), algorithm='auto', metric='euclidean')
+        nn.fit(samples_array)
+
+        # Find the indices of the nearest neighbors and their distances
+        indices = nn.kneighbors(samples_array)
+
+        # Convert the indices and distances to lists
+        sorted_keys = indices[0].tolist()
+
+        # Remove the index of the sample itself (if it's in the list)
+        if sample in self.samples:
+            sample_index = self.samples.index(sample)
+            if sample_index in sorted_keys:
+                sorted_keys.remove(sample_index)
+
+        return sorted_keys
+ 
     
     # check that the path between two samples is valid
     def validate_path(self, sample1, sample2): 
         # initialize the path to be valid
         valid = True
         # initialize the robot
-        robot = Robot(sample1, [1] * self.num_dimensions)
+        robot = Robot(sample1, self.link_lengths)
         # get the distance between the samples
         distance = get_distance(sample1, sample2)
         # get the number of steps to take
@@ -104,7 +129,7 @@ class PRM:
             for j in range(self.num_dimensions):
                 interpolated_sample.append(sample1[j] + (sample2[j] - sample1[j]) * i / num_steps)
             # set the robot to the interpolated sample 
-            robot = Robot(interpolated_sample, [1] * self.num_dimensions)
+            robot = Robot(interpolated_sample, self.link_lengths)
             # check if the interpolated sample is in collision
             if robot.check_collision(self.obstacles):
                 # if it is, set the path to be invalid
@@ -140,8 +165,8 @@ class PRM:
     # handle a query from the user for the planner
     def query(self, start, goal):
         # ensure valid start and goal states
-        start_robot = Robot(start, [1] * self.num_dimensions)
-        goal_robot = Robot(goal, [1] * self.num_dimensions)
+        start_robot = Robot(start, self.link_lengths)
+        goal_robot = Robot(goal, self.link_lengths)
         if start_robot.check_collision(self.obstacles) or goal_robot.check_collision(self.obstacles):
             print("start or goal is in collision")
             return None
@@ -200,6 +225,7 @@ class PRM:
                         self.visited_from[state] = current
                         visited_states.add(state)
                         queue.append(state)
+        print("no path found with given resolution and goal points. change the resolution, neighbors, or start and goal points and try gain.")
         return False
 
 
@@ -228,7 +254,7 @@ class PRM:
         
         # save axis limits
         for i in range(len(path)):
-            robot = Robot(path[i], [1] * self.num_dimensions)
+            robot = Robot(path[i], self.link_lengths)
             points = robot.get_points()
             for point in points:
                 if point[0] > xmax:
@@ -240,29 +266,37 @@ class PRM:
                 if point[1] < ymin:
                     ymin = point[1]
         
-        # fill path with points between each configuration in the path
-        smoothed_path.append(path[0]) # add the initial point
-        step_size = 0.01
-        # for each point
-        for i in range(len(path) - 2):
+        smoothed_path.append(path[0])  # add the initial point
+
+        # for each point in the path
+        for i in range(len(path) - 1):
             dif = []
-            # get the differences between the it and the next point
-            for j in range((self.num_dimensions)): 
-                dif.append(path[i+1][j] - path[i][j])
+
+            # get the absolute differences between the current and the next point
+            for j in range(self.num_dimensions):
+                difference = path[i+1][j] - path[i][j]
+
+                # Adjust the difference considering the sign and magnitude
+                adjusted_difference = np.where(np.abs(difference) > np.pi, np.sign(difference) * (2 * np.pi - np.abs(difference)), difference)
+
+                dif.append(adjusted_difference)
+
             # get the number of steps to take
-            num_steps = int(max(dif) / self.step_size)
-            # reset num steps if it is just 1
-            if num_steps == 0:
-                num_steps = 1
+            num_steps = 10
+
             # for each step
-            for j in range(num_steps+1):
+            for j in range(int(num_steps)):  # start from 1 to avoid adding duplicate points
                 # get the interpolated sample
                 interpolated_sample = []
-                for k in range(self.num_dimensions):
-                    interpolated_sample.append(path[i][k] + dif[k] * j / num_steps)
 
-        smoothed_path.append(path[-1]) # add the final point
-            
+                for k in range(self.num_dimensions):
+                    # interpolate each dimension using a consistent step size
+                    interpolated_sample.append(path[i][k] + (dif[k] / num_steps * j))
+
+                smoothed_path.append(interpolated_sample)
+
+        # add the final point
+        smoothed_path.append(path[-1])
 
 
         def update(frame):
@@ -277,12 +311,35 @@ class PRM:
             for obstacle in self.obstacles:
                 plt.plot(*obstacle.exterior.xy, color='black', linewidth=2, linestyle='-', alpha=0.5)
 
+            # draw the start and goal locations in red and green, respectively 
+            startbot = Robot(path[0], self.link_lengths)
+            endbot = Robot(path[-1], self.link_lengths)
+            start_and_end = [startbot, endbot]
+            colors = ['red', 'green']
+            for j in range(2):
+                # for each robot arm link
+                points = start_and_end[j].get_points()
+                for i in range(len(points)-1):
+                    # get the length and base angle of that link
+                    start_point = points[i]
+                    end_point = points[i+1]
+
+                    # plot a line from start_point to end_point
+                    plt.plot([start_point[0], end_point[0]], [start_point[1], end_point[1]], linewidth=2, marker='o', color=colors[j], alpha=0.5)
+
             # Draw robot arm
-            robot = Robot(smoothed_path[frame], [1] * self.num_dimensions)
+            robot = Robot(smoothed_path[frame], self.link_lengths)
             points = robot.get_points()
 
-            for i in range(len(points) - 1):
-                plt.plot([points[i][0], points[i + 1][0]], [points[i][1], points[i + 1][1]], marker='o', color='blue')
+            # for each robot arm link
+            for i in range(len(points)-1):
+                # get the length and base angle of that link
+                start_point = points[i]
+                end_point = points[i+1]
+
+                # plot a line from start_point to end_point
+                plt.plot([start_point[0], end_point[0]], [start_point[1], end_point[1]], linewidth=2, marker='o')
+
 
             plt.title('Robot Arm Movement')
             plt.xlabel('X-axis')
@@ -291,7 +348,7 @@ class PRM:
             # Return the iterable of Artists (in this case, an empty list)
             return []
 
-        ani = FuncAnimation(fig, update, frames=len(smoothed_path), interval=500, repeat=True)
+        ani = FuncAnimation(fig, update, frames=len(smoothed_path), interval=50, repeat=True)
         plt.show()
 
 
@@ -317,16 +374,31 @@ def get_distance(sample1, sample2):
 if __name__ == "__main__":
     # make some obstacles
     obstacles = []
-    obstacles.append(Polygon([(0.5, 1.2), (0.5, 1.7), (0.3, 1.7), (0.3, 1.2)]))
-    robot = Robot([0, 0], [1] * 2)
-    obstacles.append(Polygon([(-0.2, -1), (-0.2, -0.5), (-0.5, -0.5), (-0.5, -1)]))
-    # robot.draw_robot_arm(obstacles=obstacles)
+    # Create a square with side length 0.3
+    small_square = Polygon([(-0.15, -0.15), (0.15, -0.15), (0.15, 0.15), (-0.15, 0.15)])
+    # Create a triangle with vertices (-0.15, 0), (0.15, 0), and (0, 0.15)
+    small_triangle = Polygon([(-0.15, 0), (0.15, 0), (0, 0.15)])
+    # Create a circle with radius 0.3
+    small_circle = Point(0, 0).buffer(0.3)
+    # Create a hexagon with side length 0.2
+    small_hexagon = Polygon([
+        (-0.1, -0.2),
+        (0.1, -0.2),
+        (0.2, 0),
+        (0.1, 0.2),
+        (-0.1, 0.2),
+        (-0.2, 0)
+    ])
+    square1 = Polygon([(0.5, 1.2), (0.5, 1.7), (0.3, 1.7), (0.3, 1.2)])
+    square2 = Polygon([(-0.2, -1), (-0.2, -0.5), (-0.5, -0.5), (-0.5, -1)])
 
-    motion_planner = PRM(samples_per_dimension=30, num_neighbors=10, num_dimensions=2, obstacles=obstacles)
+    # TODO: CHOOSE YOUR ARRAY OF POLYGONS HERE
+    # Adjust the other parameters as needed: Keep dimensions to 2 if you want to be able to graph and view the animation. 
+    # Remember, if you change the dimensionality, link lenghts need to be adjusted accordingly. 
+    motion_planner = PRM(samples_per_dimension=40, num_neighbors=10, num_dimensions=2,link_lengths=[1, 0.5], obstacles=obstacles)
     motion_planner.build_graph()
-    motion_planner.graph()
     path = motion_planner.query((0.5, 0.5), (3, 5))
     print("Path: " + str(path))
     # motion_planner.graph(path=path)
-    motion_planner.animate_robot_movement(path)
+    if path: motion_planner.animate_robot_movement(path)
 

@@ -280,6 +280,126 @@ High Resolution (these are different obstacles of course):
 
 ## Extra Credit Animation Testing:
 
+I used this system a lot to test the different configurations and make them work. 2D configurations are by far the easiest to test since you can choose a start and end in the configuration space that will work well with the obstacles. I did this with a few different sets of polygons, which you can find in the main method of the `PRM` class. Below is an explanation of the original implementation and the animation upgrades. 
+
 Originally, I had just viewed the graph using the `def graph(self, path=None)` function, but I decided to make an animation of the robot moving along the path. I did this by creating a function `def animate_path(self, path)` that takes a path as input, and then iterates through the path, drawing the robot at each configuration. I then used the `matplotlib.animation` library to animate the robot moving along the path.
 
-I also implemented a few advancements that smooth the path, while, also allowing the user to see which vertex points were met along the way. 
+I originally did this by using the matplotlib animation feature, and I wrote the function `def animate_robot_movement` to view each step in the path sequentially, ensuring that the arm could manouver its way through obstacles. These obstacle sets are hard coded into the main function of `PRM.py`, and you can use them to test the PRM. 
+
+On top of this, I also implemented a few advancements that smooth the path, while, also allowing the user to see which vertex points were met along the way. This was a little annoying to do, when adapting for the number of dimensions and the different step start and end positions and therefore step sizes. I did this by iterating through each of the points in the path and finding the distance in the configuration space between that point and the next point in the path. 
+
+I then divide this difference into small amounts, incrementally adding it to each of the values for the given configuration to add a bunch of small steps in between each of the path points. This smoothes the path, making the animation appear very fluid. 
+
+This implementation turned out to be surprsingly difficult, due do handling the cases where the arm goes past a full rotation. Crossing this threshold caused a lot of sign errors, and therefore a lot of jumping around in the animation. Here's how I did it:
+
+The main logic for the animation is in `def animate_robot_movement(self, path)`, below. First, I have to iterate through all of the path points to make sure that the graph axes are set appropriately to display all of the configurations along the path to the solution. Then, we create a new list to store the smoothed path. To fill this list, we iterate through the points in the path, find the difference between each consecutive pair, divide that difference into small steps, and then add those steps to the smoothed path in between the two points, giving it a smooth animation effect. 
+
+Below is the code I wrote for this implementation: 
+```Python
+def animate_robot_movement(self, path):
+        fig, ax = plt.subplots()
+        smoothed_path = []
+
+        # get each robot's points and save them 
+        xmax, ymax = 0, 0
+        xmin, ymin = 0, 0
+        
+        # save axis limits
+        for i in range(len(path)):
+            robot = Robot(path[i], [1] * self.num_dimensions)
+            points = robot.get_points()
+            for point in points:
+                if point[0] > xmax:
+                    xmax = point[0]
+                if point[1] > ymax:
+                    ymax = point[1]
+                if point[0] < xmin:
+                    xmin = point[0]
+                if point[1] < ymin:
+                    ymin = point[1]
+        
+        smoothed_path.append(path[0])  # add the initial point
+
+        # for each point in the path
+        for i in range(len(path) - 1):
+            dif = []
+
+            # get the absolute differences between the current and the next point
+            for j in range(self.num_dimensions):
+                difference = path[i+1][j] - path[i][j]
+
+                # Adjust the difference considering the sign and magnitude
+                adjusted_difference = np.where(np.abs(difference) > np.pi, np.sign(difference) * (2 * np.pi - np.abs(difference)), difference)
+
+                dif.append(adjusted_difference)
+
+            # get the number of steps to take
+            num_steps = 10
+
+            # for each step
+            for j in range(int(num_steps)):  # start from 1 to avoid adding duplicate points
+                # get the interpolated sample
+                interpolated_sample = []
+
+                for k in range(self.num_dimensions):
+                    # interpolate each dimension using a consistent step size
+                    interpolated_sample.append(path[i][k] + (dif[k] / num_steps * j))
+
+                smoothed_path.append(interpolated_sample)
+
+        # add the final point
+        smoothed_path.append(path[-1])
+```
+After this smooothed path is created, we draw it in matplotlib. This is stored in the `update` function, which is pretty long and boring, so I won't include it here. Its funciton is to draw the start and end locations in light green and red, draw the obstacles, and then draw the robot in its current location in each step. The result looks pretty good-- to run it, just run `PRM.py`. 
+
+Here's a screenshot in progress: (open the report.md in preview mode in your editor to see this image. Alternatively, just look in the screenshots folder). 
+
+![Alt text](screenshots/animation_progress.png)
+
+
+## Extra Credit- Literature Review: 
+
+Study on an improved method for path planning of robot manipulators based on PRM [here](https://www.mdpi.com/1424-8220/23/7/3512).
+
+This study investigated the use of an improved PRM algorithm to find a path for a robot manipulator. The method was used for mobile rboots that need a high success rate, fast planning, a shortest path, and good dynamic obstacle avoidance. Although the k-PRM we implemented in this project does a good job at finding a shortest path, has fast planning, and a high success rate, it does not do a good job at dynamic obstacle avoidance. This study investigated the use of a new method to improve the PRM algorithm to better handle dynamic obstacles using the D* algorithm, which is a dynamic path planning algorithm. 
+
+I didnt' get too deep in the workings of the D* algorithm, but I learned that this ultimately allows the planner to avoid excessive sampling in the configuration space, improving efficiency. This is because the algorithm allows the planner to avoid small obstacles in real time, reducing the need for higher sampling resolutions. 
+
+I noticed this in my project-- a pretty high sampling resolution was needed to actually avoid all of the obstacles in the physical space, becuase even with interpolation, it was pretty easy to end up with edges that skipped an invalid configuration. 
+
+The study then tested the performance of the mobile robot in a maze using the different sampling points. The results showed that the improved PRM algorithm was able to find a path in a shorter time, and with a higher success rate, however, this advantage decreases as the number of samples increases. Thus, at a higher number of samples, the two algorithms are the same. However, the PRM-D* algorithm allowed for a much lower amount of samples to maintain the same success rate, improving efficiency. 
+
+![Alt text](screenshots/prmvsprmd.png)
+
+## Extra Credit- Nearest Neighbors: 
+
+When building the graph in the PRM, we need to find the nearest neighbors to each vertex. This is done by finding the euclidean distance between each vertex and each other vertex, and then finding the k nearest neighbors. This is done in the `def get_sample_distances(self)` function, as described above. 
+
+In the original implementation, I just use the list of all the samples to construct a dictionary that associates the sample with its distance to each other sample. Then, I use the Python `sorted()` method to return the list of these keys (which are samples in the configuration space), ordered by their distance to the given sample. This is pretty fast- the python sampling method is pretty good, and under this implementation, I was able to run a few thousand samples on the configuration space in just a few seconds. 
+
+However, I did use scikit-learn's nearest-neighbors method, which allegedly allows for much faster retrieval of these neighbors. I did this in the `def get_nearest_neighbors` function instead of the `get_sample_distances` function, which allowed me to separate the logic. I made it work after some debugging, but this implementation ultimately was much slower than my original. Here's how I did it: 
+
+```Python
+    def get_nearest_neighbors(self, sample):
+        samples_array = np.array(self.samples)
+
+        # Create a NearestNeighbors object (using the library)
+        nn = NearestNeighbors(n_neighbors=len(self.samples), algorithm='auto', metric='euclidean')
+        nn.fit(samples_array)
+
+        # Find the indices of the nearest neighbors and their distances
+        indices = nn.kneighbors(samples_array)
+
+        # Convert the indices and distances to lists
+        sorted_keys = indices[0].tolist()
+
+        # Remove the index of the sample itself (if it's in the list)
+        if sample in self.samples:
+            sample_index = self.samples.index(sample)
+            if sample_index in sorted_keys:
+                sorted_keys.remove(sample_index)
+
+        return sorted_keys
+```
+
+I suspect that it is a lot slower because it works with numpy arrays rather than a list. Therefore, at each call to the function, I have to convert the entire list of samples to a numpy array, and then convert the indices back to a list. This is a lot of overhead, and I suspect that this is why it is slower.
